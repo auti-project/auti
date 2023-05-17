@@ -5,9 +5,24 @@ import (
 	"math/big"
 
 	"go.dedis.ch/kyber/v3"
+	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
-var maxAmountByteLen = kyberSuite.Point().EmbedLen()
+var (
+	kyberSuite       = edwards25519.NewBlakeSHA256Ed25519()
+	maxAmountByteLen = kyberSuite.Point().EmbedLen()
+)
+
+func KeyGen() (privateKey kyber.Scalar, publicKey kyber.Point, err error) {
+	privateKey = kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
+	publicKey = kyberSuite.Point().Mul(privateKey, nil)
+	return
+}
+
+type KeyPair struct {
+	PrivateKey kyber.Scalar
+	PublicKey  kyber.Point
+}
 
 type CipherText struct {
 	C1 kyber.Point
