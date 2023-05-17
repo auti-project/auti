@@ -1,16 +1,13 @@
 package core
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
+	"fmt"
 	"math/big"
 
 	"go.dedis.ch/kyber/v3"
-	"go.dedis.ch/kyber/v3/group/edwards25519"
-)
-
-var (
-	kyberSuite       = edwards25519.NewBlakeSHA256Ed25519()
-	maxAmountByteLen = kyberSuite.Point().EmbedLen()
 )
 
 func KeyGen() (privateKey kyber.Scalar, publicKey kyber.Point, err error) {
@@ -29,12 +26,16 @@ type CipherText struct {
 	C2 kyber.Point
 }
 
-func Encrypt(publicKey kyber.Point, amount *big.Int) (*CipherText, error) {
+func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
 	// Embed the amount into a curve point
-	amountPoint := kyberSuite.Point().Embed(amount.Bytes(), kyberSuite.RandomStream())
-	if maxAmountByteLen < len(amount.Bytes()) {
+	amountBytes, err := int64ToBytes(amount)
+	if err != nil {
+		return nil, err
+	}
+	if maxAmountByteLen < len(amountBytes) {
 		return nil, errors.New("amount is too large")
 	}
+	amountPoint := kyberSuite.Point().Embed(amountBytes, kyberSuite.RandomStream())
 	randomScalar := kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
 	c1 := kyberSuite.Point().Mul(randomScalar, nil)
 	c2 := kyberSuite.Point().Add(amountPoint, kyberSuite.Point().Mul(randomScalar, publicKey))
@@ -50,4 +51,13 @@ func Decrypt(privateKey kyber.Scalar, cipherText *CipherText) (*big.Int, error) 
 		return nil, err
 	}
 	return new(big.Int).SetBytes(amountBytes), nil
+}
+
+func int64ToBytes(i int64) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.BigEndian, i)
+	if err != nil {
+		return nil, fmt.Errorf("int64ToBytes: %v", err)
+	}
+	return buf.Bytes(), nil
 }
