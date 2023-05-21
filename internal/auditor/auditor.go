@@ -1,4 +1,4 @@
-package _auditor
+package auditor
 
 import (
 	"math/big"
