@@ -40,3 +40,7 @@ func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]organization.TypeID][]*b
 func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[organization.TypeID]crypto.TypeSecretKey) {
 	a.epochOrgSecretKeyMap = orgSecretKeyMap
 }
+
+func (a *Auditor) SetEpochID(id *big.Int) {
+	a.epochID = id
+}

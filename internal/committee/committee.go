@@ -42,7 +42,9 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 }
 
 // InitializeEpoch initialize the parameters for an auditing epoch
-func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) (map[organization.TypeID]crypto.TypePublicKey, error) {
+func (c *Committee) InitializeEpoch(
+	auditors []*auditor.Auditor, organizations []*organization.Organization,
+) (map[organization.TypeID]crypto.TypePublicKey, error) {
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
 	// note that r_{i, j, k} = r_{j, i, k}, and R_{i, j} = {r_{i, j, k}}_k
 	if err := c.generateEpochTXRandomness(); err != nil {
@@ -72,7 +74,14 @@ func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) (map[organizati
 	// IN.5: forward the transaction randomnesses,auditor randomnesses and secret keys to the auditors
 	// We need to forward: {r_{i, j, k}}, {r_z}, and {sk_i}
 	for _, aud := range auditors {
-		err := c.ForwardEpochParameters(aud)
+		err := c.ForwardEpochAuditorParameters(aud)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// IN.5 (the missing step): forward the epoch random IDs to the organizations
+	for _, org := range organizations {
+		err := c.ForwardEpochOrgParameters(org)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +162,7 @@ func (c *Committee) PublishPublicKeys() map[organization.TypeID]kyber.Point {
 	return publicKeyMap
 }
 
-func (c *Committee) ForwardEpochParameters(auditor *auditor.Auditor) error {
+func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) error {
 	auditedOrgIDList, ok := c.managedEntityMap[auditor.ID]
 	if !ok {
 		return errors.New(string("auditor not found, id: " + auditor.ID))
@@ -162,7 +171,6 @@ func (c *Committee) ForwardEpochParameters(auditor *auditor.Auditor) error {
 	orgTXRandMap := make(map[[2]organization.TypeID][]*big.Int)
 	auditedOrgSecretKeyMap := make(map[organization.TypeID]crypto.TypeSecretKey)
 	for _, orgID1 := range auditedOrgIDList {
-		// check if both the organizations in the pair are audited by the auditor
 		for _, orgID2 := range c.managedOrgIDs {
 			if orgID1 == orgID2 {
 				continue
@@ -189,6 +197,13 @@ func (c *Committee) ForwardEpochParameters(auditor *auditor.Auditor) error {
 		return errors.New(string("auditor randomness not found, id: " + auditor.ID))
 	}
 	auditor.SetEpochRandomness(epochAuditorRand)
+
+	// set the epoch ID
+	epochID, ok := c.epochAuditorIDMap[auditor.ID]
+	if !ok {
+		return errors.New(string("epoch ID not found, id: " + auditor.ID))
+	}
+	auditor.SetEpochID(epochID)
 	return nil
 }
 
@@ -213,5 +228,13 @@ func (c *Committee) generateEpochAuditorRandIDs() error {
 		}
 		c.epochAuditorIDMap[id] = randInt
 	}
+	return nil
+}
+
+func (c *Committee) ForwardEpochOrgParameters(org *organization.Organization) error {
+	if _, ok := c.epochOrgIDMap[org.ID]; !ok {
+		return errors.New(string("organization not found, id: " + org.ID))
+	}
+	org.SetEpochID(c.epochOrgIDMap[org.ID])
 	return nil
 }
