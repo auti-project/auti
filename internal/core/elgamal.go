@@ -5,20 +5,22 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"math/big"
 
 	"go.dedis.ch/kyber/v3"
 )
 
-func KeyGen() (privateKey kyber.Scalar, publicKey kyber.Point, err error) {
+type TypePublicKey kyber.Point
+type TypeSecretKey kyber.Scalar
+
+func KeyGen() (privateKey TypeSecretKey, publicKey TypePublicKey, err error) {
 	privateKey = kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
 	publicKey = kyberSuite.Point().Mul(privateKey, nil)
 	return
 }
 
 type KeyPair struct {
-	PrivateKey kyber.Scalar
-	PublicKey  kyber.Point
+	PrivateKey TypeSecretKey
+	PublicKey  TypePublicKey
 }
 
 type CipherText struct {
@@ -42,15 +44,15 @@ func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
 	return &CipherText{c1, c2}, nil
 }
 
-func Decrypt(privateKey kyber.Scalar, cipherText *CipherText) (*big.Int, error) {
+func Decrypt(privateKey kyber.Scalar, cipherText *CipherText) (int64, error) {
 	amountPoint := kyberSuite.Point().Mul(privateKey, cipherText.C1)
 	amountPoint.Neg(amountPoint)
 	amountPoint.Add(amountPoint, cipherText.C2)
 	amountBytes, err := amountPoint.Data()
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	return new(big.Int).SetBytes(amountBytes), nil
+	return bytesToInt64(amountBytes)
 }
 
 func int64ToBytes(i int64) ([]byte, error) {
@@ -60,4 +62,14 @@ func int64ToBytes(i int64) ([]byte, error) {
 		return nil, fmt.Errorf("int64ToBytes: %v", err)
 	}
 	return buf.Bytes(), nil
+}
+
+func bytesToInt64(b []byte) (int64, error) {
+	buf := bytes.NewReader(b)
+	var i int64
+	err := binary.Read(buf, binary.BigEndian, &i)
+	if err != nil {
+		return 0, fmt.Errorf("bytesToInt64: %v", err)
+	}
+	return i, nil
 }

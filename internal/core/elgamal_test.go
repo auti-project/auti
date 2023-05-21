@@ -1,29 +1,28 @@
 package core
 
 import (
-	"math/big"
 	"testing"
 )
 
 func TestDecrypt(t *testing.T) {
 	tests := []struct {
 		name    string
-		amount  *big.Int
+		amount  int64
 		wantErr bool
 	}{
 		{
 			name:    "test_1",
-			amount:  big.NewInt(1),
+			amount:  1,
 			wantErr: false,
 		},
 		{
 			name:    "test_11",
-			amount:  big.NewInt(11),
+			amount:  11,
 			wantErr: false,
 		},
 		{
 			name:    "test_123123123123",
-			amount:  big.NewInt(123123123123),
+			amount:  123123123123,
 			wantErr: false,
 		},
 	}
@@ -40,13 +39,13 @@ func TestDecrypt(t *testing.T) {
 				t.Errorf("Encrypt() error = %v", err)
 				return
 			}
-			var plainText *big.Int
+			var plainText int64
 			plainText, err = Decrypt(privateKey, cipherText)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Decrypt() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if plainText.Cmp(tt.amount) != 0 {
+			if plainText != tt.amount {
 				t.Errorf("Decrypt() plainText = %v, amount %v", plainText, tt.amount)
 			}
 		})

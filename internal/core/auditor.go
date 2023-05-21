@@ -2,24 +2,24 @@ package core
 
 import (
 	"math/big"
-
-	"go.dedis.ch/kyber/v3"
 )
 
+type AuditorID string
+
 type Auditor struct {
-	ID              string
-	auditedOrgIDs   []string
-	epochRand       *big.Int
-	epochOrgRandMap map[[2]string][]*big.Int
-	epochID         *big.Int
-	epochSecretKey  kyber.Scalar
+	ID                   AuditorID
+	auditedOrgIDs        []OrgID
+	epochRand            *big.Int
+	epochOrgRandMap      map[[2]OrgID][]*big.Int
+	epochID              *big.Int
+	epochOrgSecretKeyMap map[OrgID]TypeSecretKey
 }
 
 func NewAuditor(id string, organizations []*Organization) *Auditor {
 	auditor := &Auditor{
-		ID: id,
+		ID: AuditorID(id),
 	}
-	auditor.auditedOrgIDs = make([]string, len(organizations))
+	auditor.auditedOrgIDs = make([]OrgID, len(organizations))
 	for idx, org := range organizations {
 		auditor.auditedOrgIDs[idx] = org.ID
 	}
@@ -30,10 +30,10 @@ func (a *Auditor) SetEpochRandomness(random *big.Int) {
 	a.epochRand = random
 }
 
-func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]*big.Int) {
+func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]OrgID][]*big.Int) {
 	a.epochOrgRandMap = txRandMap
 }
 
-func (a *Auditor) SetEpochSecretKey(secretKey kyber.Scalar) {
-	a.epochSecretKey = secretKey
+func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[OrgID]TypeSecretKey) {
+	a.epochOrgSecretKeyMap = orgSecretKeyMap
 }
