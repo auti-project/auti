@@ -31,10 +31,10 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
 	}
 	committee.managedAuditorIDs = make([]auditor.TypeID, len(auditors))
-	for idx, auditor := range auditors {
-		committee.managedEntityMap[auditor.ID] = auditor.AuditedOrgIDs
-		committee.managedAuditorIDs[idx] = auditor.ID
-		for _, org := range auditor.AuditedOrgIDs {
+	for idx, aud := range auditors {
+		committee.managedEntityMap[aud.ID] = aud.AuditedOrgIDs
+		committee.managedAuditorIDs[idx] = aud.ID
+		for _, org := range aud.AuditedOrgIDs {
 			committee.managedOrgIDs = append(committee.managedOrgIDs, org)
 		}
 	}
@@ -71,8 +71,8 @@ func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) (map[organizati
 
 	// IN.5: forward the transaction randomnesses,auditor randomnesses and secret keys to the auditors
 	// We need to forward: {r_{i, j, k}}, {r_z}, and {sk_i}
-	for _, auditor := range auditors {
-		err := c.ForwardEpochParameters(auditor)
+	for _, aud := range auditors {
+		err := c.ForwardEpochParameters(aud)
 		if err != nil {
 			return nil, err
 		}
