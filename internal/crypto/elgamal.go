@@ -1,4 +1,4 @@
-package core
+package crypto
 
 import (
 	"bytes"
@@ -7,6 +7,17 @@ import (
 	"fmt"
 
 	"go.dedis.ch/kyber/v3"
+	"go.dedis.ch/kyber/v3/group/edwards25519"
+)
+
+var (
+	kyberSuite       = edwards25519.NewBlakeSHA256Ed25519()
+	maxAmountByteLen = kyberSuite.Point().EmbedLen()
+	pointG           = kyberSuite.Point().Base()
+	hScalarBytes     = []byte{88, 110, 203, 46, 52, 29, 230, 201, 240, 164, 50, 0, 116, 207, 45, 187, 223, 113, 166, 40,
+		12, 27, 15, 50, 235, 140, 55, 192, 37, 22, 130, 239}
+	hScalar = kyberSuite.Scalar().SetBytes(hScalarBytes)
+	pointH  = kyberSuite.Point().Base().Mul(hScalar, nil)
 )
 
 type TypePublicKey kyber.Point

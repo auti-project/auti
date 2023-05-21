@@ -1,12 +1,19 @@
-package core
+package crypto
 
 import (
 	"crypto/rand"
 	"math/big"
+
+	"github.com/auti-project/auti/internal/constants"
+)
+
+var (
+	big1  = big.NewInt(1)
+	limit = new(big.Int).Lsh(big1, constants.SecurityParameter)
 )
 
 func RandInt() (*big.Int, error) {
-	return rand.Int(rand.Reader, RandIntLimit)
+	return rand.Int(rand.Reader, limit)
 }
 
 func RandIntList(size uint) ([]*big.Int, error) {

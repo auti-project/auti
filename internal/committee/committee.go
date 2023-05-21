@@ -1,36 +1,40 @@
-package core
+package committee
 
 import (
 	"errors"
 	"math/big"
 
+	"github.com/auti-project/auti/internal/ auditor"
+	"github.com/auti-project/auti/internal/constants"
+	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/organization"
 	"go.dedis.ch/kyber/v3"
 )
 
-type CommitteeID string
+type typeID string
 
 type Committee struct {
-	ID                  CommitteeID
-	managedEntityMap    map[AuditorID][]OrgID
-	managedAuditorIDs   []AuditorID
-	managedOrgIDs       []OrgID
-	epochTXRandMap      map[[2]OrgID][]*big.Int
-	epochAuditorRandMap map[AuditorID]*big.Int
-	epochKeyPairMap     map[OrgID]*KeyPair
-	epochOrgIDMap       map[OrgID]*big.Int
-	epochAuditorIDMap   map[AuditorID]*big.Int
+	ID                  typeID
+	managedEntityMap    map[_auditor.TypeID][]organization.TypeID
+	managedAuditorIDs   []_auditor.TypeID
+	managedOrgIDs       []organization.TypeID
+	epochTXRandMap      map[[2]organization.TypeID][]*big.Int
+	epochAuditorRandMap map[_auditor.TypeID]*big.Int
+	epochKeyPairMap     map[organization.TypeID]*crypto.KeyPair
+	epochOrgIDMap       map[organization.TypeID]*big.Int
+	epochAuditorIDMap   map[_auditor.TypeID]*big.Int
 }
 
-func NewCommittee(id string, auditors []*Auditor) *Committee {
+func New(id string, auditors []*_auditor.Auditor) *Committee {
 	committee := &Committee{
-		ID:               CommitteeID(id),
-		managedEntityMap: make(map[AuditorID][]OrgID),
+		ID:               typeID(id),
+		managedEntityMap: make(map[_auditor.TypeID][]organization.TypeID),
 	}
-	committee.managedAuditorIDs = make([]AuditorID, len(auditors))
+	committee.managedAuditorIDs = make([]_auditor.TypeID, len(auditors))
 	for idx, auditor := range auditors {
-		committee.managedEntityMap[auditor.ID] = auditor.auditedOrgIDs
+		committee.managedEntityMap[auditor.ID] = auditor.AuditedOrgIDs
 		committee.managedAuditorIDs[idx] = auditor.ID
-		for _, org := range auditor.auditedOrgIDs {
+		for _, org := range auditor.AuditedOrgIDs {
 			committee.managedOrgIDs = append(committee.managedOrgIDs, org)
 		}
 	}
@@ -38,16 +42,7 @@ func NewCommittee(id string, auditors []*Auditor) *Committee {
 }
 
 // InitializeEpoch initialize the parameters for an auditing epoch
-func (c *Committee) InitializeEpoch(
-	auditors []*Auditor, organizations []*Organization,
-) (map[OrgID]TypePublicKey, error) {
-	// randomness generation
-	// secret-key, public-key generation
-	// publish public-key
-	// distribute randomness, secret-key to auditors
-	// generate ID for each organization
-	// generate ID for each auditor
-
+func (c *Committee) InitializeEpoch(auditors []*_auditor.Auditor) (map[organization.TypeID]crypto.TypePublicKey, error) {
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
 	// note that r_{i, j, k} = r_{j, i, k}, and R_{i, j} = {r_{i, j, k}}_k
 	if err := c.generateEpochTXRandomness(); err != nil {
@@ -83,9 +78,10 @@ func (c *Committee) InitializeEpoch(
 		}
 	}
 
-	orgPublicKeyMap := make(map[OrgID]TypePublicKey)
-	for _, org := range organizations {
-		orgPublicKeyMap[org.ID] = c.epochKeyPairMap[org.ID].PublicKey
+	// IN.4
+	orgPublicKeyMap := make(map[organization.TypeID]crypto.TypePublicKey)
+	for _, orgID := range c.managedOrgIDs {
+		orgPublicKeyMap[orgID] = c.epochKeyPairMap[orgID].PublicKey
 	}
 	return orgPublicKeyMap, nil
 }
@@ -94,7 +90,7 @@ func (c *Committee) generateEpochTXRandomness() error {
 	// generate randomness for the transactions
 	// distribute randomness to organizations
 	// the complexity is O(n^2) here
-	c.epochTXRandMap = make(map[[2]OrgID][]*big.Int)
+	c.epochTXRandMap = make(map[[2]organization.TypeID][]*big.Int)
 	for i := 0; i < len(c.managedOrgIDs); i++ {
 		for j := i + 1; j < len(c.managedOrgIDs); j++ {
 			orgID1 := c.managedOrgIDs[i]
@@ -103,7 +99,7 @@ func (c *Committee) generateEpochTXRandomness() error {
 			if _, ok := c.epochTXRandMap[key]; ok {
 				continue
 			}
-			randList, err := RandIntList(MaxNumTXInEpoch)
+			randList, err := crypto.RandIntList(constants.MaxNumTXInEpoch)
 			if err != nil {
 				return err
 			}
@@ -113,19 +109,19 @@ func (c *Committee) generateEpochTXRandomness() error {
 	return nil
 }
 
-func composeOrgRandMapKey(orgID1, orgID2 OrgID) [2]OrgID {
+func composeOrgRandMapKey(orgID1, orgID2 organization.TypeID) [2]organization.TypeID {
 	if orgID1 < orgID2 {
-		return [2]OrgID{orgID1, orgID2}
+		return [2]organization.TypeID{orgID1, orgID2}
 	}
-	return [2]OrgID{orgID2, orgID1}
+	return [2]organization.TypeID{orgID2, orgID1}
 }
 
 func (c *Committee) generateEpochAuditorRandomness() error {
 	// generate randomness for auditors
 	// distribute randomness to auditors
-	c.epochAuditorIDMap = make(map[AuditorID]*big.Int)
+	c.epochAuditorIDMap = make(map[_auditor.TypeID]*big.Int)
 	for _, id := range c.managedAuditorIDs {
-		randInt, err := RandInt()
+		randInt, err := crypto.RandInt()
 		if err != nil {
 			return err
 		}
@@ -135,13 +131,13 @@ func (c *Committee) generateEpochAuditorRandomness() error {
 }
 
 func (c *Committee) generateEpochKeyPairs() error {
-	c.epochKeyPairMap = make(map[OrgID]*KeyPair)
+	c.epochKeyPairMap = make(map[organization.TypeID]*crypto.KeyPair)
 	for _, id := range c.managedOrgIDs {
-		privateKey, publicKey, err := KeyGen()
+		privateKey, publicKey, err := crypto.KeyGen()
 		if err != nil {
 			return err
 		}
-		c.epochKeyPairMap[id] = &KeyPair{
+		c.epochKeyPairMap[id] = &crypto.KeyPair{
 			PrivateKey: privateKey,
 			PublicKey:  publicKey,
 		}
@@ -149,22 +145,22 @@ func (c *Committee) generateEpochKeyPairs() error {
 	return nil
 }
 
-func (c *Committee) PublishPublicKeys() map[OrgID]kyber.Point {
-	publicKeyMap := make(map[OrgID]kyber.Point)
+func (c *Committee) PublishPublicKeys() map[organization.TypeID]kyber.Point {
+	publicKeyMap := make(map[organization.TypeID]kyber.Point)
 	for _, id := range c.managedOrgIDs {
 		publicKeyMap[id] = c.epochKeyPairMap[id].PublicKey
 	}
 	return publicKeyMap
 }
 
-func (c *Committee) ForwardEpochParameters(auditor *Auditor) error {
+func (c *Committee) ForwardEpochParameters(auditor *_auditor.Auditor) error {
 	auditedOrgIDList, ok := c.managedEntityMap[auditor.ID]
 	if !ok {
 		return errors.New(string("auditor not found, id: " + auditor.ID))
 	}
 	// forward transaction randomnesses, and at the meantime, forward the secret keys
-	orgTXRandMap := make(map[[2]OrgID][]*big.Int)
-	auditedOrgSecretKeyMap := make(map[OrgID]TypeSecretKey)
+	orgTXRandMap := make(map[[2]organization.TypeID][]*big.Int)
+	auditedOrgSecretKeyMap := make(map[organization.TypeID]crypto.TypeSecretKey)
 	for _, orgID1 := range auditedOrgIDList {
 		// check if both the organizations in the pair are audited by the auditor
 		for _, orgID2 := range c.managedOrgIDs {
@@ -197,9 +193,9 @@ func (c *Committee) ForwardEpochParameters(auditor *Auditor) error {
 }
 
 func (c *Committee) generateEpochOrgRandIDs() error {
-	c.epochOrgIDMap = make(map[OrgID]*big.Int)
+	c.epochOrgIDMap = make(map[organization.TypeID]*big.Int)
 	for _, id := range c.managedOrgIDs {
-		randInt, err := RandInt()
+		randInt, err := crypto.RandInt()
 		if err != nil {
 			return err
 		}
@@ -209,9 +205,9 @@ func (c *Committee) generateEpochOrgRandIDs() error {
 }
 
 func (c *Committee) generateEpochAuditorRandIDs() error {
-	c.epochAuditorIDMap = make(map[AuditorID]*big.Int)
+	c.epochAuditorIDMap = make(map[_auditor.TypeID]*big.Int)
 	for _, id := range c.managedAuditorIDs {
-		randInt, err := RandInt()
+		randInt, err := crypto.RandInt()
 		if err != nil {
 			return err
 		}
