@@ -4,10 +4,10 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/auti-project/auti/core/auditor"
-	"github.com/auti-project/auti/core/constants"
-	"github.com/auti-project/auti/core/crypto"
-	"github.com/auti-project/auti/core/organization"
+	"github.com/auti-project/auti/internal/auditor"
+	"github.com/auti-project/auti/internal/constants"
+	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/organization"
 	"go.dedis.ch/kyber/v3"
 )
 

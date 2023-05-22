@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auti-project/auti/core/auditor"
-	"github.com/auti-project/auti/core/committee"
-	"github.com/auti-project/auti/core/organization"
+	"github.com/auti-project/auti/internal/auditor"
+	"github.com/auti-project/auti/internal/committee"
+	"github.com/auti-project/auti/internal/organization"
 )
 
 func generateEntities(numOrganizations int) (*committee.Committee, []*auditor.Auditor, []*organization.Organization) {

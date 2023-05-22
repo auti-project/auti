@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"github.com/auti-project/auti/core/constants"
+	"github.com/auti-project/auti/internal/constants"
 )
 
 var (

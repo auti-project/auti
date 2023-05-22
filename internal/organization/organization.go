@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"math/big"
 
-	"github.com/auti-project/auti/core/crypto"
-	"github.com/auti-project/auti/core/transaction"
+	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/transaction"
 )
 
 type TypeID string
