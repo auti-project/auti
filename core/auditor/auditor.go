@@ -3,8 +3,8 @@ package auditor
 import (
 	"math/big"
 
-	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
+	"github.com/auti-project/auti/core/crypto"
+	"github.com/auti-project/auti/core/organization"
 )
 
 type TypeID string
