@@ -42,4 +42,5 @@ func benchCLOLCInitializeEpoch(numOrganizations, iterations int) {
 		avgTime += elapsed
 	}
 	fmt.Println("Average time (ms):", avgTime.Milliseconds()/int64(iterations))
+	fmt.Println()
 }
