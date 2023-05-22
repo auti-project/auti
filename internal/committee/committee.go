@@ -20,7 +20,8 @@ type Committee struct {
 	managedOrgIDs       []organization.TypeID
 	epochTXRandMap      map[[2]organization.TypeID][]*big.Int
 	epochAuditorRandMap map[auditor.TypeID]*big.Int
-	epochKeyPairMap     map[organization.TypeID]*crypto.KeyPair
+	epochSecretKeyMap   map[organization.TypeID]crypto.TypeSecretKey
+	epochPublicKeyMap   map[organization.TypeID]crypto.TypePublicKey
 	epochOrgIDMap       map[organization.TypeID]*big.Int
 	epochAuditorIDMap   map[auditor.TypeID]*big.Int
 }
@@ -45,7 +46,8 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 func (c *Committee) resetMaps() {
 	c.epochTXRandMap = make(map[[2]organization.TypeID][]*big.Int)
 	c.epochAuditorRandMap = make(map[auditor.TypeID]*big.Int)
-	c.epochKeyPairMap = make(map[organization.TypeID]*crypto.KeyPair)
+	c.epochSecretKeyMap = make(map[organization.TypeID]crypto.TypeSecretKey)
+	c.epochPublicKeyMap = make(map[organization.TypeID]crypto.TypePublicKey)
 	c.epochOrgIDMap = make(map[organization.TypeID]*big.Int)
 	c.epochAuditorIDMap = make(map[auditor.TypeID]*big.Int)
 }
@@ -98,11 +100,7 @@ func (c *Committee) InitializeEpoch(
 	}
 
 	// IN.4
-	orgPublicKeyMap := make(map[organization.TypeID]crypto.TypePublicKey)
-	for _, orgID := range c.managedOrgIDs {
-		orgPublicKeyMap[orgID] = c.epochKeyPairMap[orgID].PublicKey
-	}
-	return orgPublicKeyMap, nil
+	return c.epochPublicKeyMap, nil
 }
 
 func (c *Committee) generateEpochTXRandomness() error {
@@ -143,16 +141,13 @@ func (c *Committee) generateEpochAuditorRandomness() error {
 }
 
 func (c *Committee) generateEpochKeyPairs() error {
-	c.epochKeyPairMap = make(map[organization.TypeID]*crypto.KeyPair)
 	for _, id := range c.managedOrgIDs {
 		privateKey, publicKey, err := crypto.KeyGen()
 		if err != nil {
 			return err
 		}
-		c.epochKeyPairMap[id] = &crypto.KeyPair{
-			PrivateKey: privateKey,
-			PublicKey:  publicKey,
-		}
+		c.epochSecretKeyMap[id] = privateKey
+		c.epochPublicKeyMap[id] = publicKey
 	}
 	return nil
 }
@@ -160,7 +155,7 @@ func (c *Committee) generateEpochKeyPairs() error {
 func (c *Committee) PublishPublicKeys() map[organization.TypeID]kyber.Point {
 	publicKeyMap := make(map[organization.TypeID]kyber.Point)
 	for _, id := range c.managedOrgIDs {
-		publicKeyMap[id] = c.epochKeyPairMap[id].PublicKey
+		publicKeyMap[id] = c.epochPublicKeyMap[id]
 	}
 	return publicKeyMap
 }
@@ -185,11 +180,11 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 			orgTXRandMap[key] = c.epochTXRandMap[key]
 		}
 		// forward secret key
-		keyPair, ok := c.epochKeyPairMap[orgID1]
+		secretKey, ok := c.epochSecretKeyMap[orgID1]
 		if !ok {
-			return errors.New(string("key pair not found, id: " + orgID1))
+			return errors.New(string("secret key not found, id: " + orgID1))
 		}
-		auditedOrgSecretKeyMap[orgID1] = keyPair.PrivateKey
+		auditedOrgSecretKeyMap[orgID1] = secretKey
 	}
 	auditor.SetEpochTXRandomness(orgTXRandMap)
 	auditor.SetEpochSecretKey(auditedOrgSecretKeyMap)
