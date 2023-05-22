@@ -22,7 +22,7 @@ func generateEntities(numOrganizations int) (*committee.Committee, []*auditor.Au
 	return com, auditors, organizations
 }
 
-func benchInitializeEpoch(numOrganizations, iterations int) {
+func benchCLOLCInitializeEpoch(numOrganizations, iterations int) {
 	runningTimes := make([]time.Duration, iterations)
 	avgTime := time.Duration(0)
 	fmt.Println("Number of organizations:", numOrganizations)
