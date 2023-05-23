@@ -1,6 +1,6 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
-cd ../clolc
+cd ../clolc || exit
 
 go build -o clolc.out
 
