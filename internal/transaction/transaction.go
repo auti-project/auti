@@ -7,9 +7,10 @@ const (
 type CLOLCPlain struct {
 	CounterParty string
 	Amount       int64
+	Timestamp    int64
 }
 
-func NewCLOLCPlain(counterParty string, amount float64) *CLOLCPlain {
+func NewCLOLCPlain(counterParty string, amount, timestamp float64) *CLOLCPlain {
 	amountInt := int64(amount * amountAmplifier)
 	return &CLOLCPlain{
 		CounterParty: counterParty,
@@ -20,9 +21,10 @@ func NewCLOLCPlain(counterParty string, amount float64) *CLOLCPlain {
 type CLOLCCipher struct {
 	CounterParty []byte
 	Commitment   []byte
+	Timestamp    int64
 }
 
-func NewCLOLCCipher(counterParty, commitment []byte) *CLOLCCipher {
+func NewCLOLCCipher(counterParty, commitment []byte, timestamp int64) *CLOLCCipher {
 	return &CLOLCCipher{
 		CounterParty: counterParty,
 		Commitment:   commitment,
@@ -32,9 +34,10 @@ func NewCLOLCCipher(counterParty, commitment []byte) *CLOLCCipher {
 type CLOLCOnChain struct {
 	CounterParty string
 	Commitment   string
+	Timestamp    string
 }
 
-func NewCLOLCOnChain(counterParty, commitment string) *CLOLCOnChain {
+func NewCLOLCOnChain(counterParty, commitment, timestamp string) *CLOLCOnChain {
 	return &CLOLCOnChain{
 		CounterParty: counterParty,
 		Commitment:   commitment,

@@ -25,3 +25,10 @@ go.work
 .vscode/
 .fleet/
 *.sublime-workspace
+
+# log files
+*.log
+
+# fablo related files
+*fablo-target/
+fablo

@@ -4,14 +4,23 @@ cd ../clolc || exit
 
 go build -o clolc.out
 
-./clolc.out -phase i -numOrg 2 -numIter 10
-./clolc.out -phase i -numOrg 4 -numIter 10
-./clolc.out -phase i -numOrg 8 -numIter 10
-./clolc.out -phase i -numOrg 16 -numIter 10
-./clolc.out -phase i -numOrg 32 -numIter 10
-./clolc.out -phase i -numOrg 64 -numIter 10
-# ./clolc.out -phase i -numOrg 128 -numIter 10
-# ./clolc.out -phase i -numOrg 256 -numIter 10
-# ./clolc.out -phase i -numOrg 512 -numIter 10
+
+LOG_DIR="../logs"
+if [ ! -d $LOG_DIR ] ; then
+    mkdir $LOG_DIR
+fi
+LOG_FILE_DIR="${LOG_DIR}/clolc_init_epoch_bench.log"
+if [ -f $LOG_FILE_DIR ] ; then
+    rm $LOG_FILE_DIR
+fi
+touch $LOG_FILE_DIR
+
+echo "CLOLC INIT EPOCH BENCH" > $LOG_FILE_DIR
+echo $(date) >> $LOG_FILE_DIR
+
+for numOrg in 2 4 8 16 32 64 128 256 512 1024 2048; do
+    ./clolc.out -phase i -numOrg $numOrg -numIter 10 | tee -a $LOG_FILE_DIR
+    sleep 1
+done
 
 rm clolc.out
