@@ -18,7 +18,7 @@ touch $LOG_FILE_DIR
 echo "CLOLC INIT EPOCH BENCH" > $LOG_FILE_DIR
 echo $(date) >> $LOG_FILE_DIR
 
-for numOrg in 2 4 8 16 32 64 128 256 512 1024 2048; do
+for numOrg in 2 4 8 16 32 64 128 256; do
     ./clolc.out -phase i -numOrg $numOrg -numIter 10 | tee -a $LOG_FILE_DIR
     sleep 1
 done
