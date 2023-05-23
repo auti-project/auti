@@ -37,7 +37,7 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
 	if err != nil {
 		return err
 	}
-	clolcCipher := &transaction.CLOLCCipher{
+	clolcCipher := &transaction.CLOLCHidden{
 		CounterParty: counterPartyHash,
 		Commitment:   commitment,
 	}
@@ -56,7 +56,7 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
 	return nil
 }
 
-func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCCipher) error {
+func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCHidden) error {
 	return nil
 }
 
