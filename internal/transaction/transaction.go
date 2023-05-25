@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"strconv"
+
+	"github.com/auti-project/auti/internal/crypto"
 )
 
 const (
@@ -17,12 +19,28 @@ type CLOLCPlain struct {
 	Timestamp    int64
 }
 
-func NewCLOLCPlain(counterParty string, amount, timestamp float64) *CLOLCPlain {
+func NewCLOLCPlain(counterParty string, amount float64, timestamp int64) *CLOLCPlain {
 	amountInt := int64(amount * amountAmplifier)
 	return &CLOLCPlain{
 		CounterParty: counterParty,
 		Amount:       amountInt,
+		Timestamp:    timestamp,
 	}
+}
+
+func (c *CLOLCPlain) Hide() (*CLOLCHidden, error) {
+	sha256Func := sha256.New()
+	sha256Func.Write([]byte(c.CounterParty))
+	counterPartyHash := sha256Func.Sum(nil)
+	commitment, err := crypto.PedersenCommit(c.Amount)
+	if err != nil {
+		return nil, err
+	}
+	return NewCLOLCHidden(
+		counterPartyHash,
+		commitment,
+		c.Timestamp,
+	), nil
 }
 
 type CLOLCHidden struct {

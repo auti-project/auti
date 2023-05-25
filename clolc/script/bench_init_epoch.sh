@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ../../clolc/benchmark || exit
+cd ../benchmark || exit
 
 go build -o clolc.out
 

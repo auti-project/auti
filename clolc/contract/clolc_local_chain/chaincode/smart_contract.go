@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
@@ -18,7 +17,7 @@ type SmartContract struct {
 
 // InitLedger adds a base set of digests to the ledger.
 func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) error {
-	transactions := []transaction.CLOLCOnChain{
+	transactions := []Transaction{
 		{
 			CounterParty: "000",
 			Commitment:   "000",
@@ -41,7 +40,7 @@ func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) 
 // CreateTX issues a new transaction to the world state with given details.
 func (s *SmartContract) CreateTX(ctx contractapi.TransactionContextInterface,
 	counterParty, commitment, timestamp string) (string, error) {
-	tx := transaction.NewCLOLCOnChain(counterParty, commitment, timestamp)
+	tx := NewTransaction(counterParty, commitment, timestamp)
 	key, val, err := tx.KeyVal()
 	if err != nil {
 		return "", err
@@ -62,7 +61,7 @@ func (s *SmartContract) CreateBatchTXs(ctx contractapi.TransactionContextInterfa
 	if err != nil {
 		return nil, err
 	}
-	var txList []*transaction.CLOLCOnChain
+	var txList []*Transaction
 	err = json.Unmarshal(digestListJSONBytes, &txList)
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (s *SmartContract) CreateBatchTXs(ctx contractapi.TransactionContextInterfa
 
 // ReadTX returns the transaction stored in the world state with given id.
 func (s *SmartContract) ReadTX(ctx contractapi.TransactionContextInterface,
-	key string) (*transaction.CLOLCOnChain, error) {
+	key string) (*Transaction, error) {
 	tx, err := ctx.GetStub().GetState(key)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -102,7 +101,7 @@ func (s *SmartContract) ReadTX(ctx contractapi.TransactionContextInterface,
 	if err != nil {
 		return nil, err
 	}
-	var txObj transaction.CLOLCOnChain
+	var txObj Transaction
 	err = json.Unmarshal(tx, &txObj)
 	if err != nil {
 		return nil, err
@@ -132,7 +131,7 @@ func (s *SmartContract) TXExists(ctx contractapi.TransactionContextInterface, ke
 }
 
 // GetAllTXs returns all transactions found in world state.
-func (s *SmartContract) GetAllTXs(ctx contractapi.TransactionContextInterface) (txList []*transaction.CLOLCOnChain, err error) {
+func (s *SmartContract) GetAllTXs(ctx contractapi.TransactionContextInterface) (txList []*Transaction, err error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all transactions in the chaincode namespace.
 	var iter shim.StateQueryIteratorInterface
@@ -150,7 +149,7 @@ func (s *SmartContract) GetAllTXs(ctx contractapi.TransactionContextInterface) (
 		if err != nil {
 			return
 		}
-		var tx transaction.CLOLCOnChain
+		var tx Transaction
 		err = json.Unmarshal(response.Value, &tx)
 		if err != nil {
 			return

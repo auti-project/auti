@@ -32,3 +32,8 @@ go.work
 # fablo related files
 *fablo-target/
 fablo
+
+# Hyperledger Fabric related files
+ledger/
+wallet/
+keystore/

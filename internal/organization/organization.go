@@ -37,11 +37,11 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
 	if err != nil {
 		return err
 	}
-	clolcCipher := &transaction.CLOLCHidden{
+	clolcHidden := &transaction.CLOLCHidden{
 		CounterParty: counterPartyHash,
 		Commitment:   commitment,
 	}
-	if err = o.SubmitTXLocalChain(clolcCipher); err != nil {
+	if err = o.SubmitTXLocalChain(clolcHidden); err != nil {
 		return err
 	}
 	// Accumulate the commitment to the corresponding accumulator

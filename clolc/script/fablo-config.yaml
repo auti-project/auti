@@ -37,4 +37,4 @@ chaincodes:
     channel: mychannel
     init: '{"Args":[]}'
     endorsement: AND('Org1MSP.member', 'Aud1MSP.member')
-    directory: "org-global-chaincode"
+    directory: "../contract/clolc_local_chain"
