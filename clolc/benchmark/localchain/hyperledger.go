@@ -1,4 +1,4 @@
-package ledger
+package localchain
 
 import (
 	"encoding/hex"
@@ -14,11 +14,14 @@ import (
 )
 
 const (
-	channelName  = "mychannel"
-	contractType = "auti-local-chain"
-	walletPath   = "wallet"
-	walletLabel  = "appUser"
-	org1MSPid    = "Org1MSP"
+	channelName    = "mychannel"
+	contractType   = "auti-local-chain"
+	orgWalletPath  = "orgWallet"
+	orgWalletLabel = "orgAPPUser"
+	audWalletPath  = "audWallet"
+	audWalletLabel = "audAPPUser"
+	org1MSPid      = "Org1MSP"
+	aud1MSPid      = "Aud1MSP"
 )
 
 const (
@@ -31,10 +34,16 @@ const (
 
 var (
 	fabloFilePath string
-	org1CCPPath   string
-	org1CREDPath  string
-	org1CertPath  string
-	org1KeyDir    string
+
+	org1CCPPath  string
+	org1CREDPath string
+	org1CertPath string
+	org1KeyDir   string
+
+	aud1CCPPath  string
+	aud1CREDPath string
+	aud1CertPath string
+	aud1KeyDir   string
 )
 
 func init() {
@@ -42,13 +51,19 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
-	err = os.RemoveAll(walletPath)
+	err = os.RemoveAll(orgWalletPath)
 	if err != nil {
 		log.Fatalf("Error removing wallet directory: %v", err)
 	}
-	autiOrgGlobalDir := os.Getenv("AUTI_ORG_GLOBAL_DIR")
+	err = os.RemoveAll(audWalletPath)
+	if err != nil {
+		log.Fatalf("Error removing wallet directory: %v", err)
+	}
 
-	fabloFilePath = filepath.Join(autiOrgGlobalDir, "fablo-target", "fabric-config")
+	autiLocalChainDir := os.Getenv("AUTI_LOCAL_CHAIN_DIR")
+
+	fabloFilePath = filepath.Join(autiLocalChainDir, "fablo-target", "fabric-config")
+
 	org1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-org1.yaml")
 	org1CREDPath = filepath.Join(
 		fabloFilePath,
@@ -61,6 +76,19 @@ func init() {
 	)
 	org1CertPath = filepath.Join(org1CREDPath, "signcerts", "User1@org1.example.com-cert.pem")
 	org1KeyDir = filepath.Join(org1CREDPath, "keystore")
+
+	aud1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-aud1.yaml")
+	aud1CREDPath = filepath.Join(
+		fabloFilePath,
+		"crypto-config",
+		"peerOrganizations",
+		"aud1.example.com",
+		"users",
+		"User1@aud1.example.com",
+		"msp",
+	)
+	aud1CertPath = filepath.Join(aud1CREDPath, "signcerts", "User1@aud1.example.com-cert.pem")
+	aud1KeyDir = filepath.Join(aud1CREDPath, "keystore")
 }
 
 type Controller struct {
@@ -69,40 +97,36 @@ type Controller struct {
 }
 
 // NewController starts a new service instance
-func NewController() *Controller {
-	service := new(Controller)
+func NewController(walletPath, walletLabel, ccpPath string) (*Controller, error) {
 	wallet, err := gateway.NewFileSystemWallet(walletPath)
 	if err != nil {
-		log.Fatalf("Failed to create wallet: %v", err)
+		return nil, err
 	}
 	if !wallet.Exists(walletLabel) {
-		err = populateWallet(wallet)
-		if err != nil {
-			log.Fatalf("Failed to populate wallet contents: %v", err)
+		// TODO: bad practice, should be removed
+		if walletLabel == orgWalletLabel {
+			if err = populateOrgWallet(wallet); err != nil {
+				return nil, err
+			}
+		} else {
+			if err = populateAudWallet(wallet); err != nil {
+				return nil, err
+			}
 		}
 	}
 	var gw *gateway.Gateway
-	gw, err = gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(org1CCPPath))),
+	if gw, err = gateway.Connect(
+		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
 		gateway.WithIdentity(wallet, walletLabel),
-	)
-	if err != nil {
-		log.Fatalf("Failed to connect to gateway: %v", err)
+	); err != nil {
+		return nil, err
 	}
-	service.gw = gw
 	network, err := gw.GetNetwork(channelName)
 	if err != nil {
-		log.Fatalf("Failed to get network: %v", err)
+		return nil, err
 	}
 	contract := network.GetContract(contractType)
-	service.ct = contract
-	// log.Println("--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger")
-	// result, err := contract.SubmitTransaction("InitLedger")
-	// if err != nil {
-	// 	log.Fatalf("Failed to Submit transaction: %v", err)
-	// }
-	// log.Println(string(result))
-	return service
+	return &Controller{gw: gw, ct: contract}, nil
 }
 
 func (s *Controller) Close() {
@@ -179,7 +203,7 @@ func (s *Controller) SubmitBatchTXs(txList []*transaction.CLOLCOnChain) ([]strin
 	return txIDList, nil
 }
 
-func populateWallet(wallet *gateway.Wallet) error {
+func populateOrgWallet(wallet *gateway.Wallet) error {
 	// read the certificate pem
 	cert, err := os.ReadFile(filepath.Clean(org1CertPath))
 	if err != nil {
@@ -202,5 +226,29 @@ func populateWallet(wallet *gateway.Wallet) error {
 
 	identity := gateway.NewX509Identity(org1MSPid, string(cert), string(key))
 
-	return wallet.Put(walletLabel, identity)
+	return wallet.Put(orgWalletLabel, identity)
+}
+
+func populateAudWallet(wallet *gateway.Wallet) error {
+	cert, err := os.ReadFile(filepath.Clean(aud1CertPath))
+	if err != nil {
+		return err
+	}
+
+	files, err := os.ReadDir(aud1KeyDir)
+	if err != nil {
+		return err
+	}
+	if len(files) != 1 {
+		return fmt.Errorf("keystore folder should have contain one file")
+	}
+	keyPath := filepath.Join(aud1KeyDir, files[0].Name())
+	key, err := os.ReadFile(filepath.Clean(keyPath))
+	if err != nil {
+		return err
+	}
+
+	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
+
+	return wallet.Put(orgWalletLabel, identity)
 }
