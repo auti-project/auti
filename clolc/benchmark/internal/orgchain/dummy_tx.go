@@ -19,8 +19,8 @@ var (
 	kyberSuite  = edwards25519.NewBlakeSHA256Ed25519()
 )
 
-func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCAudOnChain {
-	results := make([]*transaction.CLOLCAudOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOrgOnChain {
+	results := make([]*transaction.CLOLCOrgOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -39,7 +39,7 @@ func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCAudOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*transaction.CLOLCAudOnChain, error) {
+func DummyOnChainTransaction() (*transaction.CLOLCOrgOnChain, error) {
 	randID, err := crand.Int(crand.Reader, randIDLimit)
 	if err != nil {
 		return nil, err
@@ -56,6 +56,6 @@ func DummyOnChainTransaction() (*transaction.CLOLCAudOnChain, error) {
 	if err != nil {
 		return nil, err
 	}
-	tx := transaction.NewCLOLCAudPlain(accumulatorBytes)
+	tx := transaction.NewCLOLCOrgPlain(accumulatorBytes)
 	return tx.ToOnChain(), nil
 }

@@ -281,8 +281,7 @@ func ReadTX() error {
 	}
 	defer lc.Close()
 	idx := rand.Int() % len(txIDList)
-	tx, err := lc.ReadTX(txIDList[idx])
-	fmt.Println(tx)
+	_, err = lc.ReadTX(txIDList[idx])
 	return err
 }
 

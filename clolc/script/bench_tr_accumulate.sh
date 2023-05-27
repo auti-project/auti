@@ -11,7 +11,7 @@ LOG_DIR="../logs"
 if [ ! -d $LOG_DIR ]; then
     mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/clolc_tx_record_accumulate_bench.log"
+LOG_FILE_DIR="${LOG_DIR}/clolc_tr_accumulate.log"
 if [ -f $LOG_FILE_DIR ]; then
     rm $LOG_FILE_DIR
 fi

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/auti-project/auti/clolc/benchmark/internal/localchain"
+	"github.com/auti-project/auti/clolc/benchmark/internal/orgchain"
 	"github.com/auti-project/auti/internal/auditor"
 	"github.com/auti-project/auti/internal/committee"
 	"github.com/auti-project/auti/internal/organization"
@@ -41,8 +42,8 @@ func InitializeEpoch(numOrganizations, iterations int) {
 	fmt.Println()
 }
 
-func TransactionRecordSubmitTX(numTXs, iterations int) error {
-	fmt.Println("CLOLC transaction record submit transaction")
+func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record local submit transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
@@ -58,7 +59,7 @@ func TransactionRecordSubmitTX(numTXs, iterations int) error {
 	return nil
 }
 
-func PrepareTX(numTotalTXs int) error {
+func PrepareLocalTX(numTotalTXs int) error {
 	fmt.Println("CLOLC prepare transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := localchain.SubmitTX(numTotalTXs)
@@ -72,8 +73,8 @@ func PrepareTX(numTotalTXs int) error {
 	return nil
 }
 
-func TransactionRecordReadTX(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC transaction record read transaction")
+func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record local read transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
@@ -88,8 +89,8 @@ func TransactionRecordReadTX(numTotalTXs, iterations int) error {
 	return nil
 }
 
-func TransactionRecordReadAllTXs(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC transaction record read all transactions")
+func TransactionRecordLocalReadAllTXs(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record local read all transactions")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
@@ -142,6 +143,69 @@ func TransactionRecordAccumulate(numTotalTXs, iterations int) error {
 		} else {
 			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func PrepareOrgTX(numTotalTXs int) error {
+	fmt.Println("CLOLC prepare transaction")
+	fmt.Printf("Num TX: %d\n", numTotalTXs)
+	txIDs, err := orgchain.SubmitTX(numTotalTXs)
+	if err != nil {
+		return err
+	}
+	if err = orgchain.SaveTXIDs(txIDs); err != nil {
+		return err
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordOrgSubmitTX(numTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record submit transaction")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		_, err := orgchain.SubmitTX(numTXs)
+		if err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordOrgReadTX(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record read transaction")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		if err := orgchain.ReadTX(); err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordOrgReadAllTXs(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC transaction record read all transactions")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		if err := orgchain.ReadAllTXs(); err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
 	fmt.Println()
 	return nil

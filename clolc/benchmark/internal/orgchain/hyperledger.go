@@ -18,12 +18,9 @@ import (
 const (
 	channelName    = "mychannel"
 	contractType   = "auti-org-chain"
-	orgWalletPath  = "orgWallet"
-	orgWalletLabel = "orgAPPUser"
-	audWalletPath  = "audWallet"
-	audWalletLabel = "audAPPUser"
+	orgWalletPath  = "wallet"
+	orgWalletLabel = "appUser"
 	org1MSPid      = "Org1MSP"
-	aud1MSPid      = "Aud1MSP"
 )
 
 const (
@@ -36,16 +33,10 @@ const (
 
 var (
 	fabloFilePath string
-
-	org1CCPPath  string
-	org1CREDPath string
-	org1CertPath string
-	org1KeyDir   string
-
-	aud1CCPPath  string
-	aud1CREDPath string
-	aud1CertPath string
-	aud1KeyDir   string
+	org1CCPPath   string
+	org1CREDPath  string
+	org1CertPath  string
+	org1KeyDir    string
 )
 
 func init() {
@@ -57,14 +48,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error removing wallet directory: %v", err)
 	}
-	err = os.RemoveAll(audWalletPath)
-	if err != nil {
-		log.Fatalf("Error removing wallet directory: %v", err)
-	}
 
-	autiLocalChainDir := os.Getenv("AUTI_LOCAL_CHAIN_DIR")
+	autiOrgChainDir := os.Getenv("AUTI_ORG_CHAIN_DIR")
 
-	fabloFilePath = filepath.Join(autiLocalChainDir, "fablo-target", "fabric-config")
+	fabloFilePath = filepath.Join(autiOrgChainDir, "fablo-target", "fabric-config")
 
 	org1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-org1.yaml")
 	org1CREDPath = filepath.Join(
@@ -78,19 +65,6 @@ func init() {
 	)
 	org1CertPath = filepath.Join(org1CREDPath, "signcerts", "User1@org1.example.com-cert.pem")
 	org1KeyDir = filepath.Join(org1CREDPath, "keystore")
-
-	aud1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-aud1.yaml")
-	aud1CREDPath = filepath.Join(
-		fabloFilePath,
-		"crypto-config",
-		"peerOrganizations",
-		"aud1.example.com",
-		"users",
-		"User1@aud1.example.com",
-		"msp",
-	)
-	aud1CertPath = filepath.Join(aud1CREDPath, "signcerts", "User1@aud1.example.com-cert.pem")
-	aud1KeyDir = filepath.Join(aud1CREDPath, "keystore")
 }
 
 type Controller struct {
@@ -99,27 +73,20 @@ type Controller struct {
 }
 
 // NewController starts a new service instance
-func NewController(walletPath, walletLabel, ccpPath string) (*Controller, error) {
-	wallet, err := gateway.NewFileSystemWallet(walletPath)
+func NewController() (*Controller, error) {
+	wallet, err := gateway.NewFileSystemWallet(orgWalletPath)
 	if err != nil {
 		return nil, err
 	}
-	if !wallet.Exists(walletLabel) {
-		// TODO: bad practice, should be removed
-		if walletLabel == orgWalletLabel {
-			if err = populateOrgWallet(wallet); err != nil {
-				return nil, err
-			}
-		} else {
-			if err = populateAudWallet(wallet); err != nil {
-				return nil, err
-			}
+	if !wallet.Exists(orgWalletLabel) {
+		if err = populateOrgWallet(wallet); err != nil {
+			return nil, err
 		}
 	}
 	var gw *gateway.Gateway
 	if gw, err = gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, walletLabel),
+		gateway.WithConfig(config.FromFile(filepath.Clean(org1CCPPath))),
+		gateway.WithIdentity(wallet, orgWalletLabel),
 	); err != nil {
 		return nil, err
 	}
@@ -135,12 +102,10 @@ func (s *Controller) Close() {
 	s.gw.Close()
 }
 
-func (s *Controller) SubmitTX(tx *transaction.CLOLCLocalOnChain) (string, error) {
+func (s *Controller) SubmitTX(tx *transaction.CLOLCOrgOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := s.ct.SubmitTransaction(createTXFuncName,
-		tx.CounterParty,
-		tx.Commitment,
-		tx.Timestamp,
+		tx.Accumulator,
 	)
 	if err != nil {
 		log.Fatalf("Failed to Submit transaction: %v", err)
@@ -161,12 +126,12 @@ func (s *Controller) TXExists(txID string) (bool, error) {
 	return result, nil
 }
 
-func (s *Controller) GetAllTXs() ([]*transaction.CLOLCLocalOnChain, error) {
+func (s *Controller) GetAllTXs() ([]*transaction.CLOLCOrgOnChain, error) {
 	results, err := s.ct.EvaluateTransaction(getAllTXFuncName)
 	if err != nil {
 		return nil, err
 	}
-	var txList []*transaction.CLOLCLocalOnChain
+	var txList []*transaction.CLOLCOrgOnChain
 	err = json.Unmarshal(results, &txList)
 	if err != nil {
 		return nil, err
@@ -174,12 +139,12 @@ func (s *Controller) GetAllTXs() ([]*transaction.CLOLCLocalOnChain, error) {
 	return txList, nil
 }
 
-func (s *Controller) ReadTX(id string) (*transaction.CLOLCLocalOnChain, error) {
+func (s *Controller) ReadTX(id string) (*transaction.CLOLCOrgOnChain, error) {
 	result, err := s.ct.EvaluateTransaction(readTXFuncName, id)
 	if err != nil {
 		return nil, err
 	}
-	var tx transaction.CLOLCLocalOnChain
+	var tx transaction.CLOLCOrgOnChain
 	err = json.Unmarshal(result, &tx)
 	if err != nil {
 		return nil, err
@@ -187,7 +152,7 @@ func (s *Controller) ReadTX(id string) (*transaction.CLOLCLocalOnChain, error) {
 	return &tx, nil
 }
 
-func (s *Controller) SubmitBatchTXs(txList []*transaction.CLOLCLocalOnChain) ([]string, error) {
+func (s *Controller) SubmitBatchTXs(txList []*transaction.CLOLCOrgOnChain) ([]string, error) {
 	txListJSON, err := json.Marshal(txList)
 	if err != nil {
 		return nil, err
@@ -231,36 +196,12 @@ func populateOrgWallet(wallet *gateway.Wallet) error {
 	return wallet.Put(orgWalletLabel, identity)
 }
 
-func populateAudWallet(wallet *gateway.Wallet) error {
-	cert, err := os.ReadFile(filepath.Clean(aud1CertPath))
-	if err != nil {
-		return err
-	}
-
-	files, err := os.ReadDir(aud1KeyDir)
-	if err != nil {
-		return err
-	}
-	if len(files) != 1 {
-		return fmt.Errorf("keystore folder should have contain one file")
-	}
-	keyPath := filepath.Join(aud1KeyDir, files[0].Name())
-	key, err := os.ReadFile(filepath.Clean(keyPath))
-	if err != nil {
-		return err
-	}
-
-	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
-
-	return wallet.Put(audWalletLabel, identity)
-}
-
 const (
 	txThreshold = 10000
-	txIDLogPath = "lc_tx_id.log"
+	txIDLogPath = "oc_tx_id.log"
 )
 
-func BenchReadTX() error {
+func ReadTX() error {
 	f, err := os.Open(txIDLogPath)
 	if err != nil {
 		return err
@@ -275,7 +216,7 @@ func BenchReadTX() error {
 	if err != nil {
 		return err
 	}
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return err
 	}
@@ -286,7 +227,7 @@ func BenchReadTX() error {
 }
 
 func ReadAllTXs() error {
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return err
 	}
@@ -296,7 +237,7 @@ func ReadAllTXs() error {
 }
 
 func SubmitTX(numTXs int) ([]string, error) {
-	lc, err := NewController(orgWalletPath, orgWalletLabel, org1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return nil, err
 	}

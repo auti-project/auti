@@ -9,7 +9,7 @@ import (
 func main() {
 	benchPhasePtr := flag.String("phase", "", "Benchmark of CLOLC four phases: in, tr, ce, and rv")
 	benchProcessPtr := flag.String("process", "",
-		"[tr]: submit_tx, read_tx, read_all_tx, commit_tx, accumulate, prepare_tx",
+		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare",
 	)
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
@@ -21,20 +21,20 @@ func main() {
 		bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
 	case "tr":
 		switch *benchProcessPtr {
-		case "submit_tx":
-			if err := bf.TransactionRecordSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
+		case "local_submit":
+			if err := bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
 				return
 			}
-		case "prepare_tx":
-			if err := bf.PrepareTX(*numTXsPtr); err != nil {
+		case "local_prepare":
+			if err := bf.PrepareLocalTX(*numTXsPtr); err != nil {
 				return
 			}
-		case "read_tx":
-			if err := bf.TransactionRecordReadTX(*numTXsPtr, *numIterPtr); err != nil {
+		case "local_read":
+			if err := bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr); err != nil {
 				return
 			}
-		case "read_all_tx":
-			if err := bf.TransactionRecordReadAllTXs(*numTXsPtr, *numIterPtr); err != nil {
+		case "local_read_all":
+			if err := bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr); err != nil {
 				return
 			}
 		case "commit_tx":
@@ -43,6 +43,22 @@ func main() {
 			}
 		case "accumulate":
 			if err := bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr); err != nil {
+				return
+			}
+		case "org_prepare":
+			if err := bf.PrepareOrgTX(*numTXsPtr); err != nil {
+				return
+			}
+		case "org_submit":
+			if err := bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
+				return
+			}
+		case "org_read":
+			if err := bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr); err != nil {
+				return
+			}
+		case "org_read_all":
+			if err := bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr); err != nil {
 				return
 			}
 		}
