@@ -35,7 +35,7 @@ for i in 1000 10000 100000 1000000; do
   cleanup
   ./fablo up fablo-local-chain-config.yaml
   sleep 5
-  ./clolc.out -phase tr -process read_tx -numTXs $i -numIter 10 | tee -a $LOG_FILE_DIR
+  ./clolc.out -phase tr -process read_tx -numTXs $i -numIter 20 | tee -a $LOG_FILE_DIR
   sleep 1
 done
 
@@ -43,7 +43,7 @@ for i in 1000 10000 100000 1000000; do
   cleanup
   ./fablo up fablo-local-chain-config.yaml
   sleep 5
-  ./clolc.out -phase tr -process read_all_tx -numTXs $i -numIter 10 | tee -a $LOG_FILE_DIR
+  ./clolc.out -phase tr -process read_all_tx -numTXs $i -numIter 20 | tee -a $LOG_FILE_DIR
   sleep 1
 done
 
