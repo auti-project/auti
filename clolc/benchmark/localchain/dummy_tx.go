@@ -42,6 +42,9 @@ func BenchReadTX() error {
 
 func BenchReadAllTXs() error {
 	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
 	defer lc.Close()
 	_, err = lc.GetAllTXs()
 	return err
