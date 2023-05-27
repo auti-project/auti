@@ -1,6 +1,8 @@
 package crypto
 
-func PedersenCommit(amount int64) ([]byte, error) {
+import "go.dedis.ch/kyber/v3"
+
+func PedersenCommit(amount int64) (kyber.Point, error) {
 	amountBytes, err := int64ToBytes(amount)
 	if err != nil {
 		return nil, err
@@ -10,5 +12,5 @@ func PedersenCommit(amount int64) ([]byte, error) {
 	randScalar := kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
 	randPoint := kyberSuite.Point().Mul(randScalar, pointH)
 	commitment.Add(commitment, randPoint)
-	return commitment.MarshalBinary()
+	return commitment, nil
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/auti-project/auti/internal/crypto"
+	"go.dedis.ch/kyber/v3"
 )
 
 const (
@@ -28,19 +29,23 @@ func NewCLOLCPlain(counterParty string, amount float64, timestamp int64) *CLOLCP
 	}
 }
 
-func (c *CLOLCPlain) Hide() (*CLOLCHidden, error) {
+func (c *CLOLCPlain) Hide() (*CLOLCHidden, kyber.Point, error) {
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(c.CounterParty))
 	counterPartyHash := sha256Func.Sum(nil)
 	commitment, err := crypto.PedersenCommit(c.Amount)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	commitmentBytes, err := commitment.MarshalBinary()
+	if err != nil {
+		return nil, nil, err
 	}
 	return NewCLOLCHidden(
 		counterPartyHash,
-		commitment,
+		commitmentBytes,
 		c.Timestamp,
-	), nil
+	), commitment, nil
 }
 
 type CLOLCHidden struct {
@@ -53,6 +58,7 @@ func NewCLOLCHidden(counterParty, commitment []byte, timestamp int64) *CLOLCHidd
 	return &CLOLCHidden{
 		CounterParty: counterParty,
 		Commitment:   commitment,
+		Timestamp:    timestamp,
 	}
 }
 

@@ -1,10 +1,12 @@
 package localchain
 
 import (
+	"bufio"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 
@@ -251,4 +253,88 @@ func populateAudWallet(wallet *gateway.Wallet) error {
 	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
 
 	return wallet.Put(audWalletLabel, identity)
+}
+
+const (
+	txThreshold = 10000
+	txIDLogPath = "lc_tx_id.log"
+)
+
+func BenchReadTX() error {
+	f, err := os.Open(txIDLogPath)
+	if err != nil {
+		return err
+	}
+	fileScanner := bufio.NewScanner(f)
+	fileScanner.Split(bufio.ScanLines)
+	var txIDList []string
+	for fileScanner.Scan() {
+		txIDList = append(txIDList, fileScanner.Text())
+	}
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
+	defer lc.Close()
+	idx := rand.Int() % len(txIDList)
+	_, err = lc.ReadTX(txIDList[idx])
+	return err
+}
+
+func ReadAllTXs() error {
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
+	defer lc.Close()
+	_, err = lc.GetAllTXs()
+	return err
+}
+
+func SubmitTX(numTXs int) ([]string, error) {
+	lc, err := NewController(orgWalletPath, orgWalletLabel, org1CCPPath)
+	if err != nil {
+		return nil, err
+	}
+	defer lc.Close()
+	dummyTXs, err := DummyOnChainTransactions(numTXs)
+	if err != nil {
+		return nil, err
+	}
+	var txIDs []string
+	for j := 0; j < numTXs; j += txThreshold {
+		right := j + txThreshold
+		if right > numTXs {
+			right = numTXs
+		}
+		batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
+		if err != nil {
+			return nil, err
+		}
+		txIDs = append(txIDs, batchTXIDs...)
+	}
+	return txIDs, nil
+}
+
+func SaveTXIDs(txIDs []string) error {
+	f, err := os.OpenFile(txIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return err
+	}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(f)
+	for _, id := range txIDs {
+		if _, err = f.WriteString(id + "\n"); err != nil {
+			return err
+		}
+	}
+	return nil
 }
