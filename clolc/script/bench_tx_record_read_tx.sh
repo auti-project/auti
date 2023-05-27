@@ -8,7 +8,7 @@ LOG_DIR="../logs"
 if [ ! -d $LOG_DIR ]; then
   mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/clolc_tx_record_bench.log"
+LOG_FILE_DIR="${LOG_DIR}/clolc_tx_record_read_tx_bench.log"
 if [ -f $LOG_FILE_DIR ]; then
   rm $LOG_FILE_DIR
 fi
@@ -28,6 +28,7 @@ function cleanup() {
   docker volume prune -f
   docker network prune -f
   docker container prune -f
+  rm lc_tx_id.log
 }
 
 for i in 1000 10000 100000 1000000; do

@@ -250,5 +250,5 @@ func populateAudWallet(wallet *gateway.Wallet) error {
 
 	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
 
-	return wallet.Put(orgWalletLabel, identity)
+	return wallet.Put(audWalletLabel, identity)
 }

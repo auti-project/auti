@@ -71,6 +71,7 @@ func benchTransactionRecordReadTX(numTotalTXs, iterations int) {
 	if err = localchain.SaveTXIDs(txIDs); err != nil {
 		panic(err)
 	}
+	time.Sleep(2 * time.Second)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		if err := localchain.BenchReadTX(); err != nil {
@@ -95,6 +96,7 @@ func benchTransactionRecordReadAllTXs(numTotalTXs, iterations int) {
 	if err = localchain.SaveTXIDs(txIDs); err != nil {
 		panic(err)
 	}
+	time.Sleep(2 * time.Second)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		if err := localchain.BenchReadAllTXs(); err != nil {
