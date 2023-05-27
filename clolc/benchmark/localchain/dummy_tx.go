@@ -3,7 +3,6 @@ package localchain
 import (
 	"bufio"
 	crand "crypto/rand"
-	"fmt"
 	"math/rand"
 	"os"
 	"time"
@@ -37,14 +36,15 @@ func BenchReadTX() error {
 	}
 	defer lc.Close()
 	idx := rand.Int() % len(txIDList)
-	startTime := time.Now()
-	if _, err = lc.ReadTX(txIDList[idx]); err != nil {
-		return err
-	}
-	duration := time.Since(startTime)
-	fmt.Println(duration.Milliseconds())
+	_, err = lc.ReadTX(txIDList[idx])
+	return err
+}
 
-	return nil
+func BenchReadAllTXs() error {
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	defer lc.Close()
+	_, err = lc.GetAllTXs()
+	return err
 }
 
 func BenchSubmitTX(numTXs int) ([]string, error) {

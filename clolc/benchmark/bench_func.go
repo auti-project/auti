@@ -28,8 +28,6 @@ func benchInitializeEpoch(numOrganizations, iterations int) {
 	fmt.Println("Number of organizations:", numOrganizations)
 	fmt.Println("Number of iterations:", iterations)
 	fmt.Println("Elapsed times (ms):")
-	runningTimes := make([]time.Duration, iterations)
-	avgTime := time.Duration(0)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
 		startTime := time.Now()
@@ -40,10 +38,7 @@ func benchInitializeEpoch(numOrganizations, iterations int) {
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
 		fmt.Println(elapsed.Milliseconds())
-		runningTimes[i] = elapsed
-		avgTime += elapsed
 	}
-	fmt.Printf("Average time (ms): %d\n\n", avgTime.Milliseconds()/int64(iterations))
 }
 
 func benchTransactionRecordSubmitTX(numTXs, iterations int) {
@@ -51,32 +46,31 @@ func benchTransactionRecordSubmitTX(numTXs, iterations int) {
 	fmt.Println("Number of transactions:", numTXs)
 	fmt.Println("Number of iterations:", iterations)
 	fmt.Println("Elapsed times (ms):")
-	runningTimes := make([]time.Duration, iterations)
-	avgTime := time.Duration(0)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		txIDs, err := localchain.BenchSubmitTX(numTXs)
+		_, err := localchain.BenchSubmitTX(numTXs)
 		if err != nil {
 			panic(err)
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
 		fmt.Println(elapsed.Milliseconds())
-		runningTimes[i] = elapsed
-		avgTime += elapsed
-		if err = localchain.SaveTXIDs(txIDs); err != nil {
-			panic(err)
-		}
 	}
-	fmt.Printf("Average time (ms): %d\n\n", avgTime.Milliseconds()/int64(iterations))
+	fmt.Println()
 }
 
-func benchTransactionRecordReadTX(iterations int) {
+func benchTransactionRecordReadTX(numTotalTXs, iterations int) {
 	fmt.Println("CLOLC transaction record read transaction")
+	fmt.Println("Number of transactions:", numTotalTXs)
 	fmt.Println("Number of iterations:", iterations)
 	fmt.Println("Elapsed times (ms):")
-	runningTimes := make([]time.Duration, iterations)
-	avgTime := time.Duration(0)
+	txIDs, err := localchain.BenchSubmitTX(numTotalTXs)
+	if err != nil {
+		panic(err)
+	}
+	if err = localchain.SaveTXIDs(txIDs); err != nil {
+		panic(err)
+	}
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		if err := localchain.BenchReadTX(); err != nil {
@@ -85,8 +79,30 @@ func benchTransactionRecordReadTX(iterations int) {
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
 		fmt.Println(elapsed.Milliseconds())
-		runningTimes[i] = elapsed
-		avgTime += elapsed
 	}
-	fmt.Printf("Average time (ms): %d\n\n", avgTime.Milliseconds()/int64(iterations))
+	fmt.Println()
+}
+
+func benchTransactionRecordReadAllTXs(numTotalTXs, iterations int) {
+	fmt.Println("CLOLC transaction record read all transactions")
+	fmt.Println("Number of transactions:", numTotalTXs)
+	fmt.Println("Number of iterations:", iterations)
+	fmt.Println("Elapsed times (ms):")
+	txIDs, err := localchain.BenchSubmitTX(numTotalTXs)
+	if err != nil {
+		panic(err)
+	}
+	if err = localchain.SaveTXIDs(txIDs); err != nil {
+		panic(err)
+	}
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		if err := localchain.BenchReadAllTXs(); err != nil {
+			panic(err)
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Println(elapsed.Milliseconds())
+	}
+	fmt.Println()
 }
