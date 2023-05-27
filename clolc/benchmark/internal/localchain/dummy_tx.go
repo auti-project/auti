@@ -15,8 +15,8 @@ var (
 	numCPUs = runtime.NumCPU()
 )
 
-func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOnChain {
-	results := make([]*transaction.CLOLCOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCLocalOnChain {
+	results := make([]*transaction.CLOLCLocalOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -35,7 +35,7 @@ func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*transaction.CLOLCOnChain, error) {
+func DummyOnChainTransaction() (*transaction.CLOLCLocalOnChain, error) {
 	dummyCounterPartyBytes := make([]byte, 32)
 	_, err := crand.Read(dummyCounterPartyBytes)
 	if err != nil {
@@ -52,8 +52,8 @@ func DummyOnChainTransaction() (*transaction.CLOLCOnChain, error) {
 	return hiddenTX.ToOnChain(), nil
 }
 
-func DummyPlainTransactions(numTXs int) []*transaction.CLOLCPlain {
-	results := make([]*transaction.CLOLCPlain, numTXs)
+func DummyPlainTransactions(numTXs int) []*transaction.CLOLCLocalPlain {
+	results := make([]*transaction.CLOLCLocalPlain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -72,7 +72,7 @@ func DummyPlainTransactions(numTXs int) []*transaction.CLOLCPlain {
 	return results
 }
 
-func DummyPlainTransaction() (*transaction.CLOLCPlain, error) {
+func DummyPlainTransaction() (*transaction.CLOLCLocalPlain, error) {
 	currTimestamp := time.Now().UnixNano()
 	randAmount := rand.Float64()
 	dummyCounterPartyBytes := make([]byte, 32)
@@ -80,7 +80,7 @@ func DummyPlainTransaction() (*transaction.CLOLCPlain, error) {
 	if err != nil {
 		return nil, err
 	}
-	plainTX := transaction.NewCLOLCPlain(
+	plainTX := transaction.NewCLOLCLocalPlain(
 		string(dummyCounterPartyBytes),
 		randAmount,
 		currTimestamp,

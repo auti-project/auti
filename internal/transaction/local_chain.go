@@ -14,22 +14,22 @@ const (
 	amountAmplifier = 100
 )
 
-type CLOLCPlain struct {
+type CLOLCLocalPlain struct {
 	CounterParty string
 	Amount       int64
 	Timestamp    int64
 }
 
-func NewCLOLCPlain(counterParty string, amount float64, timestamp int64) *CLOLCPlain {
+func NewCLOLCLocalPlain(counterParty string, amount float64, timestamp int64) *CLOLCLocalPlain {
 	amountInt := int64(amount * amountAmplifier)
-	return &CLOLCPlain{
+	return &CLOLCLocalPlain{
 		CounterParty: counterParty,
 		Amount:       amountInt,
 		Timestamp:    timestamp,
 	}
 }
 
-func (c *CLOLCPlain) Hide() (*CLOLCHidden, kyber.Point, error) {
+func (c *CLOLCLocalPlain) Hide() (*CLOLCLocalHidden, kyber.Point, error) {
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(c.CounterParty))
 	counterPartyHash := sha256Func.Sum(nil)
@@ -41,51 +41,51 @@ func (c *CLOLCPlain) Hide() (*CLOLCHidden, kyber.Point, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return NewCLOLCHidden(
+	return NewCLOLCLocalHidden(
 		counterPartyHash,
 		commitmentBytes,
 		c.Timestamp,
 	), commitment, nil
 }
 
-type CLOLCHidden struct {
+type CLOLCLocalHidden struct {
 	CounterParty []byte
 	Commitment   []byte
 	Timestamp    int64
 }
 
-func NewCLOLCHidden(counterParty, commitment []byte, timestamp int64) *CLOLCHidden {
-	return &CLOLCHidden{
+func NewCLOLCLocalHidden(counterParty, commitment []byte, timestamp int64) *CLOLCLocalHidden {
+	return &CLOLCLocalHidden{
 		CounterParty: counterParty,
 		Commitment:   commitment,
 		Timestamp:    timestamp,
 	}
 }
 
-func (c *CLOLCHidden) ToOnChain() *CLOLCOnChain {
+func (c *CLOLCLocalHidden) ToOnChain() *CLOLCLocalOnChain {
 	timestampStr := strconv.FormatInt(c.Timestamp, 10)
-	return NewCLOLCOnChain(
+	return NewCLOLCLocalOnChain(
 		hex.EncodeToString(c.CounterParty),
 		hex.EncodeToString(c.Commitment),
 		timestampStr,
 	)
 }
 
-type CLOLCOnChain struct {
+type CLOLCLocalOnChain struct {
 	CounterParty string `json:"counter_party"`
 	Commitment   string `json:"commitment"`
 	Timestamp    string `json:"timestamp"`
 }
 
-func NewCLOLCOnChain(counterParty, commitment, timestamp string) *CLOLCOnChain {
-	return &CLOLCOnChain{
+func NewCLOLCLocalOnChain(counterParty, commitment, timestamp string) *CLOLCLocalOnChain {
+	return &CLOLCLocalOnChain{
 		CounterParty: counterParty,
 		Commitment:   commitment,
 		Timestamp:    timestamp,
 	}
 }
 
-func (c *CLOLCOnChain) KeyVal() (string, []byte, error) {
+func (c *CLOLCLocalOnChain) KeyVal() (string, []byte, error) {
 	txJSON, err := json.Marshal(c)
 	if err != nil {
 		return "", nil, err
@@ -95,7 +95,7 @@ func (c *CLOLCOnChain) KeyVal() (string, []byte, error) {
 	return hex.EncodeToString(sha256Func.Sum(nil)), txJSON, nil
 }
 
-func (c *CLOLCOnChain) ToHidden() (*CLOLCHidden, error) {
+func (c *CLOLCLocalOnChain) ToHidden() (*CLOLCLocalHidden, error) {
 	counterParty, err := hex.DecodeString(c.CounterParty)
 	if err != nil {
 		return nil, err
@@ -108,5 +108,5 @@ func (c *CLOLCOnChain) ToHidden() (*CLOLCHidden, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewCLOLCHidden(counterParty, commitment, timestamp), nil
+	return NewCLOLCLocalHidden(counterParty, commitment, timestamp), nil
 }

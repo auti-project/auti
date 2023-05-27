@@ -77,7 +77,7 @@ func TransactionRecordReadTX(numTotalTXs, iterations int) error {
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		if err := localchain.BenchReadTX(); err != nil {
+		if err := localchain.ReadTX(); err != nil {
 			return err
 		}
 		endTime := time.Now()

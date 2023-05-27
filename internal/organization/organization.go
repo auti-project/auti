@@ -29,7 +29,7 @@ func (o *Organization) SetEpochID(randID *big.Int) {
 	o.epochRandID = randID
 }
 
-func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
+func (o *Organization) RecordTransaction(tx *transaction.CLOLCLocalPlain) error {
 	// Submit the transaction to the local chain
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(tx.CounterParty))
@@ -42,7 +42,7 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
 	if err != nil {
 		return err
 	}
-	clolcHidden := &transaction.CLOLCHidden{
+	clolcHidden := &transaction.CLOLCLocalHidden{
 		CounterParty: counterPartyHash,
 		Commitment:   commitmentBytes,
 		Timestamp:    tx.Timestamp,
@@ -63,7 +63,7 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCPlain) error {
 	return nil
 }
 
-func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCHidden) error {
+func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCLocalHidden) error {
 	return nil
 }
 

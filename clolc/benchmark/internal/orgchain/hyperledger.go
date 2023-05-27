@@ -1,4 +1,4 @@
-package localchain
+package orgchain
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ import (
 
 const (
 	channelName    = "mychannel"
-	contractType   = "auti-local-chain"
+	contractType   = "auti-org-chain"
 	orgWalletPath  = "orgWallet"
 	orgWalletLabel = "orgAPPUser"
 	audWalletPath  = "audWallet"
@@ -260,7 +260,7 @@ const (
 	txIDLogPath = "lc_tx_id.log"
 )
 
-func ReadTX() error {
+func BenchReadTX() error {
 	f, err := os.Open(txIDLogPath)
 	if err != nil {
 		return err
@@ -281,8 +281,7 @@ func ReadTX() error {
 	}
 	defer lc.Close()
 	idx := rand.Int() % len(txIDList)
-	tx, err := lc.ReadTX(txIDList[idx])
-	fmt.Println(tx)
+	_, err = lc.ReadTX(txIDList[idx])
 	return err
 }
 
