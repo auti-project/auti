@@ -8,7 +8,6 @@ import (
 	"github.com/auti-project/auti/internal/auditor"
 	"github.com/auti-project/auti/internal/committee"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
@@ -27,9 +26,7 @@ func generateEntities(numOrganizations int) (*committee.Committee, []*auditor.Au
 
 func InitializeEpoch(numOrganizations, iterations int) {
 	fmt.Println("CLOLC initialize epoch")
-	fmt.Println("Number of organizations:", numOrganizations)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
+	fmt.Printf("Num Org: %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
 		startTime := time.Now()
@@ -39,15 +36,14 @@ func InitializeEpoch(numOrganizations, iterations int) {
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
+	fmt.Println()
 }
 
 func TransactionRecordSubmitTX(numTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record submit transaction")
-	fmt.Println("Number of transactions:", numTXs)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		_, err := localchain.SubmitTX(numTXs)
@@ -56,7 +52,21 @@ func TransactionRecordSubmitTX(numTXs, iterations int) error {
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func PrepareTX(numTotalTXs int) error {
+	fmt.Println("CLOLC prepare transaction")
+	fmt.Printf("Num TX: %d\n", numTotalTXs)
+	txIDs, err := localchain.SubmitTX(numTotalTXs)
+	if err != nil {
+		return err
+	}
+	if err = localchain.SaveTXIDs(txIDs); err != nil {
+		return err
 	}
 	fmt.Println()
 	return nil
@@ -64,17 +74,7 @@ func TransactionRecordSubmitTX(numTXs, iterations int) error {
 
 func TransactionRecordReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record read transaction")
-	fmt.Println("Number of transactions:", numTotalTXs)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
-	txIDs, err := localchain.SubmitTX(numTotalTXs)
-	if err != nil {
-		return err
-	}
-	if err = localchain.SaveTXIDs(txIDs); err != nil {
-		return err
-	}
-	time.Sleep(2 * time.Second)
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		if err := localchain.BenchReadTX(); err != nil {
@@ -82,7 +82,7 @@ func TransactionRecordReadTX(numTotalTXs, iterations int) error {
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
 	fmt.Println()
 	return nil
@@ -90,17 +90,7 @@ func TransactionRecordReadTX(numTotalTXs, iterations int) error {
 
 func TransactionRecordReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record read all transactions")
-	fmt.Println("Number of transactions:", numTotalTXs)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
-	txIDs, err := localchain.SubmitTX(numTotalTXs)
-	if err != nil {
-		return err
-	}
-	if err = localchain.SaveTXIDs(txIDs); err != nil {
-		return err
-	}
-	time.Sleep(2 * time.Second)
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
 		if err := localchain.ReadAllTXs(); err != nil {
@@ -108,7 +98,7 @@ func TransactionRecordReadAllTXs(numTotalTXs, iterations int) error {
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
 	fmt.Println()
 	return nil
@@ -116,24 +106,19 @@ func TransactionRecordReadAllTXs(numTotalTXs, iterations int) error {
 
 func TransactionRecordCommitment(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record commitment")
-	fmt.Println("Number of transactions:", numTotalTXs)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		dummyTXs, err := localchain.DummyOnChainTransactions(numTotalTXs)
-		if err != nil {
-			return err
-		}
+		dummyTXs := localchain.DummyPlainTransactions(numTotalTXs)
 		startTime := time.Now()
 		for _, tx := range dummyTXs {
-			_, err := tx.ToHidden()
+			_, _, err := tx.Hide()
 			if err != nil {
 				return err
 			}
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
 	fmt.Println()
 	return nil
@@ -141,27 +126,22 @@ func TransactionRecordCommitment(numTotalTXs, iterations int) error {
 
 func TransactionRecordAccumulate(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record accumulate")
-	fmt.Println("Number of transactions:", numTotalTXs)
-	fmt.Println("Number of iterations:", iterations)
-	fmt.Println("Elapsed times (ms):")
+	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		commitments := make([]kyber.Point, numTotalTXs)
-		for i := 0; i < numTotalTXs; i++ {
-			plainTX, err := localchain.DummyPlainTransaction()
-			if err != nil {
-				return err
-			}
-			_, commitments[i], err = plainTX.Hide()
-		}
+		dummyCommitments := localchain.DummyHiddenTXCommitments(numTotalTXs)
 		kyberSuite := edwards25519.NewBlakeSHA256Ed25519()
 		accumulator := kyberSuite.Point().Null()
 		startTime := time.Now()
-		for _, commitment := range commitments {
+		for _, commitment := range dummyCommitments {
 			accumulator = accumulator.Add(accumulator, commitment)
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		fmt.Println(elapsed.Milliseconds())
+		if elapsed.Milliseconds() == 0 {
+			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
+		} else {
+			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		}
 	}
 	fmt.Println()
 	return nil

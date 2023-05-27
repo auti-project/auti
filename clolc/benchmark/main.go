@@ -8,7 +8,9 @@ import (
 
 func main() {
 	benchPhasePtr := flag.String("phase", "", "Benchmark of CLOLC four phases: in, tr, ce, and rv")
-	benchProcessPtr := flag.String("process", "", "[tr]: submit_tx, read_tx, read_all_tx, commit_tx, accumulate")
+	benchProcessPtr := flag.String("process", "",
+		"[tr]: submit_tx, read_tx, read_all_tx, commit_tx, accumulate, prepare_tx",
+	)
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
 	numTXsPtr := flag.Int("numTXs", 100, "Number of transactions")
@@ -21,6 +23,10 @@ func main() {
 		switch *benchProcessPtr {
 		case "submit_tx":
 			if err := bf.TransactionRecordSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
+				return
+			}
+		case "prepare_tx":
+			if err := bf.PrepareTX(*numTXsPtr); err != nil {
 				return
 			}
 		case "read_tx":

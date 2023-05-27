@@ -301,10 +301,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 		return nil, err
 	}
 	defer lc.Close()
-	dummyTXs, err := DummyOnChainTransactions(numTXs)
-	if err != nil {
-		return nil, err
-	}
+	dummyTXs := DummyOnChainTransactions(numTXs)
 	var txIDs []string
 	for j := 0; j < numTXs; j += txThreshold {
 		right := j + txThreshold

@@ -3,21 +3,36 @@ package localchain
 import (
 	crand "crypto/rand"
 	"math/rand"
+	"runtime"
+	"sync"
 	"time"
 
 	"github.com/auti-project/auti/internal/transaction"
+	"go.dedis.ch/kyber/v3"
 )
 
-func DummyOnChainTransactions(num int) ([]*transaction.CLOLCOnChain, error) {
-	onChainTransactions := make([]*transaction.CLOLCOnChain, num)
-	var err error
-	for i := 0; i < num; i++ {
-		onChainTransactions[i], err = DummyOnChainTransaction()
-		if err != nil {
-			return nil, err
-		}
+var (
+	numCPUs = runtime.NumCPU()
+)
+
+func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOnChain {
+	results := make([]*transaction.CLOLCOnChain, numTXs)
+	wg := sync.WaitGroup{}
+	for i := 0; i < numCPUs; i++ {
+		wg.Add(1)
+		go func(idx, step int) {
+			defer wg.Done()
+			for j := idx; j < numTXs; j += step {
+				dummyTX, err := DummyOnChainTransaction()
+				if err != nil {
+					panic(err)
+				}
+				results[j] = dummyTX
+			}
+		}(i, numCPUs)
 	}
-	return onChainTransactions, nil
+	wg.Wait()
+	return results
 }
 
 func DummyOnChainTransaction() (*transaction.CLOLCOnChain, error) {
@@ -37,6 +52,26 @@ func DummyOnChainTransaction() (*transaction.CLOLCOnChain, error) {
 	return hiddenTX.ToOnChain(), nil
 }
 
+func DummyPlainTransactions(numTXs int) []*transaction.CLOLCPlain {
+	results := make([]*transaction.CLOLCPlain, numTXs)
+	wg := sync.WaitGroup{}
+	for i := 0; i < numCPUs; i++ {
+		wg.Add(1)
+		go func(idx, step int) {
+			defer wg.Done()
+			var err error
+			for j := idx; j < numTXs; j += step {
+				results[j], err = DummyPlainTransaction()
+				if err != nil {
+					panic(err)
+				}
+			}
+		}(i, numCPUs)
+	}
+	wg.Wait()
+	return results
+}
+
 func DummyPlainTransaction() (*transaction.CLOLCPlain, error) {
 	currTimestamp := time.Now().UnixNano()
 	randAmount := rand.Float64()
@@ -51,4 +86,28 @@ func DummyPlainTransaction() (*transaction.CLOLCPlain, error) {
 		currTimestamp,
 	)
 	return plainTX, nil
+}
+
+func DummyHiddenTXCommitments(numTXs int) []kyber.Point {
+	results := make([]kyber.Point, numTXs)
+	wg := sync.WaitGroup{}
+	for i := 0; i < numCPUs; i++ {
+		wg.Add(1)
+		go func(idx, step int) {
+			defer wg.Done()
+			for j := idx; j < numTXs; j += step {
+				tx, err := DummyPlainTransaction()
+				if err != nil {
+					panic(err)
+				}
+				_, commitment, err := tx.Hide()
+				if err != nil {
+					panic(err)
+				}
+				results[j] = commitment
+			}
+		}(i, numCPUs)
+	}
+	wg.Wait()
+	return results
 }
