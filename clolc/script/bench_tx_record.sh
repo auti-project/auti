@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+cd ../benchmark || exit
+
+go build -o clolc.out
+
+LOG_DIR="../logs"
+if [ ! -d $LOG_DIR ]; then
+    mkdir $LOG_DIR
+fi
+LOG_FILE_DIR="${LOG_DIR}/clolc_tx_record_bench.log"
+if [ -f $LOG_FILE_DIR ]; then
+    rm $LOG_FILE_DIR
+fi
+touch $LOG_FILE_DIR
 
 # install fablo if not installed
 [ -f ./fablo ] ||
@@ -7,10 +20,37 @@ curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo
 
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
-./fablo down
-rm -rf fablo-target
-./fablo up fablo-config.yaml
+echo "CLOLC TX RECORD BENCH" >$LOG_FILE_DIR
 
-cd ../benchmark || exit
-go build -o tx_record.out
-./tx_record.out
+function cleanup() {
+    ./fablo down
+    rm -rf fablo-target
+    docker volume prune -f
+    docker network prune -f
+    docker container prune -f
+}
+
+# for i in 1000 10000 100000; do
+for i in 1000; do
+    cleanup
+    ./fablo up fablo-local-chain-config.yaml
+    sleep 5
+    ./clolc.out -phase tr -process submit_tx -numTXs $i -numIter 10 | tee -a $LOG_FILE_DIR
+    sleep 1
+done
+
+for i in 10000 100000 1000000; do
+    for j in {1..10}; do
+        cleanup
+        ./fablo up fablo-local-chain-config.yaml
+        sleep 5
+        ./clolc.out -phase tr -process submit_tx -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
+        sleep 1
+    done
+done
+
+# cleanup
+# ./fablo up fablo-local-chain-config.yaml
+# ./clolc.out -phase tr -process submit_tx -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
+
+rm clolc.out

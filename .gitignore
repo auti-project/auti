@@ -34,5 +34,6 @@ go.work
 fablo
 
 # Hyperledger Fabric related files
-wallet/
+orgWallet/
+audWallet/
 keystore/
