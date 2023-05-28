@@ -2,65 +2,51 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	bf "github.com/auti-project/auti/clolc/benchmark/internal/benchfeature"
 )
 
 func main() {
-	benchPhasePtr := flag.String("phase", "", "Benchmark of CLOLC four phases: in, tr, ce, and rv")
+	benchPhasePtr := flag.String("phase", "", "in, tr, ce, rv")
 	benchProcessPtr := flag.String("process", "",
-		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare",
+		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare"+
+			"[ce]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare",
 	)
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
 	numTXsPtr := flag.Int("numTXs", 100, "Number of transactions")
 	flag.Parse()
 
+	var err error
 	switch *benchPhasePtr {
 	case "in":
-		bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
+		err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
 	case "tr":
 		switch *benchProcessPtr {
 		case "local_submit":
-			if err := bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr)
 		case "local_prepare":
-			if err := bf.PrepareLocalTX(*numTXsPtr); err != nil {
-				return
-			}
+			err = bf.PrepareLocalTX(*numTXsPtr)
 		case "local_read":
-			if err := bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
 		case "local_read_all":
-			if err := bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
 		case "commit_tx":
-			if err := bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr)
 		case "accumulate":
-			if err := bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr)
 		case "org_prepare":
-			if err := bf.PrepareOrgTX(*numTXsPtr); err != nil {
-				return
-			}
+			err = bf.PrepareOrgTX(*numTXsPtr)
 		case "org_submit":
-			if err := bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case "org_read":
-			if err := bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
 		case "org_read_all":
-			if err := bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr); err != nil {
-				return
-			}
+			err = bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr)
 		}
+	}
+	if err != nil {
+		log.Fatalf("Error: %v", err)
 	}
 }

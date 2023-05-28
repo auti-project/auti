@@ -18,7 +18,7 @@ type Committee struct {
 	managedEntityMap    map[auditor.TypeID][]organization.TypeID
 	managedAuditorIDs   []auditor.TypeID
 	managedOrgIDs       []organization.TypeID
-	epochTXRandMap      map[[2]organization.TypeID][]*big.Int
+	epochTXRandMap      map[[2]string][]kyber.Scalar
 	epochAuditorRandMap map[auditor.TypeID]*big.Int
 	epochSecretKeyMap   map[organization.TypeID]crypto.TypeSecretKey
 	epochPublicKeyMap   map[organization.TypeID]crypto.TypePublicKey
@@ -44,7 +44,7 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 }
 
 func (c *Committee) resetMaps() {
-	c.epochTXRandMap = make(map[[2]organization.TypeID][]*big.Int)
+	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	c.epochAuditorRandMap = make(map[auditor.TypeID]*big.Int)
 	c.epochSecretKeyMap = make(map[organization.TypeID]crypto.TypeSecretKey)
 	c.epochPublicKeyMap = make(map[organization.TypeID]crypto.TypePublicKey)
@@ -107,20 +107,18 @@ func (c *Committee) generateEpochTXRandomness() error {
 	// generate randomness for the transactions
 	// distribute randomness to organizations
 	// the complexity is O(n^2) here
-	c.epochTXRandMap = make(map[[2]organization.TypeID][]*big.Int)
+	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	for i := 0; i < len(c.managedOrgIDs); i++ {
 		for j := i + 1; j < len(c.managedOrgIDs); j++ {
 			orgID1 := c.managedOrgIDs[i]
 			orgID2 := c.managedOrgIDs[j]
-			key := organization.ComposeOrgRandMapKey(orgID1, orgID2)
+			orgIDHash1 := organization.IDHashString(orgID1)
+			orgIDHash2 := organization.IDHashString(orgID2)
+			key := organization.IDHashKey(orgIDHash1, orgIDHash2)
 			if _, ok := c.epochTXRandMap[key]; ok {
 				continue
 			}
-			randList, err := crypto.RandIntList(constants.MaxNumTXInEpoch)
-			if err != nil {
-				return err
-			}
-			c.epochTXRandMap[key] = randList
+			c.epochTXRandMap[key] = crypto.RandScalarList(constants.MaxNumTXInEpoch)
 		}
 	}
 	return nil
@@ -165,26 +163,37 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 	if !ok {
 		return errors.New(string("auditor not found, id: " + auditor.ID))
 	}
-	// forward transaction randomnesses, and at the meantime, forward the secret keys
-	orgTXRandMap := make(map[[2]organization.TypeID][]*big.Int)
+	// forward transaction randomnesses
 	auditedOrgSecretKeyMap := make(map[organization.TypeID]crypto.TypeSecretKey)
-	for _, orgID1 := range auditedOrgIDList {
-		for _, orgID2 := range c.managedOrgIDs {
-			if orgID1 == orgID2 {
+	auditedOrgIDHashList := make([]string, len(auditedOrgIDList))
+	for i, orgID := range auditedOrgIDList {
+		auditedOrgIDHashList[i] = organization.IDHashString(orgID)
+	}
+	managedOrgIDHashList := make([]string, len(c.managedOrgIDs))
+	for i, orgID := range c.managedOrgIDs {
+		managedOrgIDHashList[i] = organization.IDHashString(orgID)
+	}
+	orgTXRandMap := make(map[[2]string][]kyber.Scalar)
+	for _, orgIDHash1 := range auditedOrgIDHashList {
+		for _, orgIDHash2 := range managedOrgIDHashList {
+			if orgIDHash1 == orgIDHash2 {
 				continue
 			}
-			key := organization.ComposeOrgRandMapKey(orgID1, orgID2)
+			key := organization.IDHashKey(orgIDHash1, orgIDHash2)
 			if _, ok := c.epochTXRandMap[key]; !ok {
-				return errors.New(string("randomness not found, key: " + key[0] + key[1]))
+				return errors.New("randomness not found, key: " + key[0] + key[1])
 			}
 			orgTXRandMap[key] = c.epochTXRandMap[key]
 		}
-		// forward secret key
-		secretKey, ok := c.epochSecretKeyMap[orgID1]
+
+	}
+	// Forward secret key
+	for _, orgID := range auditedOrgIDList {
+		secretKey, ok := c.epochSecretKeyMap[orgID]
 		if !ok {
-			return errors.New(string("secret key not found, id: " + orgID1))
+			return errors.New(string("secret key not found, id: " + orgID))
 		}
-		auditedOrgSecretKeyMap[orgID1] = secretKey
+		auditedOrgSecretKeyMap[orgID] = secretKey
 	}
 	auditor.SetEpochTXRandomness(orgTXRandMap)
 	auditor.SetEpochSecretKey(auditedOrgSecretKeyMap)

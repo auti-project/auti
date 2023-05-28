@@ -25,7 +25,7 @@ func generateEntities(numOrganizations int) (*committee.Committee, []*auditor.Au
 	return com, auditors, organizations
 }
 
-func InitializeEpoch(numOrganizations, iterations int) {
+func InitializeEpoch(numOrganizations, iterations int) error {
 	fmt.Println("CLOLC initialize epoch")
 	fmt.Printf("Num Org: %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
@@ -33,13 +33,14 @@ func InitializeEpoch(numOrganizations, iterations int) {
 		startTime := time.Now()
 		_, err := com.InitializeEpoch(auditors, organizations)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
 		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 	}
 	fmt.Println()
+	return nil
 }
 
 func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {

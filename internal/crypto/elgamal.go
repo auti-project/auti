@@ -11,24 +11,24 @@ import (
 )
 
 var (
-	kyberSuite       = edwards25519.NewBlakeSHA256Ed25519()
-	maxAmountByteLen = kyberSuite.Point().EmbedLen()
-	pointG           = kyberSuite.Point().Base()
+	KyberSuite       = edwards25519.NewBlakeSHA256Ed25519()
+	maxAmountByteLen = KyberSuite.Point().EmbedLen()
+	PointG           = KyberSuite.Point().Base()
 	hScalarBytes     = []byte{
 		88, 110, 203, 46, 52, 29, 230, 201, 240, 164, 50, 0,
 		116, 207, 45, 187, 223, 113, 166, 40, 12, 27, 15, 50,
 		235, 140, 55, 192, 37, 22, 130, 239,
 	}
-	hScalar = kyberSuite.Scalar().SetBytes(hScalarBytes)
-	pointH  = kyberSuite.Point().Base().Mul(hScalar, nil)
+	hScalar = KyberSuite.Scalar().SetBytes(hScalarBytes)
+	PointH  = KyberSuite.Point().Base().Mul(hScalar, nil)
 )
 
 type TypePublicKey kyber.Point
 type TypeSecretKey kyber.Scalar
 
 func KeyGen() (privateKey TypeSecretKey, publicKey TypePublicKey, err error) {
-	privateKey = kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
-	publicKey = kyberSuite.Point().Mul(privateKey, nil)
+	privateKey = KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
+	publicKey = KyberSuite.Point().Mul(privateKey, nil)
 	return
 }
 
@@ -51,15 +51,15 @@ func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
 	if maxAmountByteLen < len(amountBytes) {
 		return nil, errors.New("amount is too large")
 	}
-	amountPoint := kyberSuite.Point().Embed(amountBytes, kyberSuite.RandomStream())
-	randomScalar := kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
-	c1 := kyberSuite.Point().Mul(randomScalar, nil)
-	c2 := kyberSuite.Point().Add(amountPoint, kyberSuite.Point().Mul(randomScalar, publicKey))
+	amountPoint := KyberSuite.Point().Embed(amountBytes, KyberSuite.RandomStream())
+	randomScalar := KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
+	c1 := KyberSuite.Point().Mul(randomScalar, nil)
+	c2 := KyberSuite.Point().Add(amountPoint, KyberSuite.Point().Mul(randomScalar, publicKey))
 	return &CipherText{c1, c2}, nil
 }
 
 func Decrypt(privateKey kyber.Scalar, cipherText *CipherText) (int64, error) {
-	amountPoint := kyberSuite.Point().Mul(privateKey, cipherText.C1)
+	amountPoint := KyberSuite.Point().Mul(privateKey, cipherText.C1)
 	amountPoint.Neg(amountPoint)
 	amountPoint.Add(amountPoint, cipherText.C2)
 	amountBytes, err := amountPoint.Data()
