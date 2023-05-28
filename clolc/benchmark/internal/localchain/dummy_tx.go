@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/auti-project/auti/internal/organization"
 	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
@@ -105,6 +106,31 @@ func DummyHiddenTXCommitments(numTXs int) []kyber.Point {
 					panic(err)
 				}
 				results[j] = commitment
+			}
+		}(i, numCPUs)
+	}
+	wg.Wait()
+	return results
+}
+
+func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs int) []*transaction.CLOLCLocalHidden {
+	results := make([]*transaction.CLOLCLocalHidden, numTXs)
+	wg := sync.WaitGroup{}
+	for i := 0; i < numCPUs; i++ {
+		wg.Add(1)
+		go func(idx, step int) {
+			defer wg.Done()
+			for j := idx; j < numTXs; j += step {
+				tx, err := DummyPlainTransaction()
+				tx.CounterParty = string(counterPartyID)
+				if err != nil {
+					panic(err)
+				}
+				hiddenTX, _, err := tx.Hide()
+				if err != nil {
+					panic(err)
+				}
+				results[j] = hiddenTX
 			}
 		}(i, numCPUs)
 	}

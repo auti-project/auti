@@ -11,7 +11,7 @@ func main() {
 	benchPhasePtr := flag.String("phase", "", "in, tr, ce, rv")
 	benchProcessPtr := flag.String("process", "",
 		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare"+
-			"[ce]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare",
+			"[ce]: acc_commit",
 	)
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
@@ -44,6 +44,11 @@ func main() {
 			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
 		case "org_read_all":
 			err = bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr)
+		}
+	case "ce":
+		switch *benchProcessPtr {
+		case "acc_commit":
+			err = bf.ConsistencyExaminationAccumulateCommitment(*numOrgPtr, *numIterPtr)
 		}
 	}
 	if err != nil {
