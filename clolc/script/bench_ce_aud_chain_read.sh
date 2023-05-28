@@ -8,7 +8,7 @@ LOG_DIR="../logs"
 if [ ! -d $LOG_DIR ]; then
     mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/clolc_tr_aud_chain_read.log"
+LOG_FILE_DIR="${LOG_DIR}/clolc_ce_aud_chain_read.log"
 if [ -f $LOG_FILE_DIR ]; then
     rm $LOG_FILE_DIR
 fi

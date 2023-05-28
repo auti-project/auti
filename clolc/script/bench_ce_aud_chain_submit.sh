@@ -8,7 +8,7 @@ LOG_DIR="../logs"
 if [ ! -d $LOG_DIR ]; then
     mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/clolc_tr_aud_chain_submit.log"
+LOG_FILE_DIR="${LOG_DIR}/clolc_ce_aud_chain_submit.log"
 if [ -f $LOG_FILE_DIR ]; then
     rm $LOG_FILE_DIR
 fi
@@ -35,8 +35,9 @@ sleep 5
 ./clolc.out -phase ce -process submit_tx -numTXs 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 sleep 1
 
-for i in 10000 100000 1000000; do
-    for j in {1..15}; do
+# for i in 10000 100000 1000000; do
+for i in 1000000; do
+    for j in {1..11}; do
         echo "No: $j" >>$LOG_FILE_DIR
         cleanup
         ./fablo up fablo-aud-chain-config.yaml
