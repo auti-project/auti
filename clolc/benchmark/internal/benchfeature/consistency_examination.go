@@ -144,7 +144,7 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
+		if elapsed.Milliseconds() <= 1 {
 			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
 		} else {
 			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
