@@ -20,8 +20,8 @@ type Committee struct {
 	managedOrgIDs       []organization.TypeID
 	epochTXRandMap      map[[2]string][]kyber.Scalar
 	epochAuditorRandMap map[auditor.TypeID]*big.Int
-	epochSecretKeyMap   map[organization.TypeID]crypto.TypeSecretKey
-	epochPublicKeyMap   map[organization.TypeID]crypto.TypePublicKey
+	epochSecretKeyMap   map[string]crypto.TypePrivateKey
+	epochPublicKeyMap   map[string]crypto.TypePublicKey
 	epochOrgIDMap       map[organization.TypeID]*big.Int
 	epochAuditorIDMap   map[auditor.TypeID]*big.Int
 }
@@ -46,8 +46,8 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 func (c *Committee) resetMaps() {
 	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	c.epochAuditorRandMap = make(map[auditor.TypeID]*big.Int)
-	c.epochSecretKeyMap = make(map[organization.TypeID]crypto.TypeSecretKey)
-	c.epochPublicKeyMap = make(map[organization.TypeID]crypto.TypePublicKey)
+	c.epochSecretKeyMap = make(map[string]crypto.TypePrivateKey)
+	c.epochPublicKeyMap = make(map[string]crypto.TypePublicKey)
 	c.epochOrgIDMap = make(map[organization.TypeID]*big.Int)
 	c.epochAuditorIDMap = make(map[auditor.TypeID]*big.Int)
 }
@@ -55,7 +55,7 @@ func (c *Committee) resetMaps() {
 // InitializeEpoch initialize the parameters for an auditing epoch
 func (c *Committee) InitializeEpoch(
 	auditors []*auditor.Auditor, organizations []*organization.Organization,
-) (map[organization.TypeID]crypto.TypePublicKey, error) {
+) (map[string]crypto.TypePublicKey, error) {
 	c.resetMaps()
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
 	// note that r_{i, j, k} = r_{j, i, k}, and R_{i, j} = {r_{i, j, k}}_k
@@ -144,16 +144,18 @@ func (c *Committee) generateEpochKeyPairs() error {
 		if err != nil {
 			return err
 		}
-		c.epochSecretKeyMap[id] = privateKey
-		c.epochPublicKeyMap[id] = publicKey
+		idHash := organization.IDHashString(id)
+		c.epochSecretKeyMap[idHash] = privateKey
+		c.epochPublicKeyMap[idHash] = publicKey
 	}
 	return nil
 }
 
-func (c *Committee) PublishPublicKeys() map[organization.TypeID]kyber.Point {
-	publicKeyMap := make(map[organization.TypeID]kyber.Point)
+func (c *Committee) PublishPublicKeys() map[string]kyber.Point {
+	publicKeyMap := make(map[string]kyber.Point)
 	for _, id := range c.managedOrgIDs {
-		publicKeyMap[id] = c.epochPublicKeyMap[id]
+		idHash := organization.IDHashString(id)
+		publicKeyMap[idHash] = c.epochPublicKeyMap[idHash]
 	}
 	return publicKeyMap
 }
@@ -164,7 +166,6 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 		return errors.New(string("auditor not found, id: " + auditor.ID))
 	}
 	// forward transaction randomnesses
-	auditedOrgSecretKeyMap := make(map[organization.TypeID]crypto.TypeSecretKey)
 	auditedOrgIDHashList := make([]string, len(auditedOrgIDList))
 	for i, orgID := range auditedOrgIDList {
 		auditedOrgIDHashList[i] = organization.IDHashString(orgID)
@@ -185,15 +186,16 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 			}
 			orgTXRandMap[key] = c.epochTXRandMap[key]
 		}
-
 	}
 	// Forward secret key
+	auditedOrgSecretKeyMap := make(map[string]crypto.TypePrivateKey)
 	for _, orgID := range auditedOrgIDList {
-		secretKey, ok := c.epochSecretKeyMap[orgID]
+		orgIDHash := organization.IDHashString(orgID)
+		secretKey, ok := c.epochSecretKeyMap[orgIDHash]
 		if !ok {
 			return errors.New(string("secret key not found, id: " + orgID))
 		}
-		auditedOrgSecretKeyMap[orgID] = secretKey
+		auditedOrgSecretKeyMap[orgIDHash] = secretKey
 	}
 	auditor.SetEpochTXRandomness(orgTXRandMap)
 	auditor.SetEpochSecretKey(auditedOrgSecretKeyMap)
@@ -211,6 +213,17 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 		return errors.New(string("epoch ID not found, id: " + auditor.ID))
 	}
 	auditor.SetEpochID(epochID)
+
+	// forward organization epoch ID
+	epochOrgIDMap := make(map[organization.TypeID]*big.Int)
+	for _, orgID := range auditedOrgIDList {
+		epochID, ok := c.epochOrgIDMap[orgID]
+		if !ok {
+			return errors.New(string("epoch ID not found, id: " + orgID))
+		}
+		epochOrgIDMap[orgID] = epochID
+	}
+	auditor.SetEpochOrgIDMap(epochOrgIDMap)
 	return nil
 }
 

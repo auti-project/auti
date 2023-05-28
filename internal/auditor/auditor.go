@@ -1,6 +1,7 @@
 package auditor
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -20,7 +21,8 @@ type Auditor struct {
 	epochRand            *big.Int
 	epochOrgRandMap      map[[2]string][]kyber.Scalar
 	epochID              *big.Int
-	epochOrgSecretKeyMap map[organization.TypeID]crypto.TypeSecretKey
+	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
+	epochOrgIDMap        map[organization.TypeID]*big.Int
 }
 
 func New(id string, organizations []*organization.Organization) *Auditor {
@@ -42,12 +44,16 @@ func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
 	a.epochOrgRandMap = txRandMap
 }
 
-func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[organization.TypeID]crypto.TypeSecretKey) {
+func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
 	a.epochOrgSecretKeyMap = orgSecretKeyMap
 }
 
 func (a *Auditor) SetEpochID(id *big.Int) {
 	a.epochID = id
+}
+
+func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]*big.Int) {
+	a.epochOrgIDMap = idMap
 }
 
 func (a *Auditor) AccumulateCommitments(
@@ -98,4 +104,66 @@ func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 	negB := crypto.KyberSuite.Point().Neg(pointB)
 	result := crypto.KyberSuite.Point().Add(negA, negB)
 	return result
+}
+
+func (a *Auditor) EncryptConsistencyExamResult(orgID organization.TypeID, counterPartyIDHash string,
+	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point) (*transaction.CLOLCAudPlain, error) {
+	txID, err := a.ComputeCETransactionID(orgID, counterPartyIDHash)
+	if err != nil {
+		return nil, err
+	}
+	cipherRes, err := crypto.EncryptPoint(publicKey, res)
+	if err != nil {
+		return nil, err
+	}
+	cipherResBytes, err := cipherRes.Serialize()
+	if err != nil {
+		return nil, err
+	}
+	cipherB, err := crypto.EncryptPoint(publicKey, pointB)
+	if err != nil {
+		return nil, err
+	}
+	cipherBBytes, err := cipherB.Serialize()
+	if err != nil {
+		return nil, err
+	}
+	cipherC, err := crypto.EncryptPoint(publicKey, pointC)
+	if err != nil {
+		return nil, err
+	}
+	cipherCBytes, err := cipherC.Serialize()
+	if err != nil {
+		return nil, err
+	}
+	cipherD, err := crypto.EncryptPoint(publicKey, pointD)
+	if err != nil {
+		return nil, err
+	}
+	cipherDBytes, err := cipherD.Serialize()
+	if err != nil {
+		return nil, err
+	}
+	return transaction.NewCLOLCAudPlain(txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes), nil
+}
+
+func (a *Auditor) ComputeCETransactionID(orgID organization.TypeID, counterPartyIDHash string) ([]byte, error) {
+	orgIDHashStr := organization.IDHashString(orgID)
+	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
+	randomnesses := a.epochOrgRandMap[orgKey]
+	epochOrgID := a.epochOrgIDMap[orgID]
+	epochOrgIDBytes := epochOrgID.Bytes()
+	randAccumulator := crypto.KyberSuite.Scalar().Zero()
+	for _, randScalar := range randomnesses {
+		randAccumulator.Add(randAccumulator, randScalar)
+	}
+	randAccumulatorBytes, err := randAccumulator.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	concatBytes := append(epochOrgIDBytes, randAccumulatorBytes...)
+	sha256Func := sha256.New()
+	sha256Func.Write(concatBytes)
+	result := sha256Func.Sum(nil)
+	return result, nil
 }

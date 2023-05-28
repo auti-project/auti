@@ -3,6 +3,7 @@ package crypto
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -24,22 +25,35 @@ var (
 )
 
 type TypePublicKey kyber.Point
-type TypeSecretKey kyber.Scalar
+type TypePrivateKey kyber.Scalar
 
-func KeyGen() (privateKey TypeSecretKey, publicKey TypePublicKey, err error) {
+func KeyGen() (privateKey TypePrivateKey, publicKey TypePublicKey, err error) {
 	privateKey = KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
 	publicKey = KyberSuite.Point().Mul(privateKey, nil)
 	return
 }
 
 type KeyPair struct {
-	PrivateKey TypeSecretKey
-	PublicKey  TypePublicKey
+	PrivateKey TypePrivateKey `json:"private_key"`
+	PublicKey  TypePublicKey  `json:"public_key"`
 }
 
 type CipherText struct {
-	C1 kyber.Point
-	C2 kyber.Point
+	C1 kyber.Point `json:"c_1"`
+	C2 kyber.Point `json:"c_2"`
+}
+
+func (c *CipherText) Serialize() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+func DeserializeCipherText(data []byte) (*CipherText, error) {
+	c := &CipherText{}
+	err := json.Unmarshal(data, c)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
@@ -55,6 +69,13 @@ func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
 	randomScalar := KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
 	c1 := KyberSuite.Point().Mul(randomScalar, nil)
 	c2 := KyberSuite.Point().Add(amountPoint, KyberSuite.Point().Mul(randomScalar, publicKey))
+	return &CipherText{c1, c2}, nil
+}
+
+func EncryptPoint(publicKey, data kyber.Point) (*CipherText, error) {
+	randomScalar := KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
+	c1 := KyberSuite.Point().Mul(randomScalar, nil)
+	c2 := KyberSuite.Point().Add(data, KyberSuite.Point().Mul(randomScalar, publicKey))
 	return &CipherText{c1, c2}, nil
 }
 

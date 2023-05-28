@@ -11,7 +11,7 @@ func main() {
 	benchPhasePtr := flag.String("phase", "", "in, tr, ce, rv")
 	benchProcessPtr := flag.String("process", "",
 		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare"+
-			"[ce]: acc_commit, cal_b, cal_c, cal_d",
+			"[ce]: acc_commit, cal_b, cal_c, cal_d, encrypt",
 	)
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
@@ -55,6 +55,8 @@ func main() {
 			err = bf.ConsistencyExaminationComputeC(*numOrgPtr, *numIterPtr)
 		case "cal_d":
 			err = bf.ConsistencyExaminationComputeD(*numOrgPtr, *numIterPtr)
+		case "encrypt":
+			err = bf.ConsistencyExaminationEncrypt(*numOrgPtr, *numIterPtr)
 		}
 	}
 	if err != nil {

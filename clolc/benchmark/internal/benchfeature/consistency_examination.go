@@ -7,6 +7,7 @@ import (
 	"github.com/auti-project/auti/clolc/benchmark/internal/localchain"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/organization"
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -105,6 +106,42 @@ func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
 		randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 		startTime := time.Now()
 		_ = auditors[0].ComputeD(randPoint1, randPoint2)
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		if elapsed.Milliseconds() == 0 {
+			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
+		} else {
+			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
+	fmt.Println("CLOLC consistency examination encrypt")
+	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
+	for i := 0; i < iterations; i++ {
+		com, auditors, organizations := generateEntities(numOrganizations)
+		_, err := com.InitializeEpoch(auditors, organizations)
+		if err != nil {
+			return err
+		}
+		counterPartyHashStr := organization.IDHashString(organizations[1].ID)
+		_, publicKey, err := crypto.KeyGen()
+		if err != nil {
+			return err
+		}
+		randPoint1 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		randPoint3 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		randPoint4 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		startTime := time.Now()
+		if _, err := auditors[0].EncryptConsistencyExamResult(
+			organizations[0].ID, counterPartyHashStr, randPoint1, randPoint2, randPoint3, randPoint4, publicKey,
+		); err != nil {
+			return err
+		}
 		endTime := time.Now()
 		elapsed := endTime.Sub(startTime)
 		if elapsed.Milliseconds() == 0 {
