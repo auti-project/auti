@@ -93,3 +93,9 @@ func (a *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Add(res, A)
 	return result
 }
+func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
+	negA := crypto.KyberSuite.Point().Neg(pointA)
+	negB := crypto.KyberSuite.Point().Neg(pointB)
+	result := crypto.KyberSuite.Point().Add(negA, negB)
+	return result
+}
