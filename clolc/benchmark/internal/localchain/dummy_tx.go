@@ -46,7 +46,7 @@ func DummyOnChainTransaction() (*transaction.CLOLCLocalOnChain, error) {
 	if err != nil {
 		return nil, err
 	}
-	hiddenTX, _, err := plainTX.Hide()
+	hiddenTX, _, _, err := plainTX.Hide()
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func DummyHiddenTXCommitments(numTXs int) []kyber.Point {
 				if err != nil {
 					panic(err)
 				}
-				_, commitment, err := tx.Hide()
+				_, commitment, _, err := tx.Hide()
 				if err != nil {
 					panic(err)
 				}
@@ -126,7 +126,7 @@ func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs 
 				if err != nil {
 					panic(err)
 				}
-				hiddenTX, _, err := tx.Hide()
+				hiddenTX, _, _, err := tx.Hide()
 				if err != nil {
 					panic(err)
 				}
