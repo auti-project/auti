@@ -20,7 +20,7 @@ touch $LOG_FILE_DIR
 
 for j in {1..10}; do
   echo "No: $j" >>$LOG_FILE_DIR
-  ./clolc.out -phase ce -process acc_commit -numOrg 2 -numIter 1 | tee -a $LOG_FILE_DIR
+  ./clolc.out -phase ce -process cal_b -numOrg 2 -numIter 1 | tee -a $LOG_FILE_DIR
   sleep 1
 done
 
