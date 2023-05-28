@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/auti-project/auti/clolc/benchmark/internal/audchain"
 	"github.com/auti-project/auti/clolc/benchmark/internal/localchain"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
@@ -149,6 +150,69 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 		} else {
 			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
 		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC consistency examination submit TX")
+	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		_, err := audchain.SubmitTX(numTotalTXs)
+		if err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC consistency examination read TX")
+	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		if err := audchain.ReadTX(); err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
+	fmt.Println("CLOLC consistency examination read all TXs")
+	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		startTime := time.Now()
+		if err := audchain.ReadAllTXs(); err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+	}
+	fmt.Println()
+	return nil
+}
+
+func PrepareAudTX(numTotalTXs int) error {
+	fmt.Println("CLOLC prepare aud transaction")
+	fmt.Printf("Num TX: %d\n", numTotalTXs)
+	txIDs, err := audchain.SubmitTX(numTotalTXs)
+	if err != nil {
+		return err
+	}
+	if err = audchain.SaveTXIDs(txIDs); err != nil {
+		return err
 	}
 	fmt.Println()
 	return nil

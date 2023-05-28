@@ -42,6 +42,16 @@ type CLOLCAudOnChain struct {
 	CipherD   string `json:"cipher_d"`
 }
 
+func NewCLOLCAudOnChain(id, cipherRes, cipherB, cipherC, cipherD string) *CLOLCAudOnChain {
+	return &CLOLCAudOnChain{
+		ID:        id,
+		CipherRes: cipherRes,
+		CipherB:   cipherB,
+		CipherC:   cipherC,
+		CipherD:   cipherD,
+	}
+}
+
 func (c *CLOLCAudOnChain) ToPlain() (*CLOLCAudPlain, error) {
 	id, err := hex.DecodeString(c.ID)
 	if err != nil {

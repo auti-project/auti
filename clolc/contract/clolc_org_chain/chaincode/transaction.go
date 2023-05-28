@@ -16,8 +16,8 @@ func NewTransaction(accumulator string) *Transaction {
 	}
 }
 
-func (c *Transaction) KeyVal() (string, []byte, error) {
-	txJSON, err := json.Marshal(c)
+func (t *Transaction) KeyVal() (string, []byte, error) {
+	txJSON, err := json.Marshal(t)
 	if err != nil {
 		return "", nil, err
 	}

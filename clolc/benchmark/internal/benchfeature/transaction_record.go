@@ -27,7 +27,7 @@ func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
 }
 
 func PrepareLocalTX(numTotalTXs int) error {
-	fmt.Println("CLOLC prepare transaction")
+	fmt.Println("CLOLC prepare local transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := localchain.SubmitTX(numTotalTXs)
 	if err != nil {
