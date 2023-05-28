@@ -66,3 +66,29 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 	fmt.Println()
 	return nil
 }
+
+func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
+	fmt.Println("CLOLC consistency examination compute C")
+	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
+	for i := 0; i < iterations; i++ {
+		com, auditors, organizations := generateEntities(numOrganizations)
+		_, err := com.InitializeEpoch(auditors, organizations)
+		if err != nil {
+			return err
+		}
+
+		randPoint1 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		startTime := time.Now()
+		_ = auditors[0].ComputeC(randPoint1, randPoint2)
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		if elapsed.Milliseconds() == 0 {
+			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
+		} else {
+			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		}
+	}
+	fmt.Println()
+	return nil
+}
