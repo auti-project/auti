@@ -16,6 +16,11 @@ import (
 )
 
 const (
+	txThreshold = 10000
+	txIDLogPath = "oc_tx_id.log"
+)
+
+const (
 	channelName    = "mychannel"
 	contractType   = "auti-org-chain"
 	orgWalletPath  = "wallet"
@@ -196,11 +201,6 @@ func populateOrgWallet(wallet *gateway.Wallet) error {
 	return wallet.Put(orgWalletLabel, identity)
 }
 
-const (
-	txThreshold = 10000
-	txIDLogPath = "oc_tx_id.log"
-)
-
 func ReadTX() error {
 	f, err := os.Open(txIDLogPath)
 	if err != nil {
@@ -251,6 +251,8 @@ func SubmitTX(numTXs int) ([]string, error) {
 		}
 		batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
 		if err != nil {
+			log.Printf("Failed to submit batch TXs: %v", err)
+			log.Println("Number of TXs submitted:", len(txIDs))
 			return nil, err
 		}
 		txIDs = append(txIDs, batchTXIDs...)
