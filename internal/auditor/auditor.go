@@ -75,3 +75,15 @@ func (a *Auditor) AccumulateCommitments(
 	}
 	return result, nil
 }
+
+func (a *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Scalar, error) {
+	if len(orgTXRandList) != len(comTXRandList) {
+		return nil, fmt.Errorf("length of two lists are not equal")
+	}
+	result := crypto.KyberSuite.Scalar().Zero()
+	for idx := range orgTXRandList {
+		tmp := crypto.KyberSuite.Scalar().Mul(orgTXRandList[idx], comTXRandList[idx])
+		result.Sub(result, tmp)
+	}
+	return result, nil
+}
