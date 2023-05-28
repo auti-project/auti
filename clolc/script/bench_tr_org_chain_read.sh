@@ -41,37 +41,37 @@ function cleanup() {
 #     done
 # done
 
-# # 1M benchmark needs longer idle time
-# cleanup
-# ./fablo up fablo-org-chain-config.yaml
-# sleep 5
-# ./clolc.out -phase tr -process org_prepare -numTXs 1000000 | tee -a $LOG_FILE_DIR
-# sleep 20
-# for j in {1..10}; do
-#     echo "No: $j" >>$LOG_FILE_DIR
-#     ./clolc.out -phase tr -process org_read -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
-#     sleep 5
-# done
-
-# for i in 1000 10000 100000; do
-for i in 100000; do
-    cleanup
-    ./fablo up fablo-org-chain-config.yaml
-    sleep 5
-    ./clolc.out -phase tr -process org_prepare -numTXs $i | tee -a $LOG_FILE_DIR
-    for j in {1..10}; do
-        echo "No: $j" >>$LOG_FILE_DIR
-        ./clolc.out -phase tr -process org_read_all -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
-        sleep 1
-    done
-done
-
+# 1M benchmark needs longer idle time
 cleanup
 ./fablo up fablo-org-chain-config.yaml
 sleep 5
 ./clolc.out -phase tr -process org_prepare -numTXs 1000000 | tee -a $LOG_FILE_DIR
 sleep 20
-for j in {1..10}; do
+for j in {1..15}; do
+    echo "No: $j" >>$LOG_FILE_DIR
+    ./clolc.out -phase tr -process org_read -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
+    sleep 5
+done
+
+# for i in 1000 10000 100000; do
+#     cleanup
+#     ./fablo up fablo-org-chain-config.yaml
+#     sleep 5
+#     ./clolc.out -phase tr -process org_prepare -numTXs $i | tee -a $LOG_FILE_DIR
+#     for j in {1..10}; do
+#         echo "No: $j" >>$LOG_FILE_DIR
+#         ./clolc.out -phase tr -process org_read_all -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
+#         sleep 1
+#     done
+# done
+
+# 1M benchmark needs longer idle time
+cleanup
+./fablo up fablo-org-chain-config.yaml
+sleep 5
+./clolc.out -phase tr -process org_prepare -numTXs 1000000 | tee -a $LOG_FILE_DIR
+sleep 20
+for j in {1..15}; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase tr -process org_read_all -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5

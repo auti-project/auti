@@ -36,7 +36,7 @@ sleep 5
 sleep 1
 
 for i in 10000 100000 1000000; do
-    for j in {1..10}; do
+    for j in {1..15}; do
         echo "No: $j" >>$LOG_FILE_DIR
         cleanup
         ./fablo up fablo-org-chain-config.yaml
