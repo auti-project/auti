@@ -11,16 +11,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
-)
-
-const (
-	txThreshold = 5000
-	txIDLogPath = "ac_tx_id.log"
-	maxRetries  = 5
-	retryDelay  = 5 * time.Second
 )
 
 const (
@@ -205,7 +199,7 @@ func populateWallet(wallet *gateway.Wallet) error {
 }
 
 func ReadTX() error {
-	f, err := os.Open(txIDLogPath)
+	f, err := os.Open(constants.AudChainTXIDLogPath)
 	if err != nil {
 		return err
 	}
@@ -247,21 +241,20 @@ func SubmitTX(numTXs int) ([]string, error) {
 	defer lc.Close()
 	dummyTXs := DummyOnChainTransactions(numTXs)
 	var txIDs []string
-	for j := 0; j < numTXs; j += txThreshold {
-		right := j + txThreshold
+	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
+		right := batch + constants.SubmitTXBatchSize
 		if right > numTXs {
 			right = numTXs
 		}
-		// batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
-		for i := 0; i < maxRetries; i++ {
-			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
+		for trail := 0; trail < constants.SubmitTXMaxRetries; trail++ {
+			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[trail:right])
 			if err == nil {
 				txIDs = append(txIDs, batchTXIDs...)
 				break
 			}
-			log.Printf("Failed to submit batch TXs: %v", err)
-			log.Printf("Retrying in %v seconds", retryDelay)
-			time.Sleep(retryDelay * time.Second)
+			log.Printf("Failed to submit batch TXs: %v\n", err)
+			log.Printf("Retrying in %v seconds\n", constants.SubmitTXRetryDelaySeconds)
+			time.Sleep(constants.SubmitTXRetryDelaySeconds * time.Second)
 		}
 		if err != nil {
 			return nil, err
@@ -271,7 +264,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 }
 
 func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(txIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(constants.AudChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}

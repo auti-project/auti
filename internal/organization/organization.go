@@ -3,7 +3,6 @@ package organization
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"math/big"
 
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/transaction"
@@ -19,7 +18,7 @@ type TypeID string
 type Organization struct {
 	ID                  TypeID
 	IDHash              string
-	epochRandID         *big.Int
+	epochRandID         []byte
 	epochAccumulatorMap map[[2]string]kyber.Point
 	epochTXRandomness   map[[2]string]kyber.Scalar
 }
@@ -36,7 +35,7 @@ func New(id string) *Organization {
 	return org
 }
 
-func (o *Organization) SetEpochID(randID *big.Int) {
+func (o *Organization) SetEpochID(randID []byte) {
 	o.epochRandID = randID
 }
 

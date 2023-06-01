@@ -1,22 +1,16 @@
 package orgchain
 
 import (
-	crand "crypto/rand"
 	"crypto/sha256"
-	"math/big"
 	"runtime"
 	"sync"
 
-	"github.com/auti-project/auti/internal/constants"
+	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/transaction"
-	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
 var (
-	numCPUs     = runtime.NumCPU()
-	big1        = big.NewInt(1)
-	randIDLimit = new(big.Int).Lsh(big1, constants.SecurityParameter)
-	kyberSuite  = edwards25519.NewBlakeSHA256Ed25519()
+	numCPUs = runtime.NumCPU()
 )
 
 func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOrgOnChain {
@@ -40,18 +34,18 @@ func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOrgOnChain {
 }
 
 func DummyOnChainTransaction() (*transaction.CLOLCOrgOnChain, error) {
-	randID, err := crand.Int(crand.Reader, randIDLimit)
+	randID, err := crypto.RandBytes()
 	if err != nil {
 		return nil, err
 	}
-	randIDBytes := randID.Bytes()
 	sha256Func := sha256.New()
-	sha256Func.Write(randIDBytes)
+	sha256Func.Write(randID)
 	randIDHashBytes := sha256Func.Sum(nil)
-	randIDScalar := kyberSuite.Scalar().SetBytes(randIDHashBytes)
-	randScalar := kyberSuite.Scalar().Pick(kyberSuite.RandomStream())
-	randPoint := kyberSuite.Point().Mul(randScalar, kyberSuite.Point().Base())
-	accumulator := kyberSuite.Point().Mul(randIDScalar, randPoint)
+	suite := crypto.KyberSuite
+	randIDScalar := suite.Scalar().SetBytes(randIDHashBytes)
+	randScalar := suite.Scalar().Pick(suite.RandomStream())
+	randPoint := suite.Point().Mul(randScalar, suite.Point().Base())
+	accumulator := suite.Point().Mul(randIDScalar, randPoint)
 	accumulatorBytes, err := accumulator.MarshalBinary()
 	if err != nil {
 		return nil, err

@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"math/big"
 
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
@@ -18,11 +17,10 @@ type TypeID string
 type Auditor struct {
 	ID                   TypeID
 	AuditedOrgIDs        []organization.TypeID
-	epochRand            *big.Int
 	epochOrgRandMap      map[[2]string][]kyber.Scalar
-	epochID              *big.Int
+	epochID              []byte
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
-	epochOrgIDMap        map[organization.TypeID]*big.Int
+	epochOrgIDMap        map[organization.TypeID][]byte
 }
 
 func New(id string, organizations []*organization.Organization) *Auditor {
@@ -36,10 +34,6 @@ func New(id string, organizations []*organization.Organization) *Auditor {
 	return auditor
 }
 
-func (a *Auditor) SetEpochRandomness(random *big.Int) {
-	a.epochRand = random
-}
-
 func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
 	a.epochOrgRandMap = txRandMap
 }
@@ -48,11 +42,11 @@ func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivat
 	a.epochOrgSecretKeyMap = orgSecretKeyMap
 }
 
-func (a *Auditor) SetEpochID(id *big.Int) {
+func (a *Auditor) SetEpochID(id []byte) {
 	a.epochID = id
 }
 
-func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]*big.Int) {
+func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID][]byte) {
 	a.epochOrgIDMap = idMap
 }
 
@@ -152,7 +146,8 @@ func (a *Auditor) ComputeCETransactionID(orgID organization.TypeID, counterParty
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
 	randomnesses := a.epochOrgRandMap[orgKey]
 	epochOrgID := a.epochOrgIDMap[orgID]
-	epochOrgIDBytes := epochOrgID.Bytes()
+	epochOrgIDBytes := make([]byte, len(epochOrgID))
+	copy(epochOrgIDBytes, epochOrgID)
 	randAccumulator := crypto.KyberSuite.Scalar().Zero()
 	for _, randScalar := range randomnesses {
 		randAccumulator.Add(randAccumulator, randScalar)

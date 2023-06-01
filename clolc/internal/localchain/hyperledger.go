@@ -9,7 +9,9 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
@@ -255,13 +257,8 @@ func populateAudWallet(wallet *gateway.Wallet) error {
 	return wallet.Put(audWalletLabel, identity)
 }
 
-const (
-	txThreshold = 10000
-	txIDLogPath = "lc_tx_id.log"
-)
-
 func ReadTX() error {
-	f, err := os.Open(txIDLogPath)
+	f, err := os.Open(constants.LocalChainTXIDLogPath)
 	if err != nil {
 		return err
 	}
@@ -303,22 +300,30 @@ func SubmitTX(numTXs int) ([]string, error) {
 	defer lc.Close()
 	dummyTXs := DummyOnChainTransactions(numTXs)
 	var txIDs []string
-	for j := 0; j < numTXs; j += txThreshold {
-		right := j + txThreshold
+	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
+		right := batch + constants.SubmitTXBatchSize
 		if right > numTXs {
 			right = numTXs
 		}
-		batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
+		for trial := 0; trial < constants.SubmitTXMaxRetries; trial++ {
+			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[batch:right])
+			if err == nil {
+				txIDs = append(txIDs, batchTXIDs...)
+				break
+			}
+			log.Printf("Failed to submit batch TXs: %v\n", err)
+			log.Printf("Retrying in %v seconds\n", constants.SubmitTXRetryDelaySeconds)
+			time.Sleep(constants.SubmitTXRetryDelaySeconds * time.Second)
+		}
 		if err != nil {
 			return nil, err
 		}
-		txIDs = append(txIDs, batchTXIDs...)
 	}
 	return txIDs, nil
 }
 
 func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(txIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(constants.LocalChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
