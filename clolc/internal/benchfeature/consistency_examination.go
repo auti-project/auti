@@ -26,13 +26,8 @@ func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int
 		if _, err = auditors[0].AccumulateCommitments(organizations[0].ID, dummyTXs); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -57,13 +52,8 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 		if _, err = auditors[0].ComputeB(randScalars1, randScalars2); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -82,13 +72,8 @@ func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
 		randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 		startTime := time.Now()
 		_ = auditors[0].ComputeC(randPoint1, randPoint2)
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -107,13 +92,8 @@ func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
 		randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 		startTime := time.Now()
 		_ = auditors[0].ComputeD(randPoint1, randPoint2)
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -143,13 +123,8 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 		); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() <= 1 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -164,9 +139,8 @@ func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
 		if err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -180,9 +154,8 @@ func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
 		if err := audchain.ReadTX(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -196,9 +169,8 @@ func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
 		if err := audchain.ReadAllTXs(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -236,13 +208,8 @@ func ConsistencyExaminationDecrypt(iterations int) error {
 		if _, _, err := auditors[0].DecryptResAndB(orgIDHashStr, dummyTX); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() <= 1 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 
 	}
 	fmt.Println()
@@ -250,5 +217,25 @@ func ConsistencyExaminationDecrypt(iterations int) error {
 }
 
 func ConsistencyExaminationCheck(iterations int) error {
-
+	fmt.Println("CLOLC consistency examination check")
+	fmt.Printf("Num iter: %d\n", iterations)
+	for i := 0; i < iterations; i++ {
+		com, auditors, organizations := generateEntities(2)
+		_, err := com.InitializeEpoch(auditors, organizations)
+		if err != nil {
+			return err
+		}
+		randPoints := make([]kyber.Point, 4)
+		for i := 0; i < 4; i++ {
+			randPoints[i] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		}
+		startTime := time.Now()
+		_ = auditors[0].CheckResultConsistency(
+			randPoints[0], randPoints[1], randPoints[2], randPoints[3],
+		)
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
+	}
+	fmt.Println()
+	return nil
 }

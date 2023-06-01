@@ -18,9 +18,8 @@ func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
 		if err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -48,9 +47,8 @@ func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
 		if err := localchain.ReadTX(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -64,9 +62,8 @@ func TransactionRecordLocalReadAllTXs(numTotalTXs, iterations int) error {
 		if err := localchain.ReadAllTXs(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -84,9 +81,8 @@ func TransactionRecordCommitment(numTotalTXs, iterations int) error {
 				return err
 			}
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -103,13 +99,8 @@ func TransactionRecordAccumulate(numTotalTXs, iterations int) error {
 		for _, commitment := range dummyCommitments {
 			accumulator = accumulator.Add(accumulator, commitment)
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		if elapsed.Milliseconds() == 0 {
-			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
-		} else {
-			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
-		}
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -138,9 +129,8 @@ func TransactionRecordOrgSubmitTX(numTXs, iterations int) error {
 		if err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -154,9 +144,8 @@ func TransactionRecordOrgReadTX(numTotalTXs, iterations int) error {
 		if err := orgchain.ReadTX(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -170,9 +159,8 @@ func TransactionRecordOrgReadAllTXs(numTotalTXs, iterations int) error {
 		if err := orgchain.ReadAllTXs(); err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil

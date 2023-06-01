@@ -182,21 +182,18 @@ func (a *Auditor) DecryptResAndB(orgIDHash string,
 	if err != nil {
 		return nil, nil, err
 	}
-	B, err := crypto.DecryptPoint(privateKey, plainTX.CipherB)
+	pointB, err := crypto.DecryptPoint(privateKey, plainTX.CipherB)
 	if err != nil {
 		return nil, nil, err
 	}
-	return res, B, nil
+	return res, pointB, nil
 }
 
-func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) (bool, error) {
+func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 	result := crypto.KyberSuite.Point().Null()
 	result.Add(result, res)
 	result.Add(result, B)
 	result.Add(result, txRes)
 	result.Add(result, txB)
-	if result.Equal(crypto.KyberSuite.Point().Null()) {
-		return true, nil
-	}
-	return false, nil
+	return result.Equal(crypto.KyberSuite.Point().Null())
 }

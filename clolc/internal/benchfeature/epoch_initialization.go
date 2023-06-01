@@ -32,9 +32,8 @@ func InitializeEpoch(numOrganizations, iterations int) error {
 		if err != nil {
 			return err
 		}
-		endTime := time.Now()
-		elapsed := endTime.Sub(startTime)
-		fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		elapsed := time.Since(startTime)
+		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
