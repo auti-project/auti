@@ -217,3 +217,38 @@ func PrepareAudTX(numTotalTXs int) error {
 	fmt.Println()
 	return nil
 }
+
+func ConsistencyExaminationDecrypt(iterations int) error {
+	fmt.Println("CLOLC consistency examination decrypt")
+	fmt.Printf("Num iter: %d\n", iterations)
+	com, auditors, organizations := generateEntities(2)
+	_, err := com.InitializeEpoch(auditors, organizations)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < iterations; i++ {
+		dummyTX, err := audchain.DummyOnChainTransaction()
+		if err != nil {
+			return err
+		}
+		orgIDHashStr := organization.IDHashString(organizations[0].ID)
+		startTime := time.Now()
+		if _, _, err := auditors[0].DecryptResAndB(orgIDHashStr, dummyTX); err != nil {
+			return err
+		}
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		if elapsed.Milliseconds() <= 1 {
+			fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
+		} else {
+			fmt.Printf("Elapsed time: %d ms\n", elapsed.Milliseconds())
+		}
+
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationCheck(iterations int) error {
+
+}

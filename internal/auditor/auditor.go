@@ -167,3 +167,36 @@ func (a *Auditor) ComputeCETransactionID(orgID organization.TypeID, counterParty
 	result := sha256Func.Sum(nil)
 	return result, nil
 }
+
+func (a *Auditor) DecryptResAndB(orgIDHash string,
+	tx *transaction.CLOLCAudOnChain) (kyber.Point, kyber.Point, error) {
+	plainTX, err := tx.ToPlain()
+	if err != nil {
+		return nil, nil, err
+	}
+	privateKey, ok := a.epochOrgSecretKeyMap[orgIDHash]
+	if !ok {
+		return nil, nil, fmt.Errorf("no private key for organization %s", orgIDHash)
+	}
+	res, err := crypto.DecryptPoint(privateKey, plainTX.CipherRes)
+	if err != nil {
+		return nil, nil, err
+	}
+	B, err := crypto.DecryptPoint(privateKey, plainTX.CipherB)
+	if err != nil {
+		return nil, nil, err
+	}
+	return res, B, nil
+}
+
+func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) (bool, error) {
+	result := crypto.KyberSuite.Point().Null()
+	result.Add(result, res)
+	result.Add(result, B)
+	result.Add(result, txRes)
+	result.Add(result, txB)
+	if result.Equal(crypto.KyberSuite.Point().Null()) {
+		return true, nil
+	}
+	return false, nil
+}

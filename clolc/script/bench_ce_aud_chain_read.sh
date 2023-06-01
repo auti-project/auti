@@ -29,52 +29,34 @@ function cleanup() {
     rm oc_tx_id.log
 }
 
-for i in 1000 10000 100000; do
-    cleanup
-    ./fablo up fablo-aud-chain-config.yaml
-    sleep 5
+cleanup
+sleep 5
+./fablo up fablo-aud-chain-config.yaml
+sleep 5
+
+for i in 1000 9000 90000 900000; do
     ./clolc.out -phase ce -process prepare_tx -numTXs $i | tee -a $LOG_FILE_DIR
     for j in {1..10}; do
         echo "No: $j" >>$LOG_FILE_DIR
         ./clolc.out -phase ce -process read_tx -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
-        sleep 1
-    done
-done
-
-# 1M benchmark needs longer idle time
-cleanup
-./fablo up fablo-aud-chain-config.yaml
-sleep 10
-./clolc.out -phase ce -process prepare_tx -numTXs 1000000 | tee -a $LOG_FILE_DIR
-sleep 60
-for j in {1..15}; do
-    echo "No: $j" >>$LOG_FILE_DIR
-    ./clolc.out -phase ce -process read_tx -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
-    sleep 5
-done
-
-for i in 1000 10000 100000; do
-    cleanup
-    ./fablo up fablo-aud-chain-config.yaml
-    sleep 5
-    ./clolc.out -phase ce -process prepare_tx -numTXs $i | tee -a $LOG_FILE_DIR
-    for j in {1..10}; do
-        echo "No: $j" >>$LOG_FILE_DIR
+        sleep 2
         ./clolc.out -phase ce -process read_tx_all -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
-        sleep 1
+        sleep 2
     done
 done
 
 # 1M benchmark needs longer idle time
-cleanup
-./fablo up fablo-aud-chain-config.yaml
-sleep 5
-./clolc.out -phase ce -process prepare_tx -numTXs 1000000 | tee -a $LOG_FILE_DIR
-sleep 20
-for j in {1..15}; do
-    echo "No: $j" >>$LOG_FILE_DIR
-    ./clolc.out -phase ce -process read_tx_all -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
-    sleep 5
-done
+# cleanup
+# ./fablo up fablo-aud-chain-config.yaml
+# sleep 10
+# ./clolc.out -phase ce -process prepare_tx -numTXs 1000000 | tee -a $LOG_FILE_DIR
+# sleep 60
+# for j in {1..15}; do
+#     echo "No: $j" >>$LOG_FILE_DIR
+#     ./clolc.out -phase ce -process read_tx -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
+#     sleep 5
+#     ./clolc.out -phase ce -process read_all_txs -numTXs 1000000 -numIter 1 | tee -a $LOG_FILE_DIR
+#     sleep 5
+# done
 
 rm clolc.out

@@ -3,7 +3,6 @@ package crypto
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -34,26 +33,41 @@ func KeyGen() (privateKey TypePrivateKey, publicKey TypePublicKey, err error) {
 }
 
 type KeyPair struct {
-	PrivateKey TypePrivateKey `json:"private_key"`
-	PublicKey  TypePublicKey  `json:"public_key"`
+	PrivateKey TypePrivateKey
+	PublicKey  TypePublicKey
 }
 
 type CipherText struct {
-	C1 kyber.Point `json:"c_1"`
-	C2 kyber.Point `json:"c_2"`
+	C1 kyber.Point
+	C2 kyber.Point
 }
 
 func (c *CipherText) Serialize() ([]byte, error) {
-	return json.Marshal(c)
-}
-
-func DeserializeCipherText(data []byte) (*CipherText, error) {
-	c := &CipherText{}
-	err := json.Unmarshal(data, c)
+	c1Bytes, err := c.C1.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	return c, nil
+	c2Bytes, err := c.C2.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+	return append(c1Bytes, c2Bytes...), nil
+}
+
+func DeserializeCipherText(data []byte) (*CipherText, error) {
+	c1Bytes := data[:KyberSuite.Point().MarshalSize()]
+	c2Bytes := data[KyberSuite.Point().MarshalSize():]
+	c1 := KyberSuite.Point()
+	err := c1.UnmarshalBinary(c1Bytes)
+	if err != nil {
+		return nil, err
+	}
+	c2 := KyberSuite.Point()
+	err = c2.UnmarshalBinary(c2Bytes)
+	if err != nil {
+		return nil, err
+	}
+	return &CipherText{c1, c2}, nil
 }
 
 func Encrypt(publicKey kyber.Point, amount int64) (*CipherText, error) {
@@ -88,6 +102,20 @@ func Decrypt(privateKey kyber.Scalar, cipherText *CipherText) (int64, error) {
 		return 0, err
 	}
 	return bytesToInt64(amountBytes)
+}
+
+func DecryptPoint(privateKey kyber.Scalar, cipherTextBytes []byte) (kyber.Point, error) {
+	cipherText, err := DeserializeCipherText(cipherTextBytes)
+	if err != nil {
+		return nil, err
+	}
+	if privateKey == nil {
+		return nil, errors.New("private key is nil")
+	}
+	dataPoint := KyberSuite.Point().Mul(privateKey, cipherText.C1)
+	dataPoint.Neg(dataPoint)
+	dataPoint.Add(dataPoint, cipherText.C2)
+	return dataPoint, nil
 }
 
 func int64ToBytes(i int64) ([]byte, error) {
