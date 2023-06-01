@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
 
-source ./clean_up.sh
+source ../clean_up.sh
 
-cd ../benchmark || exit
-
-clean_up
+HOME_DIR="../.."
+cd $HOME_DIR || exit
 
 go build -o clolc.out
 
-LOG_DIR="../logs"
+LOG_DIR="logs"
 if [ ! -d $LOG_DIR ]; then
   mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/clolc_ce_compute_b.log"
+LOG_FILE_DIR="${LOG_DIR}/clolc_ce_cal_b.log"
 if [ -f $LOG_FILE_DIR ]; then
   rm $LOG_FILE_DIR
 fi

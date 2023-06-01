@@ -10,3 +10,5 @@ function clean_up() {
   rm lc_tx_id.log
   rm oc_tx_id.log
 }
+
+clean_up

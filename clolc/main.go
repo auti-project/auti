@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	bf "github.com/auti-project/auti/clolc/benchmark/internal/benchfeature"
+	bf "github.com/auti-project/auti/clolc/internal/benchfeature"
 )
 
 func main() {
@@ -32,14 +32,14 @@ func main() {
 			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
 		case "local_read_all":
 			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
-		case "commit_tx":
+		case "commit":
 			err = bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr)
 		case "accumulate":
 			err = bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr)
-		case "org_prepare":
-			err = bf.PrepareOrgTX(*numTXsPtr)
 		case "org_submit":
 			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
+		case "org_prepare":
+			err = bf.PrepareOrgTX(*numTXsPtr)
 		case "org_read":
 			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
 		case "org_read_all":
@@ -57,15 +57,17 @@ func main() {
 			err = bf.ConsistencyExaminationComputeD(*numOrgPtr, *numIterPtr)
 		case "encrypt":
 			err = bf.ConsistencyExaminationEncrypt(*numOrgPtr, *numIterPtr)
-		case "submit_tx":
+		case "aud_submit":
 			err = bf.ConsistencyExaminationAudSubmitTX(*numTXsPtr, *numIterPtr)
-		case "read_tx":
-			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
-		case "read_all_txs":
-			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
-		case "prepare_tx":
+		case "aud_prepare":
 			err = bf.PrepareAudTX(*numTXsPtr)
+		case "aud_read":
+			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
+		case "aud_read_all":
+			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
 		}
+	default:
+		log.Fatalf("Error: Invalid phase %s", *benchPhasePtr)
 	}
 	if err != nil {
 		log.Fatalf("Error: %v", err)

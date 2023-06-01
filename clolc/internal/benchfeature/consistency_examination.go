@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auti-project/auti/clolc/benchmark/internal/audchain"
-	"github.com/auti-project/auti/clolc/benchmark/internal/localchain"
+	"github.com/auti-project/auti/clolc/internal/audchain"
+	"github.com/auti-project/auti/clolc/internal/localchain"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"

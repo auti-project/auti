@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auti-project/auti/clolc/benchmark/internal/localchain"
-	"github.com/auti-project/auti/clolc/benchmark/internal/orgchain"
+	"github.com/auti-project/auti/clolc/internal/localchain"
+	"github.com/auti-project/auti/clolc/internal/orgchain"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
