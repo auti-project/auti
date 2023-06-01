@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
@@ -16,8 +17,10 @@ import (
 )
 
 const (
-	txThreshold = 10000
+	txThreshold = 5000
 	txIDLogPath = "ac_tx_id.log"
+	maxRetries  = 5
+	retryDelay  = 5 * time.Second
 )
 
 const (
@@ -249,13 +252,20 @@ func SubmitTX(numTXs int) ([]string, error) {
 		if right > numTXs {
 			right = numTXs
 		}
-		batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
-		if err != nil {
+		// batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
+		for i := 0; i < maxRetries; i++ {
+			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[j:right])
+			if err == nil {
+				txIDs = append(txIDs, batchTXIDs...)
+				break
+			}
 			log.Printf("Failed to submit batch TXs: %v", err)
-			log.Println("Number of TXs submitted:", len(txIDs))
+			log.Printf("Retrying in %v seconds", retryDelay)
+			time.Sleep(retryDelay * time.Second)
+		}
+		if err != nil {
 			return nil, err
 		}
-		txIDs = append(txIDs, batchTXIDs...)
 	}
 	return txIDs, nil
 }
