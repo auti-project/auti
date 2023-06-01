@@ -2,6 +2,7 @@
 
 HOME_DIR="../.."
 cd $HOME_DIR || exit
+source ./script/clean_up.sh
 
 go build -o clolc.out
 
@@ -21,10 +22,11 @@ touch $LOG_FILE_DIR
 
 export AUTI_ORG_CHAIN_DIR=${PWD}
 
-FABLO_ORG_CHAIN_CONFIG="./config/fablo-org-chain-config.yaml"
+FABLO_ORG_CHAIN_CONFIG="fablo-org-chain-config.yaml"
 # 1k test
 clean_up
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
+docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 sleep 5
 ./clolc.out -phase tr -process org_submit -numTXs 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 sleep 5
@@ -34,6 +36,7 @@ for i in 10000 100000 1000000; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
     ./fablo up $FABLO_ORG_CHAIN_CONFIG
+    docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
     sleep 5
     ./clolc.out -phase tr -process org_submit -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5

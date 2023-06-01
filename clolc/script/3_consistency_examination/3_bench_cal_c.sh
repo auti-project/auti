@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-source ../clean_up.sh
-
 HOME_DIR="../.."
 cd $HOME_DIR || exit
+
+source ./script/clean_up.sh
 
 clean_up
 

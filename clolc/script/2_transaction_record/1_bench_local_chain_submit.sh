@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-source ../clean_up.sh
-
 HOME_DIR="../.."
 cd $HOME_DIR || exit
+
+source ./script/clean_up.sh
 
 go build -o clolc.out
 
@@ -23,7 +23,7 @@ touch $LOG_FILE_DIR
 
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
-FABLO_LOCAL_CHAIN_CONFIG="./config/fablo-local-chain-config.yaml"
+FABLO_LOCAL_CHAIN_CONFIG="fablo-local-chain-config.yaml"
 # 1k test
 clean_up
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG

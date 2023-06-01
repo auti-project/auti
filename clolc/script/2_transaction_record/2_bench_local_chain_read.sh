@@ -3,6 +3,8 @@
 HOME_DIR="../.."
 cd $HOME_DIR || exit
 
+source ./script/clean_up.sh
+
 go build -o clolc.out
 
 LOG_DIR="logs"
@@ -21,10 +23,11 @@ touch $LOG_FILE_DIR
 
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
-FABLO_LOCAL_CHAIN_CONFIG="./config/fablo-local-chain-config.yaml"
+FABLO_LOCAL_CHAIN_CONFIG="fablo-local-chain-config.yaml"
 TOTAL_TXS=0
 clean_up
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
+docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 sleep 5
 for i in 1000 9000 90000 900000; do
   ./clolc.out -phase tr -process local_prepare -numTXs $i | tee -a $LOG_FILE_DIR

@@ -31,10 +31,10 @@ channels:
         peers:
           - peer0
 chaincodes:
-  - name: auti-local-chain
+  - name: auti-org-chain
     version: 0.1.0
     lang: golang
     channel: mychannel
     init: '{"Args":[]}'
     endorsement: AND('Org1MSP.member', 'Aud1MSP.member')
-    directory: "../contract/clolc_local_chain"
+    directory: "contract/clolc_org_chain"

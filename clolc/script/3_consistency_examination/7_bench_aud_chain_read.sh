@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-source ../clean_up.sh
-
 HOME_DIR="../.."
 cd $HOME_DIR || exit
+
+source ./script/clean_up.sh
 
 go build -o clolc.out
 
@@ -22,9 +22,10 @@ touch $LOG_FILE_DIR
   curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
 
 export AUTI_AUD_CHAIN_DIR=${PWD}
-FABLO_AUD_CHAIN_CONFIG="./config/fablo-aud-chain-config.yaml"
+FABLO_AUD_CHAIN_CONFIG="fablo-aud-chain-config.yaml"
 clean_up
 ./fablo up $FABLO_AUD_CHAIN_CONFIG
+docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 TOTAL_TXS=0
 sleep 5
 for i in 1000 9000 90000 900000; do

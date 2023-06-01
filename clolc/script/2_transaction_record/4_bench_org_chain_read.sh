@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-source ../clean_up.sh
-
 HOME_DIR="../.."
 cd $HOME_DIR || exit
+
+source ./script/clean_up.sh
 
 go build -o clolc.out
 
@@ -23,9 +23,10 @@ touch $LOG_FILE_DIR
 
 export AUTI_ORG_CHAIN_DIR=${PWD}
 
-FABLO_ORG_CHAIN_CONFIG="./config/fablo-org-chain-config.yaml"
+FABLO_ORG_CHAIN_CONFIG="fablo-org-chain-config.yaml"
 clean_up
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
+docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 sleep 5
 TOTAL_TXS=0
 for i in 1000 9000 90000 900000; do

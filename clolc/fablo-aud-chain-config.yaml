@@ -101,4 +101,4 @@ chaincodes:
     channel: mychannel
     init: '{"Args":[]}'
     endorsement: AND('Aud1MSP.member', 'Aud2MSP.member', 'Aud3MSP.member', 'Aud4MSP.member', 'Aud5MSP.member', 'Aud6MSP.member', 'Aud7MSP.member', 'Aud8MSP.member', 'Aud9MSP.member', 'Aud10MSP.member')
-    directory: "../contract/clolc_aud_chain"
+    directory: "contract/clolc_aud_chain"
