@@ -27,16 +27,16 @@ FABLO_ORG_CHAIN_CONFIG="./config/fablo-org-chain-config.yaml"
 clean_up
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 sleep 5
-TOTLA_TXS=0
+TOTAL_TXS=0
 for i in 1000 9000 90000 900000; do
   ./clolc.out -phase tr -process org_prepare -numTXs $i | tee -a $LOG_FILE_DIR
-  TOTLA_TXS=$((TOTLA_TXS + i))
+  TOTAL_TXS=$((TOTAL_TXS + i))
   sleep 5
   for j in {1..11}; do
     echo "No: $j" >>$LOG_FILE_DIR
-    ./clolc.out -phase tr -process org_read -numTXs $TOTLA_TXS -numIter 1 | tee -a $LOG_FILE_DIR
+    ./clolc.out -phase tr -process org_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
-    ./clolc.out -phase tr -process org_read_all -numTXs $TOTLA_TXS -numIter 1 | tee -a $LOG_FILE_DIR
+    ./clolc.out -phase tr -process org_read_all -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
   done
 done

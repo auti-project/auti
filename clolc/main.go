@@ -4,15 +4,13 @@ import (
 	"flag"
 	"log"
 
-	bf "github.com/auti-project/auti/clolc/benchmark/internal/benchfeature"
+	bf "github.com/auti-project/auti/clolc/internal/benchfeature"
+	. "github.com/auti-project/auti/clolc/internal/flag"
 )
 
 func main() {
-	benchPhasePtr := flag.String("phase", "", "in, tr, ce, rv")
-	benchProcessPtr := flag.String("process", "",
-		"[tr]: local_submit, local_read, local_read_all, local_prepare, commit_tx, accumulate, org_submit, org_read, org_read_all, org_prepare"+
-			"[ce]: acc_commit, cal_b, cal_c, cal_d, encrypt, submit_tx, read_tx, read_all_txs, prepare_tx",
-	)
+	benchPhasePtr := flag.String("phase", "", GetPhases())
+	benchProcessPtr := flag.String("process", "", GetPhasesAndProcesses())
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
 	numTXsPtr := flag.Int("numTXs", 100, "Number of transactions")
@@ -20,52 +18,56 @@ func main() {
 
 	var err error
 	switch *benchPhasePtr {
-	case "in":
+	case PhaseInitialization:
 		err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
-	case "tr":
+	case PhaseTransactionRecord:
 		switch *benchProcessPtr {
-		case "local_submit":
+		case ProcessTRLocalChainSubmit:
 			err = bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr)
-		case "local_prepare":
+		case ProcessTRLocalChainPrepare:
 			err = bf.PrepareLocalTX(*numTXsPtr)
-		case "local_read":
+		case ProcessTRLocalChainRead:
 			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
-		case "local_read_all":
+		case ProcessTRLocalChainReadAll:
 			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
-		case "commit_tx":
-			err = bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr)
-		case "accumulate":
-			err = bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr)
-		case "org_prepare":
-			err = bf.PrepareOrgTX(*numTXsPtr)
-		case "org_submit":
+		case ProcessTROrgChainSubmit:
 			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
-		case "org_read":
+		case ProcessTROrgChainPrepare:
+			err = bf.PrepareOrgTX(*numTXsPtr)
+		case ProcessTROrgChainRead:
 			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
-		case "org_read_all":
+		case ProcessTROrgChainReadAll:
 			err = bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr)
+		case ProcessTRCommitment:
+			err = bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr)
+		case ProcessTRAccumulate:
+			err = bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr)
 		}
-	case "ce":
+	case PhaseConsistencyExamination:
 		switch *benchProcessPtr {
-		case "acc_commit":
+		case ProcessCEAccumulateCommitment:
 			err = bf.ConsistencyExaminationAccumulateCommitment(*numOrgPtr, *numIterPtr)
-		case "cal_b":
+		case ProcessCEComputeB:
 			err = bf.ConsistencyExaminationComputeB(*numOrgPtr, *numIterPtr)
-		case "cal_c":
+		case ProcessCEComputeC:
 			err = bf.ConsistencyExaminationComputeC(*numOrgPtr, *numIterPtr)
-		case "cal_d":
+		case ProcessCEComputeD:
 			err = bf.ConsistencyExaminationComputeD(*numOrgPtr, *numIterPtr)
-		case "encrypt":
+		case ProcessCEEncrypt:
 			err = bf.ConsistencyExaminationEncrypt(*numOrgPtr, *numIterPtr)
-		case "submit_tx":
+		case ProcessCEAudChainSubmit:
 			err = bf.ConsistencyExaminationAudSubmitTX(*numTXsPtr, *numIterPtr)
-		case "read_tx":
-			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
-		case "read_all_txs":
-			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
-		case "prepare_tx":
+		case ProcessCEAudChainPrepare:
 			err = bf.PrepareAudTX(*numTXsPtr)
+		case ProcessCEAudChainRead:
+			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
+		case ProcessCEAudChainReadAll:
+			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
+		case ProcessCECheck:
+			err = bf.ConsistencyExaminationCheck(*numIterPtr)
 		}
+	default:
+		log.Fatalf("Error: %v", "Invalid phase")
 	}
 	if err != nil {
 		log.Fatalf("Error: %v", err)
