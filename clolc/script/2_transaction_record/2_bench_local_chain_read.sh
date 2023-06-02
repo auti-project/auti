@@ -19,21 +19,25 @@ touch $LOG_FILE_DIR
 
 # install fablo if not installed
 [ -f ./fablo ] ||
-  curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
+curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
 
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
-FABLO_LOCAL_CHAIN_CONFIG="fablo-local-chain-config.yaml"
+FABLO_LOCAL_CHAIN_CONFIG="local-chain-config.yaml"
+rm -f $FABLO_LOCAL_CHAIN_CONFIG
+python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orderers 1 --num_orgs 1 --num_auditors 1
+
 TOTAL_TXS=0
 clean_up
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
+docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 for i in 1000 9000 90000 900000; do
   ./clolc.out -phase tr -process local_prepare -numTXs $i | tee -a $LOG_FILE_DIR
   TOTAL_TXS=$((TOTAL_TXS + i))
   sleep 5
-
+  
   for j in {1..11}; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase tr -process local_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
@@ -43,4 +47,6 @@ for i in 1000 9000 90000 900000; do
   done
 done
 
+clean_up
+rm -f $FABLO_LOCAL_CHAIN_CONFIG
 rm clolc.out

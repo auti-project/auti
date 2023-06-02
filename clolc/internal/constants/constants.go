@@ -1,7 +1,7 @@
 package constants
 
 const (
-	SubmitTXBatchSize         = 5000
+	SubmitTXBatchSize         = 10000
 	SubmitTXMaxRetries        = 5
 	SubmitTXRetryDelaySeconds = 5
 

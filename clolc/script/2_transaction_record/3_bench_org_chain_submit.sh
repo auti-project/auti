@@ -18,15 +18,19 @@ touch $LOG_FILE_DIR
 
 # install fablo if not installed
 [ -f ./fablo ] ||
-  curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
+curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
 
 export AUTI_ORG_CHAIN_DIR=${PWD}
 
-FABLO_ORG_CHAIN_CONFIG="fablo-org-chain-config.yaml"
+FABLO_ORG_CHAIN_CONFIG="org-chain-config.yaml"
+rm -f $FABLO_ORG_CHAIN_CONFIG
+python config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 10 --num_auditors 0
+
 # 1k test
 clean_up
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
+docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 ./clolc.out -phase tr -process org_submit -numTXs 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 sleep 5
@@ -37,10 +41,13 @@ for i in 10000 100000 1000000; do
     clean_up
     ./fablo up $FABLO_ORG_CHAIN_CONFIG
     docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
+    docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
     sleep 5
     ./clolc.out -phase tr -process org_submit -numTXs $i -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
   done
 done
 
+clean_up
+rm -f $FABLO_ORG_CHAIN_CONFIG
 rm clolc.out
