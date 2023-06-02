@@ -41,16 +41,15 @@ for i in 1000 9000 90000 900000; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase tr -process org_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
-
+    
     ./clolc.out -phase tr -process org_read_all -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
-
-    echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
-    docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
-    echo "Blockchain size of peer0.org2.example.com:" >>$LOG_FILE_DIR
-    docker exec -it peer0.org2.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
-    sleep 1
   done
+  echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
+  docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+  echo "Blockchain size of peer0.org2.example.com:" >>$LOG_FILE_DIR
+  docker exec -it peer0.org2.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+  sleep 1
 done
 
 clean_up
