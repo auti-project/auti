@@ -2,7 +2,7 @@
 
 function clean_up() {
   echo "Clean up"
-  ./fablo down
+  ./fablo prune
   rm -rf fablo-target
   docker volume prune -f
   docker network prune -f
