@@ -24,14 +24,14 @@ curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
 FABLO_LOCAL_CHAIN_CONFIG="local-chain-config.yaml"
-rm -f $FABLO_LOCAL_CHAIN_CONFIG
-python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orgs 1 --num_auditors 1
+# rm -f $FABLO_LOCAL_CHAIN_CONFIG
+# python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orgs 1 --num_auditors 1
 
 TOTAL_TXS=0
 clean_up
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
-docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+# docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 for i in 1000 9000 90000 900000; do
   ./clolc.out -phase tr -process local_prepare -numTXs $i | tee -a $LOG_FILE_DIR
@@ -44,9 +44,15 @@ for i in 1000 9000 90000 900000; do
     sleep 5
     ./clolc.out -phase tr -process local_read_all -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
+
+    echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
+    docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+    echo "Blockchain size of peer0.aud1.example.com:" >>$LOG_FILE_DIR
+    docker exec -it peer0.aud1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+    sleep 1
   done
 done
 
 clean_up
-rm -f $FABLO_LOCAL_CHAIN_CONFIG
+# rm -f $FABLO_LOCAL_CHAIN_CONFIG
 rm clolc.out

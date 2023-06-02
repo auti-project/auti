@@ -27,7 +27,6 @@ def generate_fablo_config(
                 "version": "0.1.0",
                 "lang": "golang",
                 "channel": "mychannel",
-                "init": '{"Args":[]}',
                 "endorsement": "",
                 "directory": chaincode_dir,
             }
@@ -45,14 +44,6 @@ def generate_fablo_config(
         config["orgs"].append(
             {
                 "organization": {"name": org_name, "domain": org_domain},
-                "orderers": [
-                    {
-                        "groupName": "group1",
-                        "prefix": "orderer",
-                        "type": orderer_type,
-                        "instances": num_orderers,
-                    }
-                ],
                 "peer": {"instances": num_peers},
             }
         )
@@ -68,14 +59,6 @@ def generate_fablo_config(
         config["orgs"].append(
             {
                 "organization": {"name": aud_name, "domain": aud_domain},
-                "orderers": [
-                    {
-                        "groupName": "group1",
-                        "prefix": "orderer",
-                        "type": orderer_type,
-                        "instances": num_orderers,
-                    }
-                ],
                 "peer": {"instances": num_peers},
             }
         )
@@ -84,6 +67,20 @@ def generate_fablo_config(
             {"name": aud_name, "peers": peers_list}
         )
         endorsement_list.append(f"'{aud_name}MSP.member'")
+
+    config["orgs"].append(
+        {
+            "organization": {"name": "com", "domain": "com.example.com"},
+            "orderers": [
+                {
+                    "groupName": "group1",
+                    "prefix": "orderer",
+                    "type": orderer_type,
+                    "instances": num_orderers,
+                }
+            ],
+        }
+    )
 
     config["chaincodes"][0]["endorsement"] = (
         "AND(" + ", ".join(endorsement_list) + ")"
@@ -122,7 +119,7 @@ def main():
     )
     parser.add_argument(
         "--orderer_type",
-        default="raft",
+        default="solo",
         type=str,
         help="Orderer type: solo or raft, kafka not supported yet",
     )

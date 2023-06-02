@@ -25,12 +25,12 @@ export AUTI_ORG_CHAIN_DIR=${PWD}
 
 FABLO_ORG_CHAIN_CONFIG="org-chain-config.yaml"
 rm -f $FABLO_ORG_CHAIN_CONFIG
-python config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 10 --num_auditors 0
+python config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 4 --num_auditors 0
 
 clean_up
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
-docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+# docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 TOTAL_TXS=0
 for i in 1000 9000 90000 900000; do
@@ -41,8 +41,15 @@ for i in 1000 9000 90000 900000; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase tr -process org_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
+
     ./clolc.out -phase tr -process org_read_all -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
+
+    echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
+    docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+    echo "Blockchain size of peer0.org2.example.com:" >>$LOG_FILE_DIR
+    docker exec -it peer0.org2.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+    sleep 1
   done
 done
 

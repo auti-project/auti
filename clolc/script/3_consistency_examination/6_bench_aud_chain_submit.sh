@@ -31,7 +31,7 @@ python config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name 
 clean_up
 ./fablo up $FABLO_AUD_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
-docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+# docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 ./clolc.out -phase ce -process aud_submit -numTXs 1000 -numIter 11 | tee -a $LOG_FILE_DIR
 sleep 5

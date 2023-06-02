@@ -32,7 +32,8 @@ go.work
 # fablo related files
 *fablo-target/
 fablo
-*config.yaml
+org-chain-config.yaml
+aud-chain-config.yaml
 
 # Hyperledger Fabric related files
 orgWallet/
