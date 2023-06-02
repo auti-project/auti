@@ -7,13 +7,18 @@ def generate_fablo_config(
     chaincode_name,
     chaincode_dir,
     num_orderers,
+    orderer_type,
     num_orgs,
     num_auditors,
+    num_peers,
+    fabric_version,
+    desired_fabric_version,
+    desired_fabric_ca_version,
 ):
     """Generate Fablo config."""
     config = {
         "$schema": "https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/schema.json",
-        "global": {"fabricVersion": "2.4.2", "tls": True},
+        "global": {"fabricVersion": fabric_version, "tls": True},
         "orgs": [],
         "channels": [{"name": "mychannel", "orgs": []}],
         "chaincodes": [
@@ -27,21 +32,10 @@ def generate_fablo_config(
                 "directory": chaincode_dir,
             }
         ],
+        "hooks": {
+            "postGenerate": f"perl -i -pe 's/_VERSION={fabric_version}/_VERSION={desired_fabric_version}/g' ./fablo-target/fabric-docker/.env; perl -i -pe 's/FABRIC_CA_VERSION=1.5.0/FABRIC_CA_VERSION={desired_fabric_ca_version}/g' ./fablo-target/fabric-docker/.env"
+        },
     }
-
-    config["orgs"].append(
-        {
-            "organization": {"name": "Orderer", "domain": "root.com"},
-            "orderers": [
-                {
-                    "groupName": "group1",
-                    "prefix": "orderer",
-                    "type": "raft",
-                    "instances": num_orderers,
-                }
-            ],
-        }
-    )
 
     endorsement_list = []
 
@@ -51,11 +45,20 @@ def generate_fablo_config(
         config["orgs"].append(
             {
                 "organization": {"name": org_name, "domain": org_domain},
-                "peer": {"instances": 1},
+                "orderers": [
+                    {
+                        "groupName": "group1",
+                        "prefix": "orderer",
+                        "type": orderer_type,
+                        "instances": num_orderers,
+                    }
+                ],
+                "peer": {"instances": num_peers},
             }
         )
+        peers_list = [f"peer{j}" for j in range(num_peers)]
         config["channels"][0]["orgs"].append(
-            {"name": org_name, "peers": ["peer0"]}
+            {"name": org_name, "peers": peers_list}
         )
         endorsement_list.append(f"'{org_name}MSP.member'")
 
@@ -65,11 +68,20 @@ def generate_fablo_config(
         config["orgs"].append(
             {
                 "organization": {"name": aud_name, "domain": aud_domain},
-                "peer": {"instances": 1},
+                "orderers": [
+                    {
+                        "groupName": "group1",
+                        "prefix": "orderer",
+                        "type": orderer_type,
+                        "instances": num_orderers,
+                    }
+                ],
+                "peer": {"instances": num_peers},
             }
         )
+        peers_list = [f"peer{j}" for j in range(num_peers)]
         config["channels"][0]["orgs"].append(
-            {"name": aud_name, "peers": ["peer0"]}
+            {"name": aud_name, "peers": peers_list}
         )
         endorsement_list.append(f"'{aud_name}MSP.member'")
 
@@ -92,25 +104,65 @@ def main():
     )
     parser.add_argument(
         "--chaincode_name",
-        default="auti-local-chain",
+        default="",
         type=str,
         help="Chaincode name",
     )
     parser.add_argument(
         "--chaincode_dir",
-        default="contract/clolc_local_chain",
+        default="",
         type=str,
         help="Chaincode directory",
     )
     parser.add_argument(
-        "--num_orderers", default=1, type=int, help="Number of orderers"
+        "--num_orderers",
+        default=1,
+        type=int,
+        help="Number of orderers",
     )
     parser.add_argument(
-        "--num_orgs", default=1, type=int, help="Number of organizations"
+        "--orderer_type",
+        default="raft",
+        type=str,
+        help="Orderer type: solo or raft, kafka not supported yet",
     )
     parser.add_argument(
-        "--num_auditors", default=1, type=int, help="Number of auditors"
+        "--num_orgs",
+        default=1,
+        type=int,
+        help="Number of organizations",
     )
+    parser.add_argument(
+        "--num_peers",
+        default=1,
+        type=int,
+        help="Number of peers",
+    )
+    parser.add_argument(
+        "--num_auditors",
+        default=0,
+        type=int,
+        help="Number of auditors",
+    )
+    parser.add_argument(
+        "--fabric_version",
+        default="2.4.3",
+        type=str,
+        help="Current Fabric version",
+    )
+    parser.add_argument(
+        "--desired_fabric_version",
+        default="2.5.1",
+        type=str,
+        help="Desired Fabric version",
+    )
+    parser.add_argument(
+        "--desired_fabric_ca_version",
+        default="1.5.6",
+        type=str,
+        help="Desired Fabric CA version",
+    )
+
     args = parser.parse_args()
 
     generate_fablo_config(
@@ -118,8 +170,13 @@ def main():
         args.chaincode_name,
         args.chaincode_dir,
         args.num_orderers,
+        args.orderer_type,
         args.num_orgs,
         args.num_auditors,
+        args.num_peers,
+        args.fabric_version,
+        args.desired_fabric_version,
+        args.desired_fabric_ca_version,
     )
 
 

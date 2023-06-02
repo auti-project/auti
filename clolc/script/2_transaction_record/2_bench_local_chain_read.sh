@@ -25,7 +25,7 @@ export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
 FABLO_LOCAL_CHAIN_CONFIG="local-chain-config.yaml"
 rm -f $FABLO_LOCAL_CHAIN_CONFIG
-python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orderers 1 --num_orgs 1 --num_auditors 1
+python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orgs 1 --num_auditors 1
 
 TOTAL_TXS=0
 clean_up
