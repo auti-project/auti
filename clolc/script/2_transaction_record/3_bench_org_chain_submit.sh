@@ -24,7 +24,7 @@ export AUTI_ORG_CHAIN_DIR=${PWD}
 
 FABLO_ORG_CHAIN_CONFIG="org-chain-config.yaml"
 rm -f $FABLO_ORG_CHAIN_CONFIG
-python config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 10 --num_auditors 0
+python config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 16 --num_auditors 0
 
 # 1k test
 clean_up
