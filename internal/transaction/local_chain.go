@@ -29,6 +29,23 @@ func NewCLOLCLocalPlain(counterParty string, amount float64, timestamp int64) *C
 	}
 }
 
+func NewPairCLOLCLocalPlain(
+	fromID, toID string,
+	amount float64,
+	timestamp int64,
+) (*CLOLCLocalPlain, *CLOLCLocalPlain) {
+	amountInt := int64(amount * amountAmplifier)
+	return &CLOLCLocalPlain{
+			CounterParty: toID,
+			Amount:       amountInt,
+			Timestamp:    timestamp,
+		}, &CLOLCLocalPlain{
+			CounterParty: fromID,
+			Amount:       -amountInt,
+			Timestamp:    timestamp,
+		}
+}
+
 func (c *CLOLCLocalPlain) Hide() (*CLOLCLocalHidden, kyber.Point, kyber.Scalar, error) {
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(c.CounterParty))

@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 )
@@ -35,7 +34,7 @@ func (c *CLOLCAudPlain) ToOnChain() *CLOLCAudOnChain {
 }
 
 type CLOLCAudOnChain struct {
-	ID        string `json:"id"`
+	ID        string
 	CipherRes string `json:"cipher_res"`
 	CipherB   string `json:"cipher_b"`
 	CipherC   string `json:"cipher_c"`
@@ -81,7 +80,5 @@ func (c *CLOLCAudOnChain) KeyVal() (string, []byte, error) {
 	if err != nil {
 		return "", nil, err
 	}
-	sha256Func := sha256.New()
-	sha256Func.Write(txJSON)
-	return hex.EncodeToString(sha256Func.Sum(nil)), txJSON, nil
+	return c.ID, txJSON, nil
 }
