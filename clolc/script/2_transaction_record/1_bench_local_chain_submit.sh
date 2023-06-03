@@ -24,8 +24,6 @@ curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
 FABLO_LOCAL_CHAIN_CONFIG="local-chain-config.yaml"
-# rm -f $FABLO_LOCAL_CHAIN_CONFIG
-# python config_gen.py --output_filename $FABLO_LOCAL_CHAIN_CONFIG --chaincode_name auti-local-chain --chaincode_dir contract/clolc_local_chain --num_orgs 1 --num_auditors 1
 
 # 1k test
 clean_up
@@ -50,5 +48,4 @@ for i in 10000 100000 1000000; do
 done
 
 clean_up
-# rm -f $FABLO_LOCAL_CHAIN_CONFIG
 rm clolc.out

@@ -40,3 +40,8 @@ orgWallet/
 audWallet/
 keystore/
 wallet/
+
+# Compresed files
+*.tar.gz
+*.tar
+*.zip

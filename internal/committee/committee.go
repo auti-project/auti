@@ -7,6 +7,7 @@ import (
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
+	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -34,9 +35,8 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 	for idx, aud := range auditors {
 		com.managedEntityMap[aud.ID] = aud.AuditedOrgIDs
 		com.managedAuditorIDs[idx] = aud.ID
-		for _, org := range aud.AuditedOrgIDs {
-			com.managedOrgIDs = append(com.managedOrgIDs, org)
-		}
+		com.managedOrgIDs = append(com.managedOrgIDs, aud.AuditedOrgIDs...)
+
 	}
 	return com
 }
@@ -229,4 +229,24 @@ func (c *Committee) ForwardEpochOrgParameters(org *organization.Organization) er
 	}
 	org.SetEpochID(c.epochOrgIDMap[org.ID])
 	return nil
+}
+
+func (c *Committee) VerifyOrgAndAudResult(
+	orgID organization.TypeID,
+	audID auditor.TypeID,
+	orgChainTX *transaction.CLOLCOrgOnChain,
+	audChainTX *transaction.CLOLCAudOnChain,
+) (bool, error) {
+	panic("implement me")
+}
+
+func (c *Committee) VerifyAuditPairResult(
+	orgID1 organization.TypeID,
+	orgID2 organization.TypeID,
+	audID1 auditor.TypeID,
+	audID2 auditor.TypeID,
+	audChainTX1 *transaction.CLOLCAudOnChain,
+	audChainTX2 *transaction.CLOLCAudOnChain,
+) (bool, error) {
+	panic("implement me")
 }

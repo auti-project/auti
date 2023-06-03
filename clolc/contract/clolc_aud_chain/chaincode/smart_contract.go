@@ -15,7 +15,7 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-// InitLedger adds a base set of digests to the localchain.
+// InitLedger adds a base set of digests to the Aud Chain.
 func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) error {
 	transactions := []Transaction{
 		{
