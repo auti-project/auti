@@ -5,7 +5,7 @@ import (
 	"log"
 
 	bf "github.com/auti-project/auti/clolc/internal/benchfeature"
-	. "github.com/auti-project/auti/clolc/internal/flag"
+	. "github.com/auti-project/auti/clolc/internal/flags"
 )
 
 func main() {
@@ -65,6 +65,13 @@ func main() {
 			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessCECheck:
 			err = bf.ConsistencyExaminationCheck(*numIterPtr)
+		}
+	case PhaseResultVerification:
+		switch *benchProcessPtr {
+		case ProcessRVVerifyOrgAndAudResult:
+			err = bf.VerifyResultVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
+		case ProcessRVVerifyAuditPairResult:
+			err = bf.VerifyResultVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
 		}
 	default:
 		log.Fatalf("Error: %v", "Invalid phase")

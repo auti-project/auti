@@ -1,4 +1,4 @@
-package flag
+package flags
 
 const (
 	PhaseInitialization         = "in"
@@ -6,26 +6,28 @@ const (
 	PhaseConsistencyExamination = "ce"
 	PhaseResultVerification     = "rv"
 
-	ProcessTRLocalChainSubmit     = "local_submit"
-	ProcessTRLocalChainPrepare    = "local_prepare"
-	ProcessTRLocalChainRead       = "local_read"
-	ProcessTRLocalChainReadAll    = "local_read_all"
-	ProcessTRCommitment           = "commit"
-	ProcessTRAccumulate           = "accumulate"
-	ProcessTROrgChainSubmit       = "org_submit"
-	ProcessTROrgChainPrepare      = "org_prepare"
-	ProcessTROrgChainRead         = "org_read"
-	ProcessTROrgChainReadAll      = "org_read_all"
-	ProcessCEAccumulateCommitment = "acc_commit"
-	ProcessCEComputeB             = "cal_b"
-	ProcessCEComputeC             = "cal_c"
-	ProcessCEComputeD             = "cal_d"
-	ProcessCEEncrypt              = "encrypt"
-	ProcessCEAudChainSubmit       = "aud_submit"
-	ProcessCEAudChainPrepare      = "aud_prepare"
-	ProcessCEAudChainRead         = "aud_read"
-	ProcessCEAudChainReadAll      = "aud_read_all"
-	ProcessCECheck                = "check"
+	ProcessTRLocalChainSubmit      = "local_submit"
+	ProcessTRLocalChainPrepare     = "local_prepare"
+	ProcessTRLocalChainRead        = "local_read"
+	ProcessTRLocalChainReadAll     = "local_read_all"
+	ProcessTRCommitment            = "commit"
+	ProcessTRAccumulate            = "accumulate"
+	ProcessTROrgChainSubmit        = "org_submit"
+	ProcessTROrgChainPrepare       = "org_prepare"
+	ProcessTROrgChainRead          = "org_read"
+	ProcessTROrgChainReadAll       = "org_read_all"
+	ProcessCEAccumulateCommitment  = "acc_commit"
+	ProcessCEComputeB              = "cal_b"
+	ProcessCEComputeC              = "cal_c"
+	ProcessCEComputeD              = "cal_d"
+	ProcessCEEncrypt               = "encrypt"
+	ProcessCEAudChainSubmit        = "aud_submit"
+	ProcessCEAudChainPrepare       = "aud_prepare"
+	ProcessCEAudChainRead          = "aud_read"
+	ProcessCEAudChainReadAll       = "aud_read_all"
+	ProcessCECheck                 = "check"
+	ProcessRVVerifyOrgAndAudResult = "org_aud"
+	ProcessRVVerifyAuditPairResult = "aud_pair"
 )
 
 var (
@@ -55,7 +57,10 @@ var (
 			ProcessCEAudChainReadAll,
 			ProcessCECheck,
 		},
-		PhaseResultVerification: {},
+		PhaseResultVerification: {
+			ProcessRVVerifyOrgAndAudResult,
+			ProcessRVVerifyAuditPairResult,
+		},
 	}
 )
 
