@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+CURR_DIR=$(pwd)
+
 cd "$CURR_DIR"/1_initialization || exit
 ./bench.sh
 sleep 5
@@ -22,3 +24,5 @@ sleep 5
 ./5_bench_encrypt.sh
 sleep 5
 ./8_bench_check.sh
+
+cd "$CURR_DIR" || exit

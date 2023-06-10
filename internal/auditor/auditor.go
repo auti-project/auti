@@ -12,15 +12,20 @@ import (
 	"go.dedis.ch/kyber/v3"
 )
 
+var (
+	sha256Func = sha256.New()
+)
+
 type TypeID string
+type TypeEpochID []byte
 
 type Auditor struct {
 	ID                   TypeID
 	AuditedOrgIDs        []organization.TypeID
 	epochOrgRandMap      map[[2]string][]kyber.Scalar
-	epochID              []byte
+	epochID              TypeEpochID
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
-	epochOrgIDMap        map[organization.TypeID][]byte
+	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
 }
 
 func New(id string, organizations []*organization.Organization) *Auditor {
@@ -46,7 +51,7 @@ func (a *Auditor) SetEpochID(id []byte) {
 	a.epochID = id
 }
 
-func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID][]byte) {
+func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
 	a.epochOrgIDMap = idMap
 }
 
@@ -93,6 +98,7 @@ func (a *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Add(res, A)
 	return result
 }
+
 func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 	negA := crypto.KyberSuite.Point().Neg(pointA)
 	negB := crypto.KyberSuite.Point().Neg(pointB)
@@ -100,8 +106,10 @@ func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 	return result
 }
 
-func (a *Auditor) EncryptConsistencyExamResult(orgID organization.TypeID, counterPartyIDHash string,
-	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point) (*transaction.CLOLCAudPlain, error) {
+func (a *Auditor) EncryptConsistencyExamResult(
+	orgID organization.TypeID, counterPartyIDHash string,
+	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point,
+) (*transaction.CLOLCAudPlain, error) {
 	txID, err := a.ComputeCETransactionID(orgID, counterPartyIDHash)
 	if err != nil {
 		return nil, err
@@ -130,7 +138,10 @@ func (a *Auditor) EncryptConsistencyExamResult(orgID organization.TypeID, counte
 	if err != nil {
 		return nil, err
 	}
-	cipherD, err := crypto.EncryptPoint(publicKey, pointD)
+	defer sha256Func.Reset()
+	epochIDHashScalar := EpochIDHashScalar(a.epochID)
+	idPointD := crypto.KyberSuite.Point().Mul(epochIDHashScalar, pointD)
+	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {
 		return nil, err
 	}
@@ -138,10 +149,14 @@ func (a *Auditor) EncryptConsistencyExamResult(orgID organization.TypeID, counte
 	if err != nil {
 		return nil, err
 	}
-	return transaction.NewCLOLCAudPlain(txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes), nil
+	return transaction.NewCLOLCAudPlain(
+		txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes,
+	), nil
 }
 
-func (a *Auditor) ComputeCETransactionID(orgID organization.TypeID, counterPartyIDHash string) ([]byte, error) {
+func (a *Auditor) ComputeCETransactionID(
+	orgID organization.TypeID, counterPartyIDHash string,
+) ([]byte, error) {
 	orgIDHashStr := organization.IDHashString(orgID)
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
 	randomnesses := a.epochOrgRandMap[orgKey]
@@ -191,4 +206,40 @@ func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 	result.Add(result, txRes)
 	result.Add(result, txB)
 	return result.Equal(crypto.KyberSuite.Point().Null())
+}
+
+func IDHashBytes(id TypeID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write([]byte(id))
+	return sha256Func.Sum(nil)
+}
+
+func IDHashString(id TypeID) string {
+	return hex.EncodeToString(IDHashBytes(id))
+}
+
+func IDHashScalar(id TypeID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(IDHashBytes(id))
+}
+
+func IDHashPoint(id TypeID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(IDHashScalar(id), nil)
+}
+
+func EpochIDHashBytes(epochID TypeEpochID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write(epochID)
+	return sha256Func.Sum(nil)
+}
+
+func EpochIDHashString(epochID TypeEpochID) string {
+	return hex.EncodeToString(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashScalar(epochID TypeEpochID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashPoint(epochID TypeEpochID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(EpochIDHashScalar(epochID), nil)
 }

@@ -1,6 +1,7 @@
 package committee
 
 import (
+	"encoding/hex"
 	"errors"
 
 	"github.com/auti-project/auti/internal/auditor"
@@ -21,8 +22,8 @@ type Committee struct {
 	epochTXRandMap    map[[2]string][]kyber.Scalar
 	epochSecretKeyMap map[string]crypto.TypePrivateKey
 	epochPublicKeyMap map[string]crypto.TypePublicKey
-	epochOrgIDMap     map[organization.TypeID][]byte
-	epochAuditorIDMap map[auditor.TypeID][]byte
+	epochOrgIDMap     map[organization.TypeID]organization.TypeEpochID
+	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
 func New(id string, auditors []*auditor.Auditor) *Committee {
@@ -45,8 +46,8 @@ func (c *Committee) resetMaps() {
 	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	c.epochSecretKeyMap = make(map[string]crypto.TypePrivateKey)
 	c.epochPublicKeyMap = make(map[string]crypto.TypePublicKey)
-	c.epochOrgIDMap = make(map[organization.TypeID][]byte)
-	c.epochAuditorIDMap = make(map[auditor.TypeID][]byte)
+	c.epochOrgIDMap = make(map[organization.TypeID]organization.TypeEpochID)
+	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 
 // InitializeEpoch initialize the parameters for an auditing epoch
@@ -61,11 +62,11 @@ func (c *Committee) InitializeEpoch(
 	}
 
 	// IN.2: generate epoch random IDs for the organizations {id_i}
-	if err := c.generateEpochOrgRandIDs(); err != nil {
+	if err := c.generateEpochOrgIDs(); err != nil {
 		return nil, err
 	}
 	// IN.2: generate epoch random IDs for the auditors {id_z}
-	if err := c.generateEpochAuditorRandIDs(); err != nil {
+	if err := c.generateEpochAuditorIDs(); err != nil {
 		return nil, err
 	}
 
@@ -187,7 +188,7 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 	auditor.SetEpochID(epochID)
 
 	// forward organization epoch ID
-	epochOrgIDMap := make(map[organization.TypeID][]byte)
+	epochOrgIDMap := make(map[organization.TypeID]organization.TypeEpochID)
 	for _, orgID := range auditedOrgIDList {
 		epochID, ok := c.epochOrgIDMap[orgID]
 		if !ok {
@@ -199,8 +200,8 @@ func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.Auditor) erro
 	return nil
 }
 
-func (c *Committee) generateEpochOrgRandIDs() error {
-	c.epochOrgIDMap = make(map[organization.TypeID][]byte)
+func (c *Committee) generateEpochOrgIDs() error {
+	c.epochOrgIDMap = make(map[organization.TypeID]organization.TypeEpochID)
 	for _, id := range c.managedOrgIDs {
 		randBytes, err := crypto.RandBytes()
 		if err != nil {
@@ -211,8 +212,8 @@ func (c *Committee) generateEpochOrgRandIDs() error {
 	return nil
 }
 
-func (c *Committee) generateEpochAuditorRandIDs() error {
-	c.epochAuditorIDMap = make(map[auditor.TypeID][]byte)
+func (c *Committee) generateEpochAuditorIDs() error {
+	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 	for _, id := range c.managedAuditorIDs {
 		randBytes, err := crypto.RandBytes()
 		if err != nil {
@@ -237,7 +238,40 @@ func (c *Committee) VerifyOrgAndAudResult(
 	orgChainTX *transaction.CLOLCOrgOnChain,
 	audChainTX *transaction.CLOLCAudOnChain,
 ) (bool, error) {
-	panic("implement me")
+	accumulatorOnChain := orgChainTX.Accumulator
+	accumulatorBytes, err := hex.DecodeString(accumulatorOnChain)
+	if err != nil {
+		return false, err
+	}
+	accumulatorPoint := crypto.KyberSuite.Point()
+	if err = accumulatorPoint.UnmarshalBinary(accumulatorBytes); err != nil {
+		return false, err
+	}
+	cipherBBytes, err := hex.DecodeString(audChainTX.CipherB)
+	if err != nil {
+		return false, err
+	}
+	privateKey := c.epochSecretKeyMap[organization.IDHashString(orgID)]
+	pointB, err := crypto.DecryptPoint(privateKey, cipherBBytes)
+	if err != nil {
+		return false, err
+	}
+	negB := crypto.KyberSuite.Point().Neg(pointB)
+	cipherDBytes, err := hex.DecodeString(audChainTX.CipherD)
+	if err != nil {
+		return false, err
+	}
+	pointD, err := crypto.DecryptPoint(privateKey, cipherDBytes)
+	if err != nil {
+		return false, err
+	}
+	leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, negB)
+	leftPoint.Add(leftPoint, pointD)
+	orgEpochID := c.epochOrgIDMap[orgID]
+	rightPoint := organization.EpochIDHashPoint(orgEpochID)
+	audEpochID := c.epochAuditorIDMap[audID]
+	rightPoint.Mul(auditor.EpochIDHashScalar(audEpochID), rightPoint)
+	return leftPoint.Equal(rightPoint), nil
 }
 
 func (c *Committee) VerifyAuditPairResult(
@@ -248,5 +282,46 @@ func (c *Committee) VerifyAuditPairResult(
 	audChainTX1 *transaction.CLOLCAudOnChain,
 	audChainTX2 *transaction.CLOLCAudOnChain,
 ) (bool, error) {
-	panic("implement me")
+	privateKey1 := c.epochSecretKeyMap[organization.IDHashString(orgID1)]
+	privateKey2 := c.epochSecretKeyMap[organization.IDHashString(orgID2)]
+	cipherD1Bytes, err := hex.DecodeString(audChainTX1.CipherD)
+	if err != nil {
+		return false, err
+	}
+	cipherD2Bytes, err := hex.DecodeString(audChainTX2.CipherD)
+	if err != nil {
+		return false, err
+	}
+	cipherC1Bytes, err := hex.DecodeString(audChainTX1.CipherC)
+	if err != nil {
+		return false, err
+	}
+	cipherC2Bytes, err := hex.DecodeString(audChainTX2.CipherC)
+	if err != nil {
+		return false, err
+	}
+	d1, err := crypto.DecryptPoint(privateKey1, cipherD1Bytes)
+	if err != nil {
+		return false, err
+	}
+	d2, err := crypto.DecryptPoint(privateKey2, cipherD2Bytes)
+	if err != nil {
+		return false, err
+	}
+	c1, err := crypto.DecryptPoint(privateKey1, cipherC1Bytes)
+	if err != nil {
+		return false, err
+	}
+	c2, err := crypto.DecryptPoint(privateKey2, cipherC2Bytes)
+	if err != nil {
+		return false, err
+	}
+	leftPoint := crypto.KyberSuite.Point().Add(d1, c1)
+	leftPoint.Add(leftPoint, d2)
+	leftPoint.Add(leftPoint, c2)
+	audEpochID1 := c.epochAuditorIDMap[audID1]
+	audEpochID2 := c.epochAuditorIDMap[audID2]
+	rightPoint := auditor.EpochIDHashPoint(audEpochID1)
+	rightPoint.Add(rightPoint, auditor.EpochIDHashPoint(audEpochID2))
+	return leftPoint.Equal(rightPoint), nil
 }

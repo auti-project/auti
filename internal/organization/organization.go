@@ -14,11 +14,12 @@ var (
 )
 
 type TypeID string
+type TypeEpochID []byte
 
 type Organization struct {
 	ID                  TypeID
 	IDHash              string
-	epochRandID         []byte
+	epochID             TypeEpochID
 	epochAccumulatorMap map[[2]string]kyber.Point
 	epochTXRandomness   map[[2]string]kyber.Scalar
 }
@@ -36,13 +37,7 @@ func New(id string) *Organization {
 }
 
 func (o *Organization) SetEpochID(randID []byte) {
-	o.epochRandID = randID
-}
-
-func IDHashString(id TypeID) string {
-	defer sha256Func.Reset()
-	sha256Func.Write([]byte(id))
-	return hex.EncodeToString(sha256Func.Sum(nil))
+	o.epochID = randID
 }
 
 func (o *Organization) RecordTransaction(tx *transaction.CLOLCLocalPlain) error {
@@ -86,16 +81,45 @@ func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCLocalHidden) erro
 	return nil
 }
 
-//func IDKey(orgID1, orgID2 TypeID) [2]TypeID {
-//	if orgID1 < orgID2 {
-//		return [2]TypeID{orgID1, orgID2}
-//	}
-//	return [2]TypeID{orgID2, orgID1}
-//}
+func IDHashBytes(id TypeID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write([]byte(id))
+	return sha256Func.Sum(nil)
+}
+
+func IDHashString(id TypeID) string {
+	return hex.EncodeToString(IDHashBytes(id))
+}
+
+func IDHashScalar(id TypeID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(IDHashBytes(id))
+}
+
+func IDHashPoint(id TypeID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(IDHashScalar(id), nil)
+}
 
 func IDHashKey(orgIDHash1, orgIDHash2 string) [2]string {
 	if orgIDHash1 < orgIDHash2 {
 		return [2]string{orgIDHash1, orgIDHash2}
 	}
 	return [2]string{orgIDHash2, orgIDHash1}
+}
+
+func EpochIDHashBytes(epochID TypeEpochID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write(epochID)
+	return sha256Func.Sum(nil)
+}
+
+func EpochIDHashString(epochID TypeEpochID) string {
+	return hex.EncodeToString(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashScalar(epochID TypeEpochID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashPoint(epochID TypeEpochID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(EpochIDHashScalar(epochID), nil)
 }
