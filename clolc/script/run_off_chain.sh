@@ -25,4 +25,9 @@ sleep 5
 sleep 5
 ./8_bench_check.sh
 
+cd "$CURR_DIR"/4_result_verification || exit
+./1_bench_org_and_aud.sh
+sleep 5
+./2_bench_aud_pair.sh
+
 cd "$CURR_DIR" || exit
