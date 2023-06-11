@@ -167,12 +167,13 @@ func ReadAllTXsByPage() error {
 		}
 		fmt.Println("Bookmark:", newBookmark)
 		txList = append(txList, pageTXList...)
+		fmt.Println("Curr TXs:", len(txList))
 		if newBookmark == "" {
 			break
 		}
 		bookmark = newBookmark
-		fmt.Println("Total TXs:", len(txList))
 	}
+	fmt.Println("Total TXs:", len(txList))
 	return err
 }
 
