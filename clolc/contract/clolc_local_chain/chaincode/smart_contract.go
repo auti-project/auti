@@ -11,7 +11,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
-const pageSize = 5
+const pageSize = 10000
 
 // SmartContract provides functions for managing an Transaction.
 type SmartContract struct {
@@ -170,33 +170,34 @@ type PageResponse struct {
 
 // ReadAllTXsByPage returns the transactions found in world state with pagination.
 func (s *SmartContract) ReadAllTXsByPage(ctx contractapi.TransactionContextInterface,
-	bookmarkStr string) (pr PageResponse, err error) {
+	bookmarkStr string) (pageResponse PageResponse, err error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all transactions in the chaincode namespace.
 	var (
 		iter         shim.StateQueryIteratorInterface
 		responseMeta *peer.QueryResponseMetadata
 	)
-	iter, responseMeta, err = ctx.GetStub().GetStateByRangeWithPagination("", "", pageSize, bookmarkStr)
-	if err != nil {
+	if iter, responseMeta, err = ctx.GetStub().GetStateByRangeWithPagination(
+		"", "", pageSize, bookmarkStr,
+	); err != nil {
 		return
 	}
 	defer func(resultsIterator shim.StateQueryIteratorInterface) {
 		err = resultsIterator.Close()
 	}(iter)
-	var response *queryresult.KV
+	var qr *queryresult.KV
 	for iter.HasNext() {
-		response, err = iter.Next()
+		qr, err = iter.Next()
 		if err != nil {
 			return
 		}
 		var tx Transaction
-		err = json.Unmarshal(response.Value, &tx)
+		err = json.Unmarshal(qr.Value, &tx)
 		if err != nil {
 			return
 		}
-		pr.TXs = append(pr.TXs, &tx)
+		pageResponse.TXs = append(pageResponse.TXs, &tx)
 	}
-	pr.Bookmark = responseMeta.Bookmark
+	pageResponse.Bookmark = responseMeta.Bookmark
 	return
 }

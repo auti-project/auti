@@ -155,25 +155,24 @@ func ReadAllTXsByPage() error {
 		return err
 	}
 	defer lc.Close()
-	var bookmark string
-	var txList []*transaction.CLOLCLocalOnChain
+	var (
+		bookmark string
+		txList   []*transaction.CLOLCLocalOnChain
+	)
 	for {
-		pageTXList, newBookmark, err := lc.ReadAllTXsByPage(bookmark)
+		var (
+			pageTXList []*transaction.CLOLCLocalOnChain
+			err        error
+		)
+		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)
 		if err != nil {
 			return err
 		}
-		for _, tx := range pageTXList {
-			fmt.Println(tx)
-		}
-		fmt.Println("Bookmark:", newBookmark)
 		txList = append(txList, pageTXList...)
-		fmt.Println("Curr TXs:", len(txList))
-		if newBookmark == "" {
+		if bookmark == "" {
 			break
 		}
-		bookmark = newBookmark
 	}
-	fmt.Println("Total TXs:", len(txList))
 	return err
 }
 
