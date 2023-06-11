@@ -25,7 +25,7 @@ export AUTI_AUD_CHAIN_DIR=${PWD}
 
 FABLO_AUD_CHAIN_CONFIG="aud-chain-config.yaml"
 rm -f $FABLO_AUD_CHAIN_CONFIG
-python config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name auti-aud-chain --chaincode_dir contract/clolc_aud_chain --num_orderers 1 --num_orgs 16 --num_auditors 0
+python3 config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name auti-aud-chain --chaincode_dir contract/clolc_aud_chain --num_orderers 1 --num_orgs 16 --num_auditors 0
 
 # 1k test
 clean_up
