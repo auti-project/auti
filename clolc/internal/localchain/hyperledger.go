@@ -170,6 +170,7 @@ func ReadAllTXsByPage() error {
 		if newBookmark == "" {
 			break
 		}
+		bookmark = newBookmark
 	}
 	return err
 }
