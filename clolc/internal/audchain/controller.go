@@ -1,4 +1,4 @@
-package localchain
+package audchain
 
 import (
 	"encoding/hex"
@@ -26,27 +26,20 @@ type Controller struct {
 }
 
 // NewController starts a new service instance
-func NewController(walletPath, walletLabel, ccpPath string) (*Controller, error) {
-	wallet, err := gateway.NewFileSystemWallet(walletPath)
+func NewController() (*Controller, error) {
+	wallet, err := gateway.NewFileSystemWallet(audWalletPath)
 	if err != nil {
 		return nil, err
 	}
-	if !wallet.Exists(walletLabel) {
-		// TODO: bad practice, should be removed
-		if walletLabel == orgWalletLabel {
-			if err = populateOrgWallet(wallet); err != nil {
-				return nil, err
-			}
-		} else {
-			if err = populateAudWallet(wallet); err != nil {
-				return nil, err
-			}
+	if !wallet.Exists(audWalletLabel) {
+		if err = populateWallet(wallet); err != nil {
+			return nil, err
 		}
 	}
 	var gw *gateway.Gateway
 	if gw, err = gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, walletLabel),
+		gateway.WithConfig(config.FromFile(filepath.Clean(aud1CCPPath))),
+		gateway.WithIdentity(wallet, audWalletLabel),
 	); err != nil {
 		return nil, err
 	}
@@ -62,12 +55,14 @@ func (c *Controller) Close() {
 	c.gw.Close()
 }
 
-func (c *Controller) SubmitTX(tx *transaction.CLOLCLocalOnChain) (string, error) {
+func (c *Controller) SubmitTX(tx *transaction.CLOLCAudOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := c.ct.SubmitTransaction(createTXFuncName,
-		tx.CounterParty,
-		tx.Commitment,
-		tx.Timestamp,
+		tx.ID,
+		tx.CipherRes,
+		tx.CipherB,
+		tx.CipherC,
+		tx.CipherD,
 	)
 	if err != nil {
 		log.Fatalf("Failed to Submit transaction: %v", err)
@@ -75,7 +70,46 @@ func (c *Controller) SubmitTX(tx *transaction.CLOLCLocalOnChain) (string, error)
 	return string(txID), nil
 }
 
-func (c *Controller) SubmitBatchTXs(txList []*transaction.CLOLCLocalOnChain) ([]string, error) {
+func (c *Controller) TXExists(txID string) (bool, error) {
+	resBytes, err := c.ct.EvaluateTransaction(txExistsName, txID)
+	if err != nil {
+		return false, err
+	}
+	var result bool
+	err = json.Unmarshal(resBytes, &result)
+	if err != nil {
+		return false, err
+	}
+	return result, nil
+}
+
+func (c *Controller) GetAllTXs() ([]*transaction.CLOLCAudOnChain, error) {
+	results, err := c.ct.EvaluateTransaction(readAllTXFuncName)
+	if err != nil {
+		return nil, err
+	}
+	var txList []*transaction.CLOLCAudOnChain
+	err = json.Unmarshal(results, &txList)
+	if err != nil {
+		return nil, err
+	}
+	return txList, nil
+}
+
+func (c *Controller) ReadTX(id string) (*transaction.CLOLCAudOnChain, error) {
+	result, err := c.ct.EvaluateTransaction(readTXFuncName, id)
+	if err != nil {
+		return nil, err
+	}
+	var tx transaction.CLOLCAudOnChain
+	err = json.Unmarshal(result, &tx)
+	if err != nil {
+		return nil, err
+	}
+	return &tx, nil
+}
+
+func (c *Controller) SubmitBatchTXs(txList []*transaction.CLOLCAudOnChain) ([]string, error) {
 	txListJSON, err := json.Marshal(txList)
 	if err != nil {
 		return nil, err
@@ -93,51 +127,12 @@ func (c *Controller) SubmitBatchTXs(txList []*transaction.CLOLCLocalOnChain) ([]
 	return txIDList, nil
 }
 
-func (c *Controller) TXExists(txID string) (bool, error) {
-	resBytes, err := c.ct.EvaluateTransaction(txExistsName, txID)
-	if err != nil {
-		return false, err
-	}
-	var result bool
-	err = json.Unmarshal(resBytes, &result)
-	if err != nil {
-		return false, err
-	}
-	return result, nil
-}
-
-func (c *Controller) ReadTX(id string) (*transaction.CLOLCLocalOnChain, error) {
-	result, err := c.ct.EvaluateTransaction(readTXFuncName, id)
-	if err != nil {
-		return nil, err
-	}
-	var tx transaction.CLOLCLocalOnChain
-	err = json.Unmarshal(result, &tx)
-	if err != nil {
-		return nil, err
-	}
-	return &tx, nil
-}
-
-func (c *Controller) ReadAllTXs() ([]*transaction.CLOLCLocalOnChain, error) {
-	results, err := c.ct.EvaluateTransaction(readAllTXFuncName)
-	if err != nil {
-		return nil, err
-	}
-	var txList []*transaction.CLOLCLocalOnChain
-	err = json.Unmarshal(results, &txList)
-	if err != nil {
-		return nil, err
-	}
-	return txList, nil
-}
-
 type PageResponse struct {
-	Bookmark string                           `json:"bookmark"`
-	TXs      []*transaction.CLOLCLocalOnChain `json:"txs"`
+	Bookmark string                         `json:"bookmark"`
+	TXs      []*transaction.CLOLCAudOnChain `json:"txs"`
 }
 
-func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.CLOLCLocalOnChain, string, error) {
+func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.CLOLCAudOnChain, string, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXsByPageName, bookmark)
 	if err != nil {
 		return nil, "", err

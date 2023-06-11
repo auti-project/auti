@@ -30,8 +30,6 @@ func main() {
 			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
 			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
-		case ProcessTRLocalCHainReadAllByPage:
-			err = bf.TransactionRecordLocalReadAllTXsByPage(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainSubmit:
 			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:
@@ -57,6 +55,8 @@ func main() {
 			err = bf.ConsistencyExaminationComputeD(*numOrgPtr, *numIterPtr)
 		case ProcessCEEncrypt:
 			err = bf.ConsistencyExaminationEncrypt(*numOrgPtr, *numIterPtr)
+		case ProcessCEDecrypt:
+			err = bf.ConsistencyExaminationDecrypt(*numIterPtr)
 		case ProcessCEAudChainSubmit:
 			err = bf.ConsistencyExaminationAudSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:

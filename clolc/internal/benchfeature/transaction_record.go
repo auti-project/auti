@@ -59,21 +59,6 @@ func TransactionRecordLocalReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		if err := localchain.ReadAllTXs(); err != nil {
-			return err
-		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
-	}
-	fmt.Println()
-	return nil
-}
-
-func TransactionRecordLocalReadAllTXsByPage(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC transaction record local read all transactions by page")
-	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
-	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := localchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
@@ -171,7 +156,7 @@ func TransactionRecordOrgReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		if err := orgchain.ReadAllTXs(); err != nil {
+		if err := orgchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
 		elapsed := time.Since(startTime)

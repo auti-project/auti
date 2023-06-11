@@ -9,6 +9,8 @@ function clean_up() {
   docker network prune -f
   docker container prune -f
   rm -rf wallet
+  rm -rf audWallet
+  rm -rf orgWallet
   rm -rf keystore
   rm lc_tx_id.log
   rm oc_tx_id.log

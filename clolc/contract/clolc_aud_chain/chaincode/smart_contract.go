@@ -8,7 +8,10 @@ import (
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
+	"github.com/hyperledger/fabric-protos-go/peer"
 )
+
+const pageSize = 10000
 
 // SmartContract provides functions for managing an Transaction.
 type SmartContract struct {
@@ -131,8 +134,8 @@ func (s *SmartContract) TXExists(ctx contractapi.TransactionContextInterface, ke
 	return transactionJSON != nil, nil
 }
 
-// GetAllTXs returns all transactions found in world state.
-func (s *SmartContract) GetAllTXs(ctx contractapi.TransactionContextInterface) (txList []*Transaction, err error) {
+// ReadAllTXs returns all transactions found in world state.
+func (s *SmartContract) ReadAllTXs(ctx contractapi.TransactionContextInterface) (txList []*Transaction, err error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all transactions in the chaincode namespace.
 	var iter shim.StateQueryIteratorInterface
@@ -157,5 +160,44 @@ func (s *SmartContract) GetAllTXs(ctx contractapi.TransactionContextInterface) (
 		}
 		txList = append(txList, &tx)
 	}
+	return
+}
+
+type PageResponse struct {
+	Bookmark string         `json:"bookmark"`
+	TXs      []*Transaction `json:"txs"`
+}
+
+// ReadAllTXsByPage returns the transactions found in world state with pagination.
+func (s *SmartContract) ReadAllTXsByPage(ctx contractapi.TransactionContextInterface,
+	bookmarkStr string) (pageResponse PageResponse, err error) {
+	// range query with empty string for startKey and endKey does an
+	// open-ended query of all transactions in the chaincode namespace.
+	var (
+		iter         shim.StateQueryIteratorInterface
+		responseMeta *peer.QueryResponseMetadata
+	)
+	if iter, responseMeta, err = ctx.GetStub().GetStateByRangeWithPagination(
+		"", "", pageSize, bookmarkStr,
+	); err != nil {
+		return
+	}
+	defer func(resultsIterator shim.StateQueryIteratorInterface) {
+		err = resultsIterator.Close()
+	}(iter)
+	var qr *queryresult.KV
+	for iter.HasNext() {
+		qr, err = iter.Next()
+		if err != nil {
+			return
+		}
+		var tx Transaction
+		err = json.Unmarshal(qr.Value, &tx)
+		if err != nil {
+			return
+		}
+		pageResponse.TXs = append(pageResponse.TXs, &tx)
+	}
+	pageResponse.Bookmark = responseMeta.Bookmark
 	return
 }

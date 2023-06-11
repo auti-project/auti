@@ -166,7 +166,7 @@ func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		if err := audchain.ReadAllTXs(); err != nil {
+		if err := audchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
 		elapsed := time.Since(startTime)

@@ -1,13 +1,9 @@
 package chaincode
 
-import (
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-)
+import "encoding/json"
 
 type Transaction struct {
-	ID        string `json:"id"`
+	ID        string
 	CipherRes string `json:"cipher_res"`
 	CipherB   string `json:"cipher_b"`
 	CipherC   string `json:"cipher_c"`
@@ -24,12 +20,10 @@ func NewTransaction(id, cipherRes, cipherB, cipherC, cipherD string) *Transactio
 	}
 }
 
-func (c *Transaction) KeyVal() (string, []byte, error) {
-	txJSON, err := json.Marshal(c)
+func (t *Transaction) KeyVal() (string, []byte, error) {
+	txJSON, err := json.Marshal(t)
 	if err != nil {
 		return "", nil, err
 	}
-	sha256Func := sha256.New()
-	sha256Func.Write(txJSON)
-	return hex.EncodeToString(sha256Func.Sum(nil)), txJSON, nil
+	return t.ID, txJSON, nil
 }

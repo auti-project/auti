@@ -23,7 +23,9 @@ sleep 5
 sleep 5
 ./5_bench_encrypt.sh
 sleep 5
-./8_bench_check.sh
+./6_bench_decrypt.sh
+sleep 5
+./9_bench_check.sh
 
 cd "$CURR_DIR"/4_result_verification || exit
 ./1_bench_org_and_aud.sh
