@@ -3,6 +3,7 @@ package localchain
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"path/filepath"
 
@@ -142,6 +143,7 @@ func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.CLOLCLoca
 	if err != nil {
 		return nil, "", err
 	}
+	fmt.Printf("results: %s\n", results)
 	var pageResponse PageResponse
 	err = json.Unmarshal(results, &pageResponse)
 	if err != nil {

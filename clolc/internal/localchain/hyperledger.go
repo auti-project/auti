@@ -155,7 +155,6 @@ func ReadAllTXsByPage() error {
 		return err
 	}
 	defer lc.Close()
-	//_, err = lc.ReadAllTXsByPage()
 	var bookmark string
 	var txList []*transaction.CLOLCLocalOnChain
 	for {
