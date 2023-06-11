@@ -139,7 +139,7 @@ type PageResponse struct {
 }
 
 func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.CLOLCLocalOnChain, string, error) {
-	results, err := c.ct.EvaluateTransaction(readAllTXFuncName, bookmark)
+	results, err := c.ct.EvaluateTransaction(readAllTXByPageName, bookmark)
 	if err != nil {
 		return nil, "", err
 	}
