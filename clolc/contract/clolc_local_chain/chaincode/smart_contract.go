@@ -170,13 +170,9 @@ type PageResponse struct {
 
 // ReadAllTXsByPage returns the transactions found in world state with pagination.
 func (s *SmartContract) ReadAllTXsByPage(ctx contractapi.TransactionContextInterface,
-	args []string) (pr PageResponse, err error) {
+	bookmarkStr string) (pr PageResponse, err error) {
 	// range query with empty string for startKey and endKey does an
 	// open-ended query of all transactions in the chaincode namespace.
-	if len(args) != 1 {
-		return pr, fmt.Errorf("incorrect number of arguments. Expecting 1")
-	}
-	bookmarkStr := args[0]
 	var (
 		iter         shim.StateQueryIteratorInterface
 		responseMeta *peer.QueryResponseMetadata
