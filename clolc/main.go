@@ -30,6 +30,8 @@ func main() {
 			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
 			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
+		case ProcessTRLocalCHainReadAllByPage:
+			err = bf.TransactionRecordLocalReadAllTXsByPage(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainSubmit:
 			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:

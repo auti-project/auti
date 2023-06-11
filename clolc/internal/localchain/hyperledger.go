@@ -2,8 +2,6 @@ package localchain
 
 import (
 	"bufio"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -13,7 +11,6 @@ import (
 
 	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/internal/transaction"
-	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
@@ -26,14 +23,6 @@ const (
 	audWalletLabel = "audAPPUser"
 	org1MSPid      = "Org1MSP"
 	aud1MSPid      = "Aud1MSP"
-)
-
-const (
-	createTXFuncName      = "CreateTX"
-	createBatchTXFuncName = "CreateBatchTXs"
-	txExistsName          = "TXExists"
-	getAllTXFuncName      = "GetAllTXs"
-	readTXFuncName        = "ReadTX"
 )
 
 var (
@@ -95,116 +84,114 @@ func init() {
 	aud1KeyDir = filepath.Join(aud1CREDPath, "keystore")
 }
 
-type Controller struct {
-	gw *gateway.Gateway
-	ct *gateway.Contract
-}
-
-// NewController starts a new service instance
-func NewController(walletPath, walletLabel, ccpPath string) (*Controller, error) {
-	wallet, err := gateway.NewFileSystemWallet(walletPath)
+func SubmitTX(numTXs int) ([]string, error) {
+	lc, err := NewController(orgWalletPath, orgWalletLabel, org1CCPPath)
 	if err != nil {
 		return nil, err
 	}
-	if !wallet.Exists(walletLabel) {
-		// TODO: bad practice, should be removed
-		if walletLabel == orgWalletLabel {
-			if err = populateOrgWallet(wallet); err != nil {
-				return nil, err
+	defer lc.Close()
+	dummyTXs := DummyOnChainTransactions(numTXs)
+	var txIDs []string
+	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
+		right := batch + constants.SubmitTXBatchSize
+		if right > numTXs {
+			right = numTXs
+		}
+		for trial := 0; trial < constants.SubmitTXMaxRetries; trial++ {
+			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[batch:right])
+			if err == nil {
+				txIDs = append(txIDs, batchTXIDs...)
+				break
 			}
-		} else {
-			if err = populateAudWallet(wallet); err != nil {
-				return nil, err
-			}
+			log.Printf("Failed to submit batch TXs: %v\n", err)
+			log.Printf("Retrying in %v seconds\n", constants.SubmitTXRetryDelaySeconds)
+			time.Sleep(constants.SubmitTXRetryDelaySeconds * time.Second)
+		}
+		if err != nil {
+			return nil, err
 		}
 	}
-	var gw *gateway.Gateway
-	if gw, err = gateway.Connect(
-		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, walletLabel),
-	); err != nil {
-		return nil, err
-	}
-	network, err := gw.GetNetwork(channelName)
-	if err != nil {
-		return nil, err
-	}
-	contract := network.GetContract(contractType)
-	return &Controller{gw: gw, ct: contract}, nil
+	return txIDs, nil
 }
 
-func (s *Controller) Close() {
-	s.gw.Close()
-}
-
-func (s *Controller) SubmitTX(tx *transaction.CLOLCLocalOnChain) (string, error) {
-	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
-	txID, err := s.ct.SubmitTransaction(createTXFuncName,
-		tx.CounterParty,
-		tx.Commitment,
-		tx.Timestamp,
-	)
+func ReadTX() error {
+	f, err := os.Open(constants.LocalChainTXIDLogPath)
 	if err != nil {
-		log.Fatalf("Failed to Submit transaction: %v", err)
+		return err
 	}
-	return string(txID), nil
-}
-
-func (s *Controller) TXExists(txID string) (bool, error) {
-	resBytes, err := s.ct.EvaluateTransaction(txExistsName, txID)
-	if err != nil {
-		return false, err
-	}
-	var result bool
-	err = json.Unmarshal(resBytes, &result)
-	if err != nil {
-		return false, err
-	}
-	return result, nil
-}
-
-func (s *Controller) GetAllTXs() ([]*transaction.CLOLCLocalOnChain, error) {
-	results, err := s.ct.EvaluateTransaction(getAllTXFuncName)
-	if err != nil {
-		return nil, err
-	}
-	var txList []*transaction.CLOLCLocalOnChain
-	err = json.Unmarshal(results, &txList)
-	if err != nil {
-		return nil, err
-	}
-	return txList, nil
-}
-
-func (s *Controller) ReadTX(id string) (*transaction.CLOLCLocalOnChain, error) {
-	result, err := s.ct.EvaluateTransaction(readTXFuncName, id)
-	if err != nil {
-		return nil, err
-	}
-	var tx transaction.CLOLCLocalOnChain
-	err = json.Unmarshal(result, &tx)
-	if err != nil {
-		return nil, err
-	}
-	return &tx, nil
-}
-
-func (s *Controller) SubmitBatchTXs(txList []*transaction.CLOLCLocalOnChain) ([]string, error) {
-	txListJSON, err := json.Marshal(txList)
-	if err != nil {
-		return nil, err
-	}
-	txListJSONstr := hex.EncodeToString(txListJSON)
-	resBytes, err := s.ct.SubmitTransaction(createBatchTXFuncName, txListJSONstr)
-	if err != nil {
-		return nil, err
-	}
+	fileScanner := bufio.NewScanner(f)
+	fileScanner.Split(bufio.ScanLines)
 	var txIDList []string
-	err = json.Unmarshal(resBytes, &txIDList)
-	if err != nil {
-		return nil, err
+	for fileScanner.Scan() {
+		txIDList = append(txIDList, fileScanner.Text())
 	}
-	return txIDList, nil
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
+	defer lc.Close()
+	idx := rand.Int() % len(txIDList)
+	_, err = lc.ReadTX(txIDList[idx])
+	return err
+}
+
+func ReadAllTXs() error {
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
+	defer lc.Close()
+	_, err = lc.ReadAllTXs()
+	return err
+}
+
+func ReadAllTXsByPage() error {
+	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	if err != nil {
+		return err
+	}
+	defer lc.Close()
+	//_, err = lc.ReadAllTXsByPage()
+	var bookmark string
+	var txList []*transaction.CLOLCLocalOnChain
+	for {
+		pageTXList, newBookmark, err := lc.ReadAllTXsByPage(bookmark)
+		if err != nil {
+			return err
+		}
+		for _, tx := range pageTXList {
+			fmt.Println(tx)
+		}
+		fmt.Println("Bookmark:", newBookmark)
+		txList = append(txList, pageTXList...)
+		if newBookmark == "" {
+			break
+		}
+	}
+	return err
+}
+
+func SaveTXIDs(txIDs []string) error {
+	f, err := os.OpenFile(constants.LocalChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return err
+	}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(f)
+	for _, id := range txIDs {
+		if _, err = f.WriteString(id + "\n"); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func populateOrgWallet(wallet *gateway.Wallet) error {
@@ -255,88 +242,4 @@ func populateAudWallet(wallet *gateway.Wallet) error {
 	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
 
 	return wallet.Put(audWalletLabel, identity)
-}
-
-func ReadTX() error {
-	f, err := os.Open(constants.LocalChainTXIDLogPath)
-	if err != nil {
-		return err
-	}
-	fileScanner := bufio.NewScanner(f)
-	fileScanner.Split(bufio.ScanLines)
-	var txIDList []string
-	for fileScanner.Scan() {
-		txIDList = append(txIDList, fileScanner.Text())
-	}
-	err = f.Close()
-	if err != nil {
-		return err
-	}
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
-	if err != nil {
-		return err
-	}
-	defer lc.Close()
-	idx := rand.Int() % len(txIDList)
-	_, err = lc.ReadTX(txIDList[idx])
-	return err
-}
-
-func ReadAllTXs() error {
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
-	if err != nil {
-		return err
-	}
-	defer lc.Close()
-	_, err = lc.GetAllTXs()
-	return err
-}
-
-func SubmitTX(numTXs int) ([]string, error) {
-	lc, err := NewController(orgWalletPath, orgWalletLabel, org1CCPPath)
-	if err != nil {
-		return nil, err
-	}
-	defer lc.Close()
-	dummyTXs := DummyOnChainTransactions(numTXs)
-	var txIDs []string
-	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
-		right := batch + constants.SubmitTXBatchSize
-		if right > numTXs {
-			right = numTXs
-		}
-		for trial := 0; trial < constants.SubmitTXMaxRetries; trial++ {
-			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[batch:right])
-			if err == nil {
-				txIDs = append(txIDs, batchTXIDs...)
-				break
-			}
-			log.Printf("Failed to submit batch TXs: %v\n", err)
-			log.Printf("Retrying in %v seconds\n", constants.SubmitTXRetryDelaySeconds)
-			time.Sleep(constants.SubmitTXRetryDelaySeconds * time.Second)
-		}
-		if err != nil {
-			return nil, err
-		}
-	}
-	return txIDs, nil
-}
-
-func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(constants.LocalChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return err
-	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(f)
-	for _, id := range txIDs {
-		if _, err = f.WriteString(id + "\n"); err != nil {
-			return err
-		}
-	}
-	return nil
 }
