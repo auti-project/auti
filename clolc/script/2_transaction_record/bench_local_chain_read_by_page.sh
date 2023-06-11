@@ -19,7 +19,7 @@ touch $LOG_FILE_DIR
 
 # install fablo if not installed
 [ -f ./fablo ] ||
-curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
+  curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
 
 export AUTI_LOCAL_CHAIN_DIR=${PWD}
 
@@ -36,18 +36,18 @@ for i in 10 90; do
   TOTAL_TXS=$((TOTAL_TXS + i))
   sleep 5
 
-  for j in {1..11}; do
-    echo "No: $j" >>$LOG_FILE_DIR
-#    ./clolc.out -phase tr -process local_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
-#    sleep 5
-    ./clolc.out -phase tr -process local_read_all_by_page -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
-    sleep 5
-  done
-#  echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
-#  docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
-#  echo "Blockchain size of peer0.aud1.example.com:" >>$LOG_FILE_DIR
-#  docker exec -it peer0.aud1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
-#  sleep 1
+  #  for j in {1..11}; do
+  #    echo "No: $j" >>$LOG_FILE_DIR
+  #    ./clolc.out -phase tr -process local_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
+  #    sleep 5
+  ./clolc.out -phase tr -process local_read_all_by_page -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
+  sleep 5
+  #  done
+  #  echo "Blockchain size of peer0.org1.example.com:" >>$LOG_FILE_DIR
+  #  docker exec -it peer0.org1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+  #  echo "Blockchain size of peer0.aud1.example.com:" >>$LOG_FILE_DIR
+  #  docker exec -it peer0.aud1.example.com bash -c "ls -lh /var/hyperledger/production/ledgersData/chains/chains/mychannel" | tee -a $LOG_FILE_DIR
+  #  sleep 1
 done
 
 clean_up

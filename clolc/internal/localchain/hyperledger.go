@@ -171,8 +171,8 @@ func ReadAllTXsByPage() error {
 			break
 		}
 		bookmark = newBookmark
+		fmt.Println("Total TXs:", len(txList))
 	}
-	fmt.Println("Total TXs:", len(txList))
 	return err
 }
 
