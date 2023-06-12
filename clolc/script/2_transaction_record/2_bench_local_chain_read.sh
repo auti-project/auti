@@ -27,6 +27,8 @@ FABLO_LOCAL_CHAIN_CONFIG="local-chain-config.yaml"
 
 TOTAL_TXS=0
 clean_up
+./fablo generate $FABLO_ORG_CHAIN_CONFIG
+./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 # docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f

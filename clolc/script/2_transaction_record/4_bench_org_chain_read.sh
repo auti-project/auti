@@ -28,6 +28,8 @@ rm -f $FABLO_ORG_CHAIN_CONFIG
 python3 config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name auti-org-chain --chaincode_dir contract/clolc_org_chain --num_orderers 1 --num_orgs 16 --num_auditors 0
 
 clean_up
+./fablo generate $FABLO_ORG_CHAIN_CONFIG
+./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 # docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
