@@ -46,11 +46,12 @@ func NewPairCLOLCLocalPlain(
 		}
 }
 
-func (c *CLOLCLocalPlain) Hide() (*CLOLCLocalHidden, kyber.Point, kyber.Scalar, error) {
+func (c *CLOLCLocalPlain) Hide() (hiddenTX *CLOLCLocalHidden,
+	commitment kyber.Point, randScalar kyber.Scalar, err error) {
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(c.CounterParty))
 	counterPartyHash := sha256Func.Sum(nil)
-	commitment, randScalar, err := crypto.PedersenCommit(c.Amount)
+	commitment, randScalar, err = crypto.PedersenCommit(c.Amount)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -58,11 +59,12 @@ func (c *CLOLCLocalPlain) Hide() (*CLOLCLocalHidden, kyber.Point, kyber.Scalar, 
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	return NewCLOLCLocalHidden(
+	hiddenTX = NewCLOLCLocalHidden(
 		counterPartyHash,
 		commitmentBytes,
 		c.Timestamp,
-	), commitment, randScalar, nil
+	)
+	return
 }
 
 type CLOLCLocalHidden struct {

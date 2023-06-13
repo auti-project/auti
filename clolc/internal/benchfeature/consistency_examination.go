@@ -44,7 +44,7 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 		}
 		randScalars1 := make([]kyber.Scalar, constants.MaxNumTXInEpoch)
 		randScalars2 := make([]kyber.Scalar, constants.MaxNumTXInEpoch)
-		for i := uint(0); i < constants.MaxNumTXInEpoch; i++ {
+		for i := 0; i < constants.MaxNumTXInEpoch; i++ {
 			randScalars1[i] = crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
 			randScalars2[i] = crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
 		}

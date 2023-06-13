@@ -1,6 +1,6 @@
 package constants
 
 const (
-	SecurityParameterBytes int  = 32
-	MaxNumTXInEpoch        uint = 1024
+	SecurityParameterBytes int = 32
+	MaxNumTXInEpoch        int = 1024
 )

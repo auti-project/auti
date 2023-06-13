@@ -16,9 +16,9 @@ func RandBytes() ([]byte, error) {
 	return result, nil
 }
 
-func RandScalars(size uint) []kyber.Scalar {
+func RandScalars(size int) []kyber.Scalar {
 	results := make([]kyber.Scalar, size)
-	for i := uint(0); i < size; i++ {
+	for i := 0; i < size; i++ {
 		randScalar := KyberSuite.Scalar().Pick(KyberSuite.RandomStream())
 		results[i] = randScalar
 	}

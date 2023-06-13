@@ -22,7 +22,7 @@ type TypeEpochID []byte
 type Auditor struct {
 	ID                   TypeID
 	AuditedOrgIDs        []organization.TypeID
-	epochOrgRandMap      map[[2]string][]kyber.Scalar
+	epochTXRandMap       map[[2]string][]kyber.Scalar
 	epochID              TypeEpochID
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
 	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
@@ -40,7 +40,15 @@ func New(id string, organizations []*organization.Organization) *Auditor {
 }
 
 func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
-	a.epochOrgRandMap = txRandMap
+	a.epochTXRandMap = txRandMap
+}
+
+func (a *Auditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
+	key := organization.IDHashKey(organization.IDHashString(orgID1), organization.IDHashString(orgID2))
+	if txRand, ok := a.epochTXRandMap[key]; ok {
+		return txRand
+	}
+	return nil
 }
 
 func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
@@ -61,13 +69,13 @@ func (a *Auditor) AccumulateCommitments(
 	if len(txList) == 0 {
 		return nil, fmt.Errorf("empty transaction list")
 	}
-	if constants.MaxNumTXInEpoch < uint(len(txList)) {
+	if constants.MaxNumTXInEpoch < len(txList) {
 		return nil, fmt.Errorf("too many transactions in the epoch: %d", len(txList))
 	}
 	orgIDHashStr := organization.IDHashString(orgID)
 	counterPartyIDHashStr := hex.EncodeToString(txList[0].CounterParty)
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHashStr)
-	randomScalars := a.epochOrgRandMap[orgKey]
+	randomScalars := a.epochTXRandMap[orgKey]
 	result := crypto.KyberSuite.Point().Null()
 	for idx, tx := range txList {
 		commitmentBytes := tx.Commitment
@@ -159,7 +167,7 @@ func (a *Auditor) ComputeCETransactionID(
 ) ([]byte, error) {
 	orgIDHashStr := organization.IDHashString(orgID)
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
-	randomnesses := a.epochOrgRandMap[orgKey]
+	randomnesses := a.epochTXRandMap[orgKey]
 	epochOrgID := a.epochOrgIDMap[orgID]
 	epochOrgIDBytes := make([]byte, len(epochOrgID))
 	copy(epochOrgIDBytes, epochOrgID)
