@@ -23,15 +23,11 @@ func TestConsistencyExaminationCheck(t *testing.T) {
 	txList1 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
 	txList2 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
 	for i := 0; i < testNumTXs; i++ {
-		// generate a random float64
-		amount := rand.Float64()
-		integerPart := rand.Int()%10000 - 5000
-		amount += float64(integerPart)
 		currTimestamp := time.Now().UnixNano()
 		tx1, tx2 := transaction.NewPairCLOLCLocalPlain(
 			string(organizations[0].ID),
 			string(organizations[1].ID),
-			amount,
+			randAmount(),
 			currTimestamp,
 		)
 		txList1[i] = tx1
@@ -85,4 +81,11 @@ func TestConsistencyExaminationCheck(t *testing.T) {
 	if !auditors[0].CheckResultConsistency(res1, b1, res2, b2) {
 		t.Fatal("result consistency check failed")
 	}
+}
+
+func randAmount() float64 {
+	amount := rand.Float64()
+	integerPart := rand.Int()%10000 - 5000
+	amount += float64(integerPart)
+	return amount
 }

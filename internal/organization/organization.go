@@ -19,7 +19,7 @@ type TypeEpochID []byte
 type Organization struct {
 	ID                  TypeID
 	IDHash              string
-	epochID             TypeEpochID
+	EpochID             TypeEpochID
 	epochAccumulatorMap map[[2]string]kyber.Point
 	epochTXRandomness   map[[2]string]kyber.Scalar
 }
@@ -32,12 +32,13 @@ func New(id string) *Organization {
 		ID:                  TypeID(id),
 		IDHash:              idHash,
 		epochAccumulatorMap: make(map[[2]string]kyber.Point),
+		epochTXRandomness:   make(map[[2]string]kyber.Scalar),
 	}
 	return org
 }
 
 func (o *Organization) SetEpochID(randID []byte) {
-	o.epochID = randID
+	o.EpochID = randID
 }
 
 func (o *Organization) RecordTransaction(tx *transaction.CLOLCLocalPlain) error {
@@ -77,8 +78,42 @@ func (o *Organization) RecordTransaction(tx *transaction.CLOLCLocalPlain) error 
 	return nil
 }
 
+func (o *Organization) Accumulate(counterParty TypeID, commitment kyber.Point) {
+	counterPartyHashStr := IDHashString(counterParty)
+	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
+	// Accumulate the commitment to the corresponding accumulator
+	if _, ok := o.epochAccumulatorMap[orgMapKey]; !ok {
+		o.epochAccumulatorMap[orgMapKey] = commitment
+	} else {
+		o.epochAccumulatorMap[orgMapKey].Add(
+			o.epochAccumulatorMap[orgMapKey],
+			commitment,
+		)
+	}
+}
+
+//func (o *Organization) ComposeTXLocalChain(counterParty TypeID,
+//	amount float64, timestamp int64) *transaction.CLOLCLocalPlain {
+//	if timestamp == 0 {
+//		timestamp = time.Now().UnixNano()
+//	}
+//	return transaction.NewCLOLCLocalPlain(string(counterParty), amount, timestamp)
+//}
+
 func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCLocalHidden) error {
-	return nil
+	panic("not implemented")
+}
+
+func (o *Organization) ComposeTXOrgChain(counterParty TypeID) (*transaction.CLOLCOrgPlain, error) {
+	epochIDHashPoint := EpochIDHashPoint(o.EpochID)
+	counterPartyHashStr := IDHashString(counterParty)
+	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
+	resultPoint := crypto.KyberSuite.Point().Add(epochIDHashPoint, o.epochAccumulatorMap[orgMapKey])
+	result, err := resultPoint.MarshalBinary()
+	if err != nil {
+		panic(err)
+	}
+	return transaction.NewCLOLCOrgPlain(result), nil
 }
 
 func IDHashBytes(id TypeID) []byte {

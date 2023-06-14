@@ -23,7 +23,7 @@ type Auditor struct {
 	ID                   TypeID
 	AuditedOrgIDs        []organization.TypeID
 	epochTXRandMap       map[[2]string][]kyber.Scalar
-	epochID              TypeEpochID
+	EpochID              TypeEpochID
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
 	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
 }
@@ -56,7 +56,7 @@ func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivat
 }
 
 func (a *Auditor) SetEpochID(id []byte) {
-	a.epochID = id
+	a.EpochID = id
 }
 
 func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
@@ -147,7 +147,7 @@ func (a *Auditor) EncryptConsistencyExamResult(
 		return nil, err
 	}
 	defer sha256Func.Reset()
-	epochIDHashScalar := EpochIDHashScalar(a.epochID)
+	epochIDHashScalar := EpochIDHashScalar(a.EpochID)
 	idPointD := crypto.KyberSuite.Point().Mul(epochIDHashScalar, pointD)
 	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {

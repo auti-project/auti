@@ -256,7 +256,7 @@ func (c *Committee) VerifyOrgAndAudResult(
 	if err != nil {
 		return false, err
 	}
-	negB := crypto.KyberSuite.Point().Neg(pointB)
+	//negB := crypto.KyberSuite.Point().Neg(pointB)
 	cipherDBytes, err := hex.DecodeString(audChainTX.CipherD)
 	if err != nil {
 		return false, err
@@ -265,7 +265,8 @@ func (c *Committee) VerifyOrgAndAudResult(
 	if err != nil {
 		return false, err
 	}
-	leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, negB)
+	//leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, negB)
+	leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, pointB)
 	leftPoint.Add(leftPoint, pointD)
 	orgEpochID := c.epochOrgIDMap[orgID]
 	rightPoint := organization.EpochIDHashPoint(orgEpochID)
