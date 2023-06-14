@@ -51,3 +51,44 @@ func TestDecrypt(t *testing.T) {
 		})
 	}
 }
+
+func Test_int64ToBytes(t *testing.T) {
+	tests := []struct {
+		name    string
+		i       int64
+		wantErr bool
+	}{
+		{
+			name:    "test_0",
+			i:       0,
+			wantErr: false,
+		},
+		{
+			name:    "test_10",
+			i:       10,
+			wantErr: false,
+		},
+		{
+			name:    "test_-10",
+			i:       -10,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := int64ToBytes(tt.i)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("int64ToBytes() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			reversed, err := bytesToInt64(got)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("bytesToInt64() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if reversed != tt.i {
+				t.Errorf("bytesToInt64() reversed = %v, i %v", reversed, tt.i)
+			}
+		})
+	}
+}

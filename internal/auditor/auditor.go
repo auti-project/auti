@@ -98,7 +98,7 @@ func (a *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.P
 		tmp := crypto.KyberSuite.Scalar().Mul(orgTXRandList[idx], comTXRandList[idx])
 		scalar.Sub(scalar, tmp)
 	}
-	result := crypto.KyberSuite.Point().Mul(scalar, crypto.KyberSuite.Point().Base())
+	result := crypto.KyberSuite.Point().Mul(scalar, crypto.PointH)
 	return result, nil
 }
 
