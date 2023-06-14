@@ -31,7 +31,7 @@ clean_up
 ./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
-# docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+ docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 ./clolc.out -phase tr -process local_submit -numTXs 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 sleep 5
