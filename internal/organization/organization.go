@@ -3,6 +3,7 @@ package organization
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/transaction"
@@ -105,10 +106,14 @@ func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCLocalHidden) erro
 }
 
 func (o *Organization) ComposeTXOrgChain(counterParty TypeID) (*transaction.CLOLCOrgPlain, error) {
-	epochIDHashPoint := EpochIDHashPoint(o.EpochID)
 	counterPartyHashStr := IDHashString(counterParty)
 	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
-	resultPoint := crypto.KyberSuite.Point().Add(epochIDHashPoint, o.epochAccumulatorMap[orgMapKey])
+	accumulator, ok := o.epochAccumulatorMap[orgMapKey]
+	if !ok {
+		return nil, fmt.Errorf("no transaction from %s to %s", o.ID, counterParty)
+	}
+	epochIDHashPoint := EpochIDHashPoint(o.EpochID)
+	resultPoint := crypto.KyberSuite.Point().Add(accumulator, epochIDHashPoint)
 	result, err := resultPoint.MarshalBinary()
 	if err != nil {
 		panic(err)

@@ -108,9 +108,8 @@ func (a *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
 }
 
 func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
-	negA := crypto.KyberSuite.Point().Neg(pointA)
-	negB := crypto.KyberSuite.Point().Neg(pointB)
-	result := crypto.KyberSuite.Point().Add(negA, negB)
+	result := crypto.KyberSuite.Point().Add(pointA, pointB)
+	result.Neg(result)
 	return result
 }
 
@@ -146,9 +145,8 @@ func (a *Auditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	defer sha256Func.Reset()
-	epochIDHashScalar := EpochIDHashScalar(a.EpochID)
-	idPointD := crypto.KyberSuite.Point().Mul(epochIDHashScalar, pointD)
+	epochIDHashPoint := EpochIDHashPoint(a.EpochID)
+	idPointD := crypto.KyberSuite.Point().Add(epochIDHashPoint, pointD)
 	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {
 		return nil, err

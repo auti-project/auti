@@ -238,25 +238,26 @@ func (c *Committee) VerifyOrgAndAudResult(
 	orgChainTX *transaction.CLOLCOrgOnChain,
 	audChainTX *transaction.CLOLCAudOnChain,
 ) (bool, error) {
-	accumulatorOnChain := orgChainTX.Accumulator
-	accumulatorBytes, err := hex.DecodeString(accumulatorOnChain)
+	accBytes, err := hex.DecodeString(orgChainTX.Accumulator)
 	if err != nil {
 		return false, err
 	}
-	accumulatorPoint := crypto.KyberSuite.Point()
-	if err = accumulatorPoint.UnmarshalBinary(accumulatorBytes); err != nil {
+	pointAcc := crypto.KyberSuite.Point()
+	if err = pointAcc.UnmarshalBinary(accBytes); err != nil {
 		return false, err
 	}
 	cipherBBytes, err := hex.DecodeString(audChainTX.CipherB)
 	if err != nil {
 		return false, err
 	}
-	privateKey := c.epochSecretKeyMap[organization.IDHashString(orgID)]
+	privateKey, ok := c.epochSecretKeyMap[organization.IDHashString(orgID)]
+	if !ok {
+		return false, errors.New(string("secret key not found, id: " + orgID))
+	}
 	pointB, err := crypto.DecryptPoint(privateKey, cipherBBytes)
 	if err != nil {
 		return false, err
 	}
-	//negB := crypto.KyberSuite.Point().Neg(pointB)
 	cipherDBytes, err := hex.DecodeString(audChainTX.CipherD)
 	if err != nil {
 		return false, err
@@ -265,13 +266,12 @@ func (c *Committee) VerifyOrgAndAudResult(
 	if err != nil {
 		return false, err
 	}
-	//leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, negB)
-	leftPoint := crypto.KyberSuite.Point().Add(accumulatorPoint, pointB)
+	leftPoint := crypto.KyberSuite.Point().Add(pointAcc, pointB)
 	leftPoint.Add(leftPoint, pointD)
 	orgEpochID := c.epochOrgIDMap[orgID]
 	rightPoint := organization.EpochIDHashPoint(orgEpochID)
 	audEpochID := c.epochAuditorIDMap[audID]
-	rightPoint.Mul(auditor.EpochIDHashScalar(audEpochID), rightPoint)
+	rightPoint.Add(rightPoint, auditor.EpochIDHashPoint(audEpochID))
 	return leftPoint.Equal(rightPoint), nil
 }
 

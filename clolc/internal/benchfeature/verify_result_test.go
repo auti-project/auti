@@ -2,7 +2,6 @@ package benchfeature
 
 import (
 	"crypto/rand"
-	"fmt"
 	"testing"
 	"time"
 
@@ -106,8 +105,8 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	c1 := auditors[0].ComputeC(res1, acc1)
 	c2 := auditors[1].ComputeC(res2, acc2)
 	// compute d
-	d1 := auditors[0].ComputeD(acc1, c1)
-	d2 := auditors[1].ComputeD(acc2, c2)
+	d1 := auditors[0].ComputeD(acc1, b1)
+	d2 := auditors[1].ComputeD(acc2, b2)
 	randID1 := make([]byte, 32)
 	if _, err = rand.Read(randID1); err != nil {
 		t.Fatal(err)
@@ -116,8 +115,6 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	if _, err := rand.Read(randID2); err != nil {
 		t.Fatal(err)
 	}
-	//audIDHashPoint1 := auditor.EpochIDHashPoint(auditors[0].EpochID)
-	//audIDHashPoint2 := auditor.EpochIDHashPoint(auditors[1].EpochID)
 	idHash1 := organization.IDHashString(organizations[0].ID)
 	idHash2 := organization.IDHashString(organizations[1].ID)
 	publicKey1 := publicKeyMap[idHash1]
@@ -135,9 +132,6 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	acc1.Add(acc1, b1)
-	acc1.Add(acc1, d1)
-	fmt.Printf("acc1: %s\n", acc1)
 	if !res {
 		t.Fatal("verify failed")
 	}
