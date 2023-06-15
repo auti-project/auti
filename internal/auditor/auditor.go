@@ -103,7 +103,7 @@ func (a *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.P
 }
 
 func (a *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
-	result := crypto.KyberSuite.Point().Add(res, A)
+	result := crypto.KyberSuite.Point().Sub(A, res)
 	return result
 }
 

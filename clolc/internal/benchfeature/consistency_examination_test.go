@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/auti-project/auti/internal/constants"
+	"github.com/auti-project/auti/internal/organization"
 	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
@@ -20,19 +21,7 @@ func TestConsistencyExaminationCheck(t *testing.T) {
 		t.Fatal(err)
 	}
 	// test
-	txList1 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
-	txList2 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
-	for i := 0; i < testNumTXs; i++ {
-		currTimestamp := time.Now().UnixNano()
-		tx1, tx2 := transaction.NewPairCLOLCLocalPlain(
-			string(organizations[0].ID),
-			string(organizations[1].ID),
-			randAmount(),
-			currTimestamp,
-		)
-		txList1[i] = tx1
-		txList2[i] = tx2
-	}
+	txList1, txList2 := generateLocalTXPairList(organizations[0].ID, organizations[1].ID)
 	// compute hidden transactions
 	var (
 		hiddenTXs1   = make([]*transaction.CLOLCLocalHidden, testNumTXs)
@@ -88,4 +77,23 @@ func randAmount() float64 {
 	integerPart := rand.Int()%10000 - 5000
 	amount += float64(integerPart)
 	return amount
+}
+
+func generateLocalTXPairList(
+	orgID1, orgID2 organization.TypeID,
+) ([]*transaction.CLOLCLocalPlain, []*transaction.CLOLCLocalPlain) {
+	txList1 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
+	txList2 := make([]*transaction.CLOLCLocalPlain, testNumTXs)
+	for i := 0; i < testNumTXs; i++ {
+		currTimestamp := time.Now().UnixNano()
+		tx1, tx2 := transaction.NewPairCLOLCLocalPlain(
+			string(orgID1),
+			string(orgID2),
+			randAmount(),
+			currTimestamp,
+		)
+		txList1[i] = tx1
+		txList2[i] = tx2
+	}
+	return txList1, txList2
 }
