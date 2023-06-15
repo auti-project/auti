@@ -28,8 +28,8 @@ rm -f $FABLO_AUD_CHAIN_CONFIG
 python3 config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name auti-aud-chain --chaincode_dir contract/clolc_aud_chain --num_orderers 1 --num_orgs 0 --num_auditors 16
 
 clean_up
-./fablo generate $FABLO_ORG_CHAIN_CONFIG
-./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
+#./fablo generate $FABLO_ORG_CHAIN_CONFIG
+#./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_AUD_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
  docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f

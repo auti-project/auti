@@ -28,8 +28,8 @@ python3 config_gen.py --output_filename $FABLO_ORG_CHAIN_CONFIG --chaincode_name
 
 # 1k test
 clean_up
-./fablo generate $FABLO_ORG_CHAIN_CONFIG
-./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
+#./fablo generate $FABLO_ORG_CHAIN_CONFIG
+#./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
  docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
@@ -41,8 +41,8 @@ for i in 10000 100000 1000000; do
   for j in {1..11}; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
-    ./fablo generate $FABLO_ORG_CHAIN_CONFIG
-    ./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
+#    ./fablo generate $FABLO_ORG_CHAIN_CONFIG
+#    ./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
     ./fablo up $FABLO_ORG_CHAIN_CONFIG
     docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
     docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
