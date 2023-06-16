@@ -13,7 +13,7 @@ orgs:
     orderers:
       - groupName: group1
         prefix: orderer
-        type: solo
+        type: raft
         instances: 1
   - organization:
       name: Aud1

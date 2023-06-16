@@ -1,4 +1,5 @@
 import argparse
+
 import yaml
 
 
@@ -113,13 +114,13 @@ def main():
     )
     parser.add_argument(
         "--num_orderers",
-        default=1,
+        default=2,
         type=int,
         help="Number of orderers",
     )
     parser.add_argument(
         "--orderer_type",
-        default="solo",
+        default="raft",
         type=str,
         help="Orderer type: solo or raft, kafka not supported yet",
     )
