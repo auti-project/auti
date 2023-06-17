@@ -72,7 +72,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 			right = numTXs
 		}
 		for trail := 0; trail < constants.SubmitTXMaxRetries; trail++ {
-			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[trail:right])
+			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[batch:right])
 			if err == nil {
 				txIDs = append(txIDs, batchTXIDs...)
 				break
