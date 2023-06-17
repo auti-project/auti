@@ -48,6 +48,9 @@ func DummyOnChainTransaction() (*transaction.CLOLCAudOnChain, error) {
 			C2: kyberSuite.Point().Pick(kyberSuite.RandomStream()),
 		}
 		randCipherBytes[i], err = ct.Serialize()
+		if err != nil {
+			return nil, err
+		}
 	}
 	tx := transaction.NewCLOLCAudPlain(
 		randIDBytes, randCipherBytes[0], randCipherBytes[1], randCipherBytes[2], randCipherBytes[3],

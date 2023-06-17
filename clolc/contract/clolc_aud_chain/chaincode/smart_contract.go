@@ -11,7 +11,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
-const pageSize = 10000
+const pageSize = 5000
 
 // SmartContract provides functions for managing an Transaction.
 type SmartContract struct {
