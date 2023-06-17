@@ -114,7 +114,7 @@ def main():
     )
     parser.add_argument(
         "--num_orderers",
-        default=2,
+        default=3,
         type=int,
         help="Number of orderers",
     )
@@ -150,7 +150,7 @@ def main():
     )
     parser.add_argument(
         "--desired_fabric_version",
-        default="2.5.1",
+        default="2.5.3",
         type=str,
         help="Desired Fabric version",
     )

@@ -1,9 +1,9 @@
 package constants
 
 const (
-	SubmitTXBatchSize         = 10000
+	SubmitTXBatchSize         = 5000
 	SubmitTXMaxRetries        = 5
-	SubmitTXRetryDelaySeconds = 5
+	SubmitTXRetryDelaySeconds = 2
 
 	LocalChainTXIDLogPath = "lc_tx_id.log"
 	OrgChainTXIDLogPath   = "oc_tx_id.log"

@@ -3,7 +3,7 @@ global:
   fabricVersion: 2.4.3
   tls: true
 hooks:
-  postGenerate: perl -i -pe 's/_VERSION=2.4.3/_VERSION=2.5.1/g' ./fablo-target/fabric-docker/.env; perl -i -pe 's/FABRIC_CA_VERSION=1.5.0/FABRIC_CA_VERSION=1.5.6/g' ./fablo-target/fabric-docker/.env
+  postGenerate: perl -i -pe 's/_VERSION=2.4.3/_VERSION=2.5.3/g' ./fablo-target/fabric-docker/.env; perl -i -pe 's/FABRIC_CA_VERSION=1.5.0/FABRIC_CA_VERSION=1.5.6/g' ./fablo-target/fabric-docker/.env
 orgs:
   - organization:
       name: Org1
@@ -14,7 +14,7 @@ orgs:
       - groupName: group1
         prefix: orderer
         type: raft
-        instances: 1
+        instances: 3
   - organization:
       name: Aud1
       domain: aud1.example.com
