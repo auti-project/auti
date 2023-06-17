@@ -37,7 +37,7 @@ sleep 5
 sleep 5
 
 for i in 10000 100000 1000000; do
-  for j in {1..11}; do
+  for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
 #    ./fablo generate $FABLO_ORG_CHAIN_CONFIG

@@ -35,11 +35,11 @@ clean_up
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
  docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
-./clolc.out -phase ce -process aud_submit -numTXs 1000 -numIter 11 | tee -a $LOG_FILE_DIR
+./clolc.out -phase ce -process aud_submit -numTXs 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 sleep 5
 
 for i in 10000 100000 1000000; do
-  for j in {1..11}; do
+  for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
 #    ./fablo generate $FABLO_ORG_CHAIN_CONFIG

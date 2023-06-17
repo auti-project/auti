@@ -39,7 +39,7 @@ for i in 1000 9000 90000 900000; do
   ./clolc.out -phase ce -process aud_prepare -numTXs $i | tee -a $LOG_FILE_DIR
   TOTAL_TXS=$((TOTAL_TXS + i))
   sleep 5
-  for j in {1..11}; do
+  for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase ce -process aud_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
