@@ -1,11 +1,11 @@
-package benchfeature
+package timecounter
 
 import (
 	"fmt"
 	"time"
 )
 
-func printTime(elapsed time.Duration) {
+func Print(elapsed time.Duration) {
 	if elapsed.Milliseconds() <= 1 {
 		fmt.Printf("Elapsed time: %d ns\n", elapsed.Nanoseconds())
 	} else {

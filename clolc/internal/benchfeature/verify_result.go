@@ -6,6 +6,7 @@ import (
 
 	"github.com/auti-project/auti/clolc/internal/audchain"
 	"github.com/auti-project/auti/clolc/internal/orgchain"
+	"github.com/auti-project/auti/clolc/internal/timecounter"
 )
 
 func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
@@ -35,7 +36,7 @@ func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -70,7 +71,7 @@ func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil

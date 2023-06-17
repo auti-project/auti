@@ -6,6 +6,7 @@ import (
 
 	"github.com/auti-project/auti/clolc/internal/audchain"
 	"github.com/auti-project/auti/clolc/internal/localchain"
+	"github.com/auti-project/auti/clolc/internal/timecounter"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
@@ -27,7 +28,7 @@ func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -53,7 +54,7 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -73,7 +74,7 @@ func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
 		startTime := time.Now()
 		_ = auditors[0].ComputeC(randPoint1, randPoint2)
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -93,7 +94,7 @@ func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
 		startTime := time.Now()
 		_ = auditors[0].ComputeD(randPoint1, randPoint2)
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -124,7 +125,7 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -134,13 +135,9 @@ func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC consistency examination submit TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
-		_, err := audchain.SubmitTX(numTotalTXs)
-		if err != nil {
+		if _, err := audchain.SubmitTX(numTotalTXs); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -150,12 +147,9 @@ func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC consistency examination read TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := audchain.ReadTX(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -165,12 +159,9 @@ func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC consistency examination read all TXs")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := audchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -209,8 +200,7 @@ func ConsistencyExaminationDecrypt(iterations int) error {
 			return err
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
-
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -234,7 +224,7 @@ func ConsistencyExaminationCheck(iterations int) error {
 			randPoints[0], randPoints[1], randPoints[2], randPoints[3],
 		)
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil

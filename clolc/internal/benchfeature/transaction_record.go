@@ -6,6 +6,7 @@ import (
 
 	"github.com/auti-project/auti/clolc/internal/localchain"
 	"github.com/auti-project/auti/clolc/internal/orgchain"
+	"github.com/auti-project/auti/clolc/internal/timecounter"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
@@ -13,13 +14,10 @@ func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record local submit transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		_, err := localchain.SubmitTX(numTXs)
 		if err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -43,12 +41,9 @@ func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record local read transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := localchain.ReadTX(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -58,12 +53,9 @@ func TransactionRecordLocalReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record local read all transactions")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := localchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -76,13 +68,12 @@ func TransactionRecordCommitment(numTotalTXs, iterations int) error {
 		dummyTXs := localchain.DummyPlainTransactions(numTotalTXs)
 		startTime := time.Now()
 		for _, tx := range dummyTXs {
-			_, _, _, err := tx.Hide()
-			if err != nil {
+			if _, _, _, err := tx.Hide(); err != nil {
 				return err
 			}
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -100,7 +91,7 @@ func TransactionRecordAccumulate(numTotalTXs, iterations int) error {
 			accumulator = accumulator.Add(accumulator, commitment)
 		}
 		elapsed := time.Since(startTime)
-		printTime(elapsed)
+		timecounter.Print(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -124,13 +115,9 @@ func TransactionRecordOrgSubmitTX(numTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record submit transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
-		_, err := orgchain.SubmitTX(numTXs)
-		if err != nil {
+		if _, err := orgchain.SubmitTX(numTXs); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -140,12 +127,9 @@ func TransactionRecordOrgReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record read transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := orgchain.ReadTX(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil
@@ -155,12 +139,9 @@ func TransactionRecordOrgReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("CLOLC transaction record read all transactions")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		startTime := time.Now()
 		if err := orgchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
-		elapsed := time.Since(startTime)
-		printTime(elapsed)
 	}
 	fmt.Println()
 	return nil

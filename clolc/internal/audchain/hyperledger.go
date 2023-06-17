@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/auti-project/auti/clolc/internal/constants"
+	"github.com/auti-project/auti/clolc/internal/timecounter"
 	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
@@ -66,6 +67,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 	defer lc.Close()
 	dummyTXs := DummyOnChainTransactions(numTXs)
 	var txIDs []string
+	startTime := time.Now()
 	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
 		right := batch + constants.SubmitTXBatchSize
 		if right > numTXs {
@@ -85,6 +87,8 @@ func SubmitTX(numTXs int) ([]string, error) {
 			return nil, err
 		}
 	}
+	elapsedTime := time.Since(startTime)
+	timecounter.Print(elapsedTime)
 	return txIDs, nil
 }
 
@@ -109,17 +113,10 @@ func ReadTX() error {
 	}
 	defer lc.Close()
 	idx := rand.Int() % len(txIDList)
+	startTime := time.Now()
 	_, err = lc.ReadTX(txIDList[idx])
-	return err
-}
-
-func ReadAllTXs() error {
-	lc, err := NewController()
-	if err != nil {
-		return err
-	}
-	defer lc.Close()
-	_, err = lc.GetAllTXs()
+	elapsedTime := time.Since(startTime)
+	timecounter.Print(elapsedTime)
 	return err
 }
 
@@ -133,6 +130,7 @@ func ReadAllTXsByPage() error {
 		bookmark string
 		txList   []*transaction.CLOLCAudOnChain
 	)
+	startTime := time.Now()
 	for {
 		var (
 			pageTXList []*transaction.CLOLCAudOnChain
@@ -147,6 +145,8 @@ func ReadAllTXsByPage() error {
 			break
 		}
 	}
+	elapsedTime := time.Since(startTime)
+	timecounter.Print(elapsedTime)
 	return err
 }
 
