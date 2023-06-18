@@ -22,7 +22,7 @@ func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int
 		if err != nil {
 			return err
 		}
-		dummyTXs := localchain.DummyHiddenTXWithCounterPartyID(organizations[1].ID, int(constants.MaxNumTXInEpoch))
+		dummyTXs := localchain.DummyHiddenTXWithCounterPartyID(organizations[1].ID, constants.MaxNumTXInEpoch)
 		startTime := time.Now()
 		if _, err = auditors[0].AccumulateCommitments(organizations[0].ID, dummyTXs); err != nil {
 			return err
