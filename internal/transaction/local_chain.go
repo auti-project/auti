@@ -1,6 +1,7 @@
 package transaction
 
 import (
+
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/auti-project/auti/internal/crypto"
 	"go.dedis.ch/kyber/v3"
+
 )
 
 const (

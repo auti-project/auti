@@ -1,7 +1,9 @@
 package crypto
 
 import (
+
 	"testing"
+
 )
 
 func TestPedersenCommit(t *testing.T) {

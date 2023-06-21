@@ -1,6 +1,7 @@
 package committee
 
 import (
+
 	"encoding/hex"
 	"errors"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/auti-project/auti/internal/organization"
 	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
+
 )
 
 type typeID string

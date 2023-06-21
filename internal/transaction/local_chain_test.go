@@ -1,9 +1,11 @@
 package transaction
 
 import (
+
 	"testing"
 
 	"github.com/auti-project/auti/internal/crypto"
+
 )
 
 func TestCLOLCLocalPlain_Hide(t *testing.T) {
