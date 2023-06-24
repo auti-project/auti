@@ -1,10 +1,8 @@
 package transaction
 
 import (
-
 	"encoding/hex"
 	"encoding/json"
-
 )
 
 type CLOLCAudPlain struct {

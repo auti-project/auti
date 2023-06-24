@@ -14,7 +14,7 @@ func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}

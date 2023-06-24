@@ -18,7 +18,7 @@ func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -65,7 +65,7 @@ func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -85,7 +85,7 @@ func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}
@@ -185,7 +185,7 @@ func ConsistencyExaminationDecrypt(iterations int) error {
 	fmt.Println("CLOLC consistency examination decrypt")
 	fmt.Printf("Num iter: %d\n", iterations)
 	com, auditors, organizations := generateEntities(2)
-	_, err := com.InitializeEpoch(auditors, organizations)
+	_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func ConsistencyExaminationCheck(iterations int) error {
 	fmt.Printf("Num iter: %d\n", iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(2)
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}

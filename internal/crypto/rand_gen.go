@@ -1,12 +1,10 @@
 package crypto
 
 import (
-
 	"crypto/rand"
 
 	"github.com/auti-project/auti/internal/constants"
 	"go.dedis.ch/kyber/v3"
-
 )
 
 func RandBytes() ([]byte, error) {

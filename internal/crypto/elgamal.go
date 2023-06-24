@@ -1,7 +1,6 @@
 package crypto
 
 import (
-
 	"bytes"
 	"encoding/binary"
 	"errors"
@@ -9,7 +8,6 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
-
 )
 
 var (

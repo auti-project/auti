@@ -1,7 +1,6 @@
 package organization
 
 import (
-
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
-
 )
 
 var (

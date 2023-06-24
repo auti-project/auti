@@ -4,17 +4,17 @@ import yaml
 
 
 def generate_fablo_config(
-    output_filename,
-    chaincode_name,
-    chaincode_dir,
-    num_orderers,
-    orderer_type,
-    num_orgs,
-    num_auditors,
-    num_peers,
-    fabric_version,
-    desired_fabric_version,
-    desired_fabric_ca_version,
+        output_filename,
+        chaincode_name,
+        chaincode_dir,
+        num_orderers,
+        orderer_type,
+        num_orgs,
+        num_auditors,
+        num_peers,
+        fabric_version,
+        desired_fabric_version,
+        desired_fabric_ca_version,
 ):
     """Generate Fablo config."""
     config = {
@@ -84,7 +84,7 @@ def generate_fablo_config(
     )
 
     config["chaincodes"][0]["endorsement"] = (
-        "AND(" + ", ".join(endorsement_list) + ")"
+            "AND(" + ", ".join(endorsement_list) + ")"
     )
 
     with open(output_filename, "w") as file:

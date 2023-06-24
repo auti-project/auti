@@ -29,7 +29,7 @@ func InitializeEpoch(numOrganizations, iterations int) error {
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
 		startTime := time.Now()
-		_, err := com.InitializeEpoch(auditors, organizations)
+		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}

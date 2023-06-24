@@ -16,7 +16,7 @@ const testNumTXs = constants.MaxNumTXInEpoch
 func TestConsistencyExaminationCheck(t *testing.T) {
 	// setup
 	com, auditors, organizations := generateEntities(2)
-	_, err := com.InitializeEpoch(auditors, organizations)
+	_, err := com.CLOLCInitializeEpoch(auditors, organizations)
 	if err != nil {
 		t.Fatal(err)
 	}

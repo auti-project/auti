@@ -1,7 +1,6 @@
 package committee
 
 import (
-
 	"encoding/hex"
 	"errors"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/auti-project/auti/internal/organization"
 	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
-
 )
 
 type typeID string
@@ -39,7 +37,6 @@ func New(id string, auditors []*auditor.Auditor) *Committee {
 		com.managedEntityMap[aud.ID] = aud.AuditedOrgIDs
 		com.managedAuditorIDs[idx] = aud.ID
 		com.managedOrgIDs = append(com.managedOrgIDs, aud.AuditedOrgIDs...)
-
 	}
 	return com
 }
@@ -52,8 +49,8 @@ func (c *Committee) resetMaps() {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 
-// InitializeEpoch initialize the parameters for an auditing epoch
-func (c *Committee) InitializeEpoch(
+// CLOLCInitializeEpoch initialize the parameters for an auditing epoch
+func (c *Committee) CLOLCInitializeEpoch(
 	auditors []*auditor.Auditor, organizations []*organization.Organization,
 ) (map[string]crypto.TypePublicKey, error) {
 	c.resetMaps()
