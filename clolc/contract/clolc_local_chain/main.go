@@ -3,8 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/auti-project/auti/clolc/contract/clolc_local_chain/chaincode"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/auti-project/auti/clolc/contract/clolc_local_chain/chaincode"
 )
 
 func main() {

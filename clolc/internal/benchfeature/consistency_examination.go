@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"go.dedis.ch/kyber/v3"
+
 	"github.com/auti-project/auti/clolc/internal/audchain"
 	"github.com/auti-project/auti/clolc/internal/localchain"
 	"github.com/auti-project/auti/clolc/internal/timecounter"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 )
 
 func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int) error {

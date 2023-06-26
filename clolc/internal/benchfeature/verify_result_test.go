@@ -2,12 +2,14 @@ package benchfeature
 
 import (
 	"crypto/rand"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"testing"
+
+	"github.com/auti-project/auti/internal/transaction/clolc"
+
+	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 )
 
 func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {

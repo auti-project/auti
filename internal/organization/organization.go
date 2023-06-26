@@ -3,21 +3,23 @@ package organization
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/auti-project/auti/internal/crypto"
+
 	"go.dedis.ch/kyber/v3"
+
+	"github.com/auti-project/auti/internal/crypto"
 )
 
 var (
-	sha256Func = sha256.New()
+	Sha256Func = sha256.New()
 )
 
 type TypeID string
 type TypeEpochID []byte
 
 func IDHashBytes(id TypeID) []byte {
-	defer sha256Func.Reset()
-	sha256Func.Write([]byte(id))
-	return sha256Func.Sum(nil)
+	defer Sha256Func.Reset()
+	Sha256Func.Write([]byte(id))
+	return Sha256Func.Sum(nil)
 }
 
 func IDHashString(id TypeID) string {
@@ -40,9 +42,9 @@ func IDHashKey(orgIDHash1, orgIDHash2 string) [2]string {
 }
 
 func EpochIDHashBytes(epochID TypeEpochID) []byte {
-	defer sha256Func.Reset()
-	sha256Func.Write(epochID)
-	return sha256Func.Sum(nil)
+	defer Sha256Func.Reset()
+	Sha256Func.Write(epochID)
+	return Sha256Func.Sum(nil)
 }
 
 func EpochIDHashString(epochID TypeEpochID) string {

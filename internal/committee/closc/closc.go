@@ -1,21 +1,22 @@
-package committee
+package closc
 
 import (
 	"github.com/auti-project/auti/internal/auditor"
+	"github.com/auti-project/auti/internal/committee"
 	"github.com/auti-project/auti/internal/organization"
 )
 
-type CLOSCCommittee struct {
-	ID                typeID
+type Committee struct {
+	ID                committee.TypeID
 	managedEntityMap  map[auditor.TypeID][]organization.TypeID
 	managedAuditorIDs []auditor.TypeID
 	managedOrgIDs     []organization.TypeID
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func CLOSCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOSCCommittee {
-	com := &CLOSCCommittee{
-		ID:               typeID(id),
+func New(id string, auditors []*auditor.CLOLCAuditor) *Committee {
+	com := &Committee{
+		ID:               committee.TypeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
 	}
 	com.managedAuditorIDs = make([]auditor.TypeID, len(auditors))
@@ -27,7 +28,7 @@ func CLOSCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOSCCommittee {
 	return com
 }
 
-func (c *CLOSCCommittee) reinitializeMaps() {
+func (c *Committee) reinitializeMaps() {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 

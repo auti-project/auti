@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"go.dedis.ch/kyber/v3/group/edwards25519"
+
 	"github.com/auti-project/auti/clolc/internal/localchain"
 	"github.com/auti-project/auti/clolc/internal/orgchain"
 	"github.com/auti-project/auti/clolc/internal/timecounter"
-	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
 func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {

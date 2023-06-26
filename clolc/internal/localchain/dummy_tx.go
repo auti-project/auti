@@ -2,14 +2,16 @@ package localchain
 
 import (
 	crand "crypto/rand"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"math/rand"
 	"runtime"
 	"sync"
 	"time"
 
-	"github.com/auti-project/auti/internal/organization"
+	"github.com/auti-project/auti/internal/transaction/clolc"
+
 	"go.dedis.ch/kyber/v3"
+
+	"github.com/auti-project/auti/internal/organization"
 )
 
 var (

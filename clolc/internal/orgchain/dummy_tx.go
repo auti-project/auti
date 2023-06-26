@@ -2,9 +2,10 @@ package orgchain
 
 import (
 	"crypto/sha256"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"runtime"
 	"sync"
+
+	"github.com/auti-project/auti/internal/transaction/clolc"
 
 	"github.com/auti-project/auti/internal/crypto"
 )

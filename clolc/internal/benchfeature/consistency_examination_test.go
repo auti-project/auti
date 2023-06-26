@@ -1,14 +1,16 @@
 package benchfeature
 
 import (
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"math/rand"
 	"testing"
 	"time"
 
+	"github.com/auti-project/auti/internal/transaction/clolc"
+
+	"go.dedis.ch/kyber/v3"
+
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 )
 
 const testNumTXs = constants.MaxNumTXInEpoch

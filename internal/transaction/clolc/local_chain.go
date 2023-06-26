@@ -6,8 +6,9 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/auti-project/auti/internal/crypto"
 	"go.dedis.ch/kyber/v3"
+
+	"github.com/auti-project/auti/internal/crypto"
 )
 
 const (

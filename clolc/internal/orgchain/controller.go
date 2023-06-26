@@ -3,9 +3,10 @@ package orgchain
 import (
 	"encoding/hex"
 	"encoding/json"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"log"
 	"path/filepath"
+
+	"github.com/auti-project/auti/internal/transaction/clolc"
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"

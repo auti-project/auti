@@ -1,3 +1,3 @@
 package committee
 
-type typeID string
+type TypeID string

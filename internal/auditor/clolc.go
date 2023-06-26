@@ -4,12 +4,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+
+	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
 	"github.com/auti-project/auti/internal/transaction/clolc"
+
+	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 )
 
 type CLOLCAuditor struct {
@@ -21,7 +24,7 @@ type CLOLCAuditor struct {
 	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
 }
 
-func CLOLCNew(id string, organizations []*organization.CLOLCOrganization) *CLOLCAuditor {
+func CLOLCNew(id string, organizations []*clolc2.Organization) *CLOLCAuditor {
 	auditor := &CLOLCAuditor{
 		ID: TypeID(id),
 	}

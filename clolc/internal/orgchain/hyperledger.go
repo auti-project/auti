@@ -3,16 +3,18 @@ package orgchain
 import (
 	"bufio"
 	"fmt"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/auti-project/auti/internal/transaction/clolc"
+
+	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+
 	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/clolc/internal/timecounter"
-	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
 const (

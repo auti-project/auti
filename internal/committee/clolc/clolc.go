@@ -1,19 +1,23 @@
-package committee
+package clolc
 
 import (
 	"encoding/hex"
 	"errors"
+
+	"github.com/auti-project/auti/internal/committee"
+	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
 	"github.com/auti-project/auti/internal/transaction/clolc"
+
+	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/internal/auditor"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"go.dedis.ch/kyber/v3"
 )
 
-type CLOLCCommittee struct {
-	ID                typeID
+type Committee struct {
+	ID                committee.TypeID
 	managedEntityMap  map[auditor.TypeID][]organization.TypeID
 	managedAuditorIDs []auditor.TypeID
 	managedOrgIDs     []organization.TypeID
@@ -24,9 +28,9 @@ type CLOLCCommittee struct {
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func CLOLCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOLCCommittee {
-	com := &CLOLCCommittee{
-		ID:               typeID(id),
+func New(id string, auditors []*auditor.CLOLCAuditor) *Committee {
+	com := &Committee{
+		ID:               committee.TypeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
 	}
 	com.reinitializeMaps()
@@ -39,7 +43,7 @@ func CLOLCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOLCCommittee {
 	return com
 }
 
-func (c *CLOLCCommittee) reinitializeMaps() {
+func (c *Committee) reinitializeMaps() {
 	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	c.epochSecretKeyMap = make(map[string]crypto.TypePrivateKey)
 	c.epochPublicKeyMap = make(map[string]crypto.TypePublicKey)
@@ -48,8 +52,8 @@ func (c *CLOLCCommittee) reinitializeMaps() {
 }
 
 // InitializeEpoch initialize the parameters for an auditing epoch
-func (c *CLOLCCommittee) InitializeEpoch(
-	auditors []*auditor.CLOLCAuditor, organizations []*organization.CLOLCOrganization,
+func (c *Committee) InitializeEpoch(
+	auditors []*auditor.CLOLCAuditor, organizations []*clolc2.Organization,
 ) (map[string]crypto.TypePublicKey, error) {
 	c.reinitializeMaps()
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
@@ -94,7 +98,7 @@ func (c *CLOLCCommittee) InitializeEpoch(
 	return c.epochPublicKeyMap, nil
 }
 
-func (c *CLOLCCommittee) generateEpochTXRandomness() error {
+func (c *Committee) generateEpochTXRandomness() error {
 	// generate randomness for the transactions
 	// distribute randomness to organizations
 	// the complexity is O(n^2) here
@@ -115,7 +119,7 @@ func (c *CLOLCCommittee) generateEpochTXRandomness() error {
 	return nil
 }
 
-func (c *CLOLCCommittee) generateEpochKeyPairs() error {
+func (c *Committee) generateEpochKeyPairs() error {
 	for _, id := range c.managedOrgIDs {
 		privateKey, publicKey, err := crypto.KeyGen()
 		if err != nil {
@@ -128,7 +132,7 @@ func (c *CLOLCCommittee) generateEpochKeyPairs() error {
 	return nil
 }
 
-func (c *CLOLCCommittee) PublishPublicKeys() map[string]kyber.Point {
+func (c *Committee) PublishPublicKeys() map[string]kyber.Point {
 	publicKeyMap := make(map[string]kyber.Point)
 	for _, id := range c.managedOrgIDs {
 		idHash := organization.IDHashString(id)
@@ -137,7 +141,7 @@ func (c *CLOLCCommittee) PublishPublicKeys() map[string]kyber.Point {
 	return publicKeyMap
 }
 
-func (c *CLOLCCommittee) ForwardEpochAuditorParameters(auditor *auditor.CLOLCAuditor) error {
+func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.CLOLCAuditor) error {
 	auditedOrgIDList, ok := c.managedEntityMap[auditor.ID]
 	if !ok {
 		return errors.New(string("auditor not found, id: " + auditor.ID))
@@ -197,7 +201,7 @@ func (c *CLOLCCommittee) ForwardEpochAuditorParameters(auditor *auditor.CLOLCAud
 	return nil
 }
 
-func (c *CLOLCCommittee) generateEpochOrgIDs() error {
+func (c *Committee) generateEpochOrgIDs() error {
 	c.epochOrgIDMap = make(map[organization.TypeID]organization.TypeEpochID)
 	for _, id := range c.managedOrgIDs {
 		randBytes, err := crypto.RandBytes()
@@ -209,7 +213,7 @@ func (c *CLOLCCommittee) generateEpochOrgIDs() error {
 	return nil
 }
 
-func (c *CLOLCCommittee) generateEpochAuditorIDs() error {
+func (c *Committee) generateEpochAuditorIDs() error {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 	for _, id := range c.managedAuditorIDs {
 		randBytes, err := crypto.RandBytes()
@@ -221,7 +225,7 @@ func (c *CLOLCCommittee) generateEpochAuditorIDs() error {
 	return nil
 }
 
-func (c *CLOLCCommittee) ForwardEpochOrgParameters(org *organization.CLOLCOrganization) error {
+func (c *Committee) ForwardEpochOrgParameters(org *clolc2.Organization) error {
 	if _, ok := c.epochOrgIDMap[org.ID]; !ok {
 		return errors.New(string("organization not found, id: " + org.ID))
 	}
@@ -229,7 +233,7 @@ func (c *CLOLCCommittee) ForwardEpochOrgParameters(org *organization.CLOLCOrgani
 	return nil
 }
 
-func (c *CLOLCCommittee) VerifyOrgAndAudResult(
+func (c *Committee) VerifyOrgAndAudResult(
 	orgID organization.TypeID,
 	audID auditor.TypeID,
 	orgChainTX *clolc.OrgOnChain,
@@ -272,7 +276,7 @@ func (c *CLOLCCommittee) VerifyOrgAndAudResult(
 	return leftPoint.Equal(rightPoint), nil
 }
 
-func (c *CLOLCCommittee) VerifyAuditPairResult(
+func (c *Committee) VerifyAuditPairResult(
 	orgID1 organization.TypeID,
 	orgID2 organization.TypeID,
 	audID1 auditor.TypeID,
