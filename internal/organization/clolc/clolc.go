@@ -12,6 +12,8 @@ import (
 	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
+var sha256Func = sha256.New()
+
 type Organization struct {
 	ID                  organization.TypeID
 	IDHash              string
@@ -21,9 +23,9 @@ type Organization struct {
 }
 
 func New(id string) *Organization {
-	defer organization.Sha256Func.Reset()
-	organization.Sha256Func.Write([]byte(id))
-	idHash := hex.EncodeToString(organization.Sha256Func.Sum(nil))
+	defer sha256Func.Reset()
+	sha256Func.Write([]byte(id))
+	idHash := hex.EncodeToString(sha256Func.Sum(nil))
 	org := &Organization{
 		ID:                  organization.TypeID(id),
 		IDHash:              idHash,
