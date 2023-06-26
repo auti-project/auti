@@ -5,15 +5,14 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/auti-project/auti/internal/auditor"
-	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"go.dedis.ch/kyber/v3"
 
+	"github.com/auti-project/auti/internal/auditor"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
+	clolcorg "github.com/auti-project/auti/internal/organization/clolc"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 type Auditor struct {
@@ -25,7 +24,7 @@ type Auditor struct {
 	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
 }
 
-func New(id string, organizations []*clolc2.Organization) *Auditor {
+func New(id string, organizations []*clolcorg.Organization) *Auditor {
 	aud := &Auditor{
 		ID: auditor.TypeID(id),
 	}

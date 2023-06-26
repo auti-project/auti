@@ -5,9 +5,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 var (

@@ -9,12 +9,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
 	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 const (

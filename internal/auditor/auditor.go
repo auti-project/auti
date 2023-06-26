@@ -9,9 +9,7 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-var (
-	sha256Func = sha256.New()
-)
+var sha256Func = sha256.New()
 
 type TypeID string
 type TypeEpochID []byte

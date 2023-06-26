@@ -6,10 +6,10 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
+
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 const (

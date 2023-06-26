@@ -4,12 +4,11 @@ import (
 	"crypto/rand"
 	"testing"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {

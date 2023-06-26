@@ -5,11 +5,10 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
-
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 
 	"github.com/auti-project/auti/internal/crypto"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 var (
