@@ -33,7 +33,9 @@ def generate_fablo_config(
             }
         ],
         "hooks": {
-            "postGenerate": f"perl -i -pe 's/_VERSION={fabric_version}/_VERSION={desired_fabric_version}/g' ./fablo-target/fabric-docker/.env; perl -i -pe 's/FABRIC_CA_VERSION=1.5.0/FABRIC_CA_VERSION={desired_fabric_ca_version}/g' ./fablo-target/fabric-docker/.env"
+            "postGenerate": f"perl -i -pe 's/_VERSION={fabric_version}/_VERSION={desired_fabric_version}/g' ./fablo"
+                            f"-target/fabric-docker/.env; perl -i -pe 's/FABRIC_CA_VERSION=1.5.0/FA"
+                            f"BRIC_CA_VERSION={desired_fabric_ca_version}/g' ./fablo-target/fabric-docker/.env"
         },
     }
 

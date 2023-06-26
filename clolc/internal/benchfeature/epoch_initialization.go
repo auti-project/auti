@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"time"
 
+	clolc3 "github.com/auti-project/auti/internal/auditor/clolc"
 	"github.com/auti-project/auti/internal/committee/clolc"
 	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
 
 	"github.com/auti-project/auti/clolc/internal/timecounter"
-	"github.com/auti-project/auti/internal/auditor"
 )
 
-func generateEntities(numOrganizations int) (*clolc.Committee, []*auditor.CLOLCAuditor, []*clolc2.Organization) {
+func generateEntities(numOrganizations int) (*clolc.Committee, []*clolc3.Auditor, []*clolc2.Organization) {
 	organizations := make([]*clolc2.Organization, numOrganizations)
 	for i := 0; i < numOrganizations; i++ {
 		organizations[i] = clolc2.New("org" + string(rune(i)))
 	}
-	auditors := make([]*auditor.CLOLCAuditor, numOrganizations)
+	auditors := make([]*clolc3.Auditor, numOrganizations)
 	for i := 0; i < numOrganizations; i++ {
-		auditors[i] = auditor.CLOLCNew("aud"+string(rune(i)), []*clolc2.Organization{organizations[i]})
+		auditors[i] = clolc3.New("aud"+string(rune(i)), []*clolc2.Organization{organizations[i]})
 	}
 	com := clolc.New("com", auditors)
 	return com, auditors, organizations

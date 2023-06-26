@@ -1,10 +1,11 @@
-package auditor
+package clolc
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 
+	"github.com/auti-project/auti/internal/auditor"
 	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
 	"github.com/auti-project/auti/internal/transaction/clolc"
 
@@ -15,31 +16,31 @@ import (
 	"github.com/auti-project/auti/internal/organization"
 )
 
-type CLOLCAuditor struct {
-	ID                   TypeID
+type Auditor struct {
+	ID                   auditor.TypeID
 	AuditedOrgIDs        []organization.TypeID
 	epochTXRandMap       map[[2]string][]kyber.Scalar
-	EpochID              TypeEpochID
+	EpochID              auditor.TypeEpochID
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
 	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
 }
 
-func CLOLCNew(id string, organizations []*clolc2.Organization) *CLOLCAuditor {
-	auditor := &CLOLCAuditor{
-		ID: TypeID(id),
+func New(id string, organizations []*clolc2.Organization) *Auditor {
+	aud := &Auditor{
+		ID: auditor.TypeID(id),
 	}
-	auditor.AuditedOrgIDs = make([]organization.TypeID, len(organizations))
+	aud.AuditedOrgIDs = make([]organization.TypeID, len(organizations))
 	for idx, org := range organizations {
-		auditor.AuditedOrgIDs[idx] = org.ID
+		aud.AuditedOrgIDs[idx] = org.ID
 	}
-	return auditor
+	return aud
 }
 
-func (c *CLOLCAuditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
+func (c *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
 	c.epochTXRandMap = txRandMap
 }
 
-func (c *CLOLCAuditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
+func (c *Auditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
 	key := organization.IDHashKey(organization.IDHashString(orgID1), organization.IDHashString(orgID2))
 	if txRand, ok := c.epochTXRandMap[key]; ok {
 		return txRand
@@ -47,19 +48,19 @@ func (c *CLOLCAuditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) 
 	return nil
 }
 
-func (c *CLOLCAuditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
+func (c *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
 	c.epochOrgSecretKeyMap = orgSecretKeyMap
 }
 
-func (c *CLOLCAuditor) SetEpochID(id []byte) {
+func (c *Auditor) SetEpochID(id []byte) {
 	c.EpochID = id
 }
 
-func (c *CLOLCAuditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
+func (c *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
 	c.epochOrgIDMap = idMap
 }
 
-func (c *CLOLCAuditor) AccumulateCommitments(
+func (c *Auditor) AccumulateCommitments(
 	orgID organization.TypeID, txList []*clolc.LocalHidden,
 ) (kyber.Point, error) {
 	if len(txList) == 0 {
@@ -85,7 +86,7 @@ func (c *CLOLCAuditor) AccumulateCommitments(
 	return result, nil
 }
 
-func (c *CLOLCAuditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Point, error) {
+func (c *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Point, error) {
 	if len(orgTXRandList) != len(comTXRandList) {
 		return nil, fmt.Errorf("length of two lists are not equal")
 	}
@@ -98,18 +99,18 @@ func (c *CLOLCAuditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (ky
 	return result, nil
 }
 
-func (c *CLOLCAuditor) ComputeC(res, A kyber.Point) kyber.Point {
+func (c *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Sub(A, res)
 	return result
 }
 
-func (c *CLOLCAuditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
+func (c *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Add(pointA, pointB)
 	result.Neg(result)
 	return result
 }
 
-func (c *CLOLCAuditor) EncryptConsistencyExamResult(
+func (c *Auditor) EncryptConsistencyExamResult(
 	orgID organization.TypeID, counterPartyIDHash string,
 	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point,
 ) (*clolc.AudPlain, error) {
@@ -141,7 +142,7 @@ func (c *CLOLCAuditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	epochIDHashPoint := EpochIDHashPoint(c.EpochID)
+	epochIDHashPoint := auditor.EpochIDHashPoint(c.EpochID)
 	idPointD := crypto.KyberSuite.Point().Add(epochIDHashPoint, pointD)
 	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {
@@ -156,7 +157,7 @@ func (c *CLOLCAuditor) EncryptConsistencyExamResult(
 	), nil
 }
 
-func (c *CLOLCAuditor) ComputeCETransactionID(
+func (c *Auditor) ComputeCETransactionID(
 	orgID organization.TypeID, counterPartyIDHash string,
 ) ([]byte, error) {
 	orgIDHashStr := organization.IDHashString(orgID)
@@ -180,7 +181,7 @@ func (c *CLOLCAuditor) ComputeCETransactionID(
 	return result, nil
 }
 
-func (c *CLOLCAuditor) DecryptResAndB(orgIDHash string,
+func (c *Auditor) DecryptResAndB(orgIDHash string,
 	tx *clolc.AudOnChain) (kyber.Point, kyber.Point, error) {
 	plainTX, err := tx.ToPlain()
 	if err != nil {
@@ -201,7 +202,7 @@ func (c *CLOLCAuditor) DecryptResAndB(orgIDHash string,
 	return res, pointB, nil
 }
 
-func (c *CLOLCAuditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
+func (c *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 	result := crypto.KyberSuite.Point().Null()
 	result.Add(result, res)
 	result.Add(result, B)

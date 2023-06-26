@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 
+	clolc3 "github.com/auti-project/auti/internal/auditor/clolc"
 	"github.com/auti-project/auti/internal/committee"
 	clolc2 "github.com/auti-project/auti/internal/organization/clolc"
 	"github.com/auti-project/auti/internal/transaction/clolc"
@@ -28,7 +29,7 @@ type Committee struct {
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func New(id string, auditors []*auditor.CLOLCAuditor) *Committee {
+func New(id string, auditors []*clolc3.Auditor) *Committee {
 	com := &Committee{
 		ID:               committee.TypeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
@@ -53,7 +54,7 @@ func (c *Committee) reinitializeMaps() {
 
 // InitializeEpoch initialize the parameters for an auditing epoch
 func (c *Committee) InitializeEpoch(
-	auditors []*auditor.CLOLCAuditor, organizations []*clolc2.Organization,
+	auditors []*clolc3.Auditor, organizations []*clolc2.Organization,
 ) (map[string]crypto.TypePublicKey, error) {
 	c.reinitializeMaps()
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
@@ -141,7 +142,7 @@ func (c *Committee) PublishPublicKeys() map[string]kyber.Point {
 	return publicKeyMap
 }
 
-func (c *Committee) ForwardEpochAuditorParameters(auditor *auditor.CLOLCAuditor) error {
+func (c *Committee) ForwardEpochAuditorParameters(auditor *clolc3.Auditor) error {
 	auditedOrgIDList, ok := c.managedEntityMap[auditor.ID]
 	if !ok {
 		return errors.New(string("auditor not found, id: " + auditor.ID))

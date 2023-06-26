@@ -51,11 +51,11 @@ func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
 		if err != nil {
 			return err
 		}
-		dummTX1, err := audchain.DummyOnChainTransaction()
+		dummyTX1, err := audchain.DummyOnChainTransaction()
 		if err != nil {
 			return err
 		}
-		dummTX2, err := audchain.DummyOnChainTransaction()
+		dummyTX2, err := audchain.DummyOnChainTransaction()
 		if err != nil {
 			return err
 		}
@@ -65,8 +65,8 @@ func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
 			organizations[1].ID,
 			auditors[0].ID,
 			auditors[1].ID,
-			dummTX1,
-			dummTX2,
+			dummyTX1,
+			dummyTX2,
 		); err != nil {
 			return err
 		}

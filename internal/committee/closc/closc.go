@@ -2,6 +2,7 @@ package closc
 
 import (
 	"github.com/auti-project/auti/internal/auditor"
+	"github.com/auti-project/auti/internal/auditor/clolc"
 	"github.com/auti-project/auti/internal/committee"
 	"github.com/auti-project/auti/internal/organization"
 )
@@ -14,7 +15,7 @@ type Committee struct {
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func New(id string, auditors []*auditor.CLOLCAuditor) *Committee {
+func New(id string, auditors []*clolc.Auditor) *Committee {
 	com := &Committee{
 		ID:               committee.TypeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
