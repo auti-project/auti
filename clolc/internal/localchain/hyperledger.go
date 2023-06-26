@@ -3,6 +3,7 @@ package localchain
 import (
 	"bufio"
 	"fmt"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 	"log"
 	"math/rand"
 	"os"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/auti-project/auti/clolc/internal/constants"
 	"github.com/auti-project/auti/clolc/internal/timecounter"
-	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
 
@@ -154,12 +154,12 @@ func ReadAllTXsByPage() error {
 	defer lc.Close()
 	var (
 		bookmark string
-		txList   []*transaction.CLOLCLocalOnChain
+		txList   []*clolc.LocalOnChain
 	)
 	startTime := time.Now()
 	for {
 		var (
-			pageTXList []*transaction.CLOLCLocalOnChain
+			pageTXList []*clolc.LocalOnChain
 			err        error
 		)
 		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)

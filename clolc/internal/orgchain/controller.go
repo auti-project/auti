@@ -3,10 +3,10 @@ package orgchain
 import (
 	"encoding/hex"
 	"encoding/json"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 	"log"
 	"path/filepath"
 
-	"github.com/auti-project/auti/internal/transaction"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
@@ -55,7 +55,7 @@ func (c *Controller) Close() {
 	c.gw.Close()
 }
 
-func (c *Controller) SubmitTX(tx *transaction.CLOLCOrgOnChain) (string, error) {
+func (c *Controller) SubmitTX(tx *clolc.OrgOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := c.ct.SubmitTransaction(createTXFuncName,
 		tx.Accumulator,
@@ -66,7 +66,7 @@ func (c *Controller) SubmitTX(tx *transaction.CLOLCOrgOnChain) (string, error) {
 	return string(txID), nil
 }
 
-func (c *Controller) SubmitBatchTXs(txList []*transaction.CLOLCOrgOnChain) ([]string, error) {
+func (c *Controller) SubmitBatchTXs(txList []*clolc.OrgOnChain) ([]string, error) {
 	txListJSON, err := json.Marshal(txList)
 	if err != nil {
 		return nil, err
@@ -84,12 +84,12 @@ func (c *Controller) SubmitBatchTXs(txList []*transaction.CLOLCOrgOnChain) ([]st
 	return txIDList, nil
 }
 
-func (c *Controller) ReadTX(id string) (*transaction.CLOLCOrgOnChain, error) {
+func (c *Controller) ReadTX(id string) (*clolc.OrgOnChain, error) {
 	result, err := c.ct.EvaluateTransaction(readTXFuncName, id)
 	if err != nil {
 		return nil, err
 	}
-	var tx transaction.CLOLCOrgOnChain
+	var tx clolc.OrgOnChain
 	err = json.Unmarshal(result, &tx)
 	if err != nil {
 		return nil, err
@@ -97,12 +97,12 @@ func (c *Controller) ReadTX(id string) (*transaction.CLOLCOrgOnChain, error) {
 	return &tx, nil
 }
 
-func (c *Controller) ReadAllTXs() ([]*transaction.CLOLCOrgOnChain, error) {
+func (c *Controller) ReadAllTXs() ([]*clolc.OrgOnChain, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXFuncName)
 	if err != nil {
 		return nil, err
 	}
-	var txList []*transaction.CLOLCOrgOnChain
+	var txList []*clolc.OrgOnChain
 	err = json.Unmarshal(results, &txList)
 	if err != nil {
 		return nil, err
@@ -111,11 +111,11 @@ func (c *Controller) ReadAllTXs() ([]*transaction.CLOLCOrgOnChain, error) {
 }
 
 type PageResponse struct {
-	Bookmark string                         `json:"bookmark"`
-	TXs      []*transaction.CLOLCOrgOnChain `json:"txs"`
+	Bookmark string              `json:"bookmark"`
+	TXs      []*clolc.OrgOnChain `json:"txs"`
 }
 
-func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.CLOLCOrgOnChain, string, error) {
+func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*clolc.OrgOnChain, string, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXsByPageName, bookmark)
 	if err != nil {
 		return nil, "", err

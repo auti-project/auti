@@ -4,11 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -57,7 +57,7 @@ func (c *CLOLCAuditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organizati
 }
 
 func (c *CLOLCAuditor) AccumulateCommitments(
-	orgID organization.TypeID, txList []*transaction.CLOLCLocalHidden,
+	orgID organization.TypeID, txList []*clolc.LocalHidden,
 ) (kyber.Point, error) {
 	if len(txList) == 0 {
 		return nil, fmt.Errorf("empty transaction list")
@@ -109,7 +109,7 @@ func (c *CLOLCAuditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 func (c *CLOLCAuditor) EncryptConsistencyExamResult(
 	orgID organization.TypeID, counterPartyIDHash string,
 	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point,
-) (*transaction.CLOLCAudPlain, error) {
+) (*clolc.AudPlain, error) {
 	txID, err := c.ComputeCETransactionID(orgID, counterPartyIDHash)
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (c *CLOLCAuditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	return transaction.NewCLOLCAudPlain(
+	return clolc.NewAudPlain(
 		txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes,
 	), nil
 }
@@ -178,7 +178,7 @@ func (c *CLOLCAuditor) ComputeCETransactionID(
 }
 
 func (c *CLOLCAuditor) DecryptResAndB(orgIDHash string,
-	tx *transaction.CLOLCAudOnChain) (kyber.Point, kyber.Point, error) {
+	tx *clolc.AudOnChain) (kyber.Point, kyber.Point, error) {
 	plainTX, err := tx.ToPlain()
 	if err != nil {
 		return nil, nil, err

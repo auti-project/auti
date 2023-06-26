@@ -3,12 +3,12 @@ package committee
 import (
 	"encoding/hex"
 	"errors"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 
 	"github.com/auti-project/auti/internal/auditor"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
-	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -29,7 +29,7 @@ func CLOLCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOLCCommittee {
 		ID:               typeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
 	}
-	com.resetMaps()
+	com.reinitializeMaps()
 	com.managedAuditorIDs = make([]auditor.TypeID, len(auditors))
 	for idx, aud := range auditors {
 		com.managedEntityMap[aud.ID] = aud.AuditedOrgIDs
@@ -39,7 +39,7 @@ func CLOLCNew(id string, auditors []*auditor.CLOLCAuditor) *CLOLCCommittee {
 	return com
 }
 
-func (c *CLOLCCommittee) resetMaps() {
+func (c *CLOLCCommittee) reinitializeMaps() {
 	c.epochTXRandMap = make(map[[2]string][]kyber.Scalar)
 	c.epochSecretKeyMap = make(map[string]crypto.TypePrivateKey)
 	c.epochPublicKeyMap = make(map[string]crypto.TypePublicKey)
@@ -51,7 +51,7 @@ func (c *CLOLCCommittee) resetMaps() {
 func (c *CLOLCCommittee) InitializeEpoch(
 	auditors []*auditor.CLOLCAuditor, organizations []*organization.CLOLCOrganization,
 ) (map[string]crypto.TypePublicKey, error) {
-	c.resetMaps()
+	c.reinitializeMaps()
 	// IN.1: generate randomness for the transactions {r_{i, j, k}},
 	// note that r_{i, j, k} = r_{j, i, k}, and R_{i, j} = {r_{i, j, k}}_k
 	if err := c.generateEpochTXRandomness(); err != nil {
@@ -232,8 +232,8 @@ func (c *CLOLCCommittee) ForwardEpochOrgParameters(org *organization.CLOLCOrgani
 func (c *CLOLCCommittee) VerifyOrgAndAudResult(
 	orgID organization.TypeID,
 	audID auditor.TypeID,
-	orgChainTX *transaction.CLOLCOrgOnChain,
-	audChainTX *transaction.CLOLCAudOnChain,
+	orgChainTX *clolc.OrgOnChain,
+	audChainTX *clolc.AudOnChain,
 ) (bool, error) {
 	accBytes, err := hex.DecodeString(orgChainTX.Accumulator)
 	if err != nil {
@@ -277,8 +277,8 @@ func (c *CLOLCCommittee) VerifyAuditPairResult(
 	orgID2 organization.TypeID,
 	audID1 auditor.TypeID,
 	audID2 auditor.TypeID,
-	audChainTX1 *transaction.CLOLCAudOnChain,
-	audChainTX2 *transaction.CLOLCAudOnChain,
+	audChainTX1 *clolc.AudOnChain,
+	audChainTX2 *clolc.AudOnChain,
 ) (bool, error) {
 	privateKey1, ok := c.epochSecretKeyMap[organization.IDHashString(orgID1)]
 	if !ok {

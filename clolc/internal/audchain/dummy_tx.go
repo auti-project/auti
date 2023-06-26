@@ -2,11 +2,11 @@ package audchain
 
 import (
 	crand "crypto/rand"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 	"runtime"
 	"sync"
 
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 )
 
@@ -15,8 +15,8 @@ var (
 	kyberSuite = edwards25519.NewBlakeSHA256Ed25519()
 )
 
-func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCAudOnChain {
-	results := make([]*transaction.CLOLCAudOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*clolc.AudOnChain {
+	results := make([]*clolc.AudOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -35,7 +35,7 @@ func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCAudOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*transaction.CLOLCAudOnChain, error) {
+func DummyOnChainTransaction() (*clolc.AudOnChain, error) {
 	randIDBytes := make([]byte, 32)
 	_, err := crand.Read(randIDBytes)
 	if err != nil {
@@ -52,7 +52,7 @@ func DummyOnChainTransaction() (*transaction.CLOLCAudOnChain, error) {
 			return nil, err
 		}
 	}
-	tx := transaction.NewCLOLCAudPlain(
+	tx := clolc.NewAudPlain(
 		randIDBytes, randCipherBytes[0], randCipherBytes[1], randCipherBytes[2], randCipherBytes[3],
 	)
 	return tx.ToOnChain(), nil

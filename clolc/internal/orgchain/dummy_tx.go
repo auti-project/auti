@@ -2,19 +2,19 @@ package orgchain
 
 import (
 	"crypto/sha256"
+	"github.com/auti-project/auti/internal/transaction/clolc"
 	"runtime"
 	"sync"
 
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction"
 )
 
 var (
 	numCPUs = runtime.NumCPU()
 )
 
-func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOrgOnChain {
-	results := make([]*transaction.CLOLCOrgOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*clolc.OrgOnChain {
+	results := make([]*clolc.OrgOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -33,7 +33,7 @@ func DummyOnChainTransactions(numTXs int) []*transaction.CLOLCOrgOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*transaction.CLOLCOrgOnChain, error) {
+func DummyOnChainTransaction() (*clolc.OrgOnChain, error) {
 	randID, err := crypto.RandBytes()
 	if err != nil {
 		return nil, err
@@ -50,6 +50,6 @@ func DummyOnChainTransaction() (*transaction.CLOLCOrgOnChain, error) {
 	if err != nil {
 		return nil, err
 	}
-	tx := transaction.NewCLOLCOrgPlain(accumulatorBytes)
+	tx := clolc.NewOrgPlain(accumulatorBytes)
 	return tx.ToOnChain(), nil
 }

@@ -1,4 +1,4 @@
-package transaction
+package clolc
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-func TestCLOLCLocalPlain_Hide(t *testing.T) {
+func TestLocalPlain_Hide(t *testing.T) {
 	type fields struct {
 		CounterParty string
 		Amount       int64
@@ -47,12 +47,12 @@ func TestCLOLCLocalPlain_Hide(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c1 := &CLOLCLocalPlain{
+			c1 := &LocalPlain{
 				CounterParty: tt.fields.CounterParty,
 				Amount:       tt.fields.Amount,
 				Timestamp:    tt.fields.Timestamp,
 			}
-			c2 := &CLOLCLocalPlain{
+			c2 := &LocalPlain{
 				CounterParty: tt.fields.CounterParty,
 				Amount:       -tt.fields.Amount,
 				Timestamp:    tt.fields.Timestamp,
