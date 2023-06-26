@@ -13,7 +13,7 @@ import (
 func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	// entity setup
 	com, auditors, organizations := generateEntities(2)
-	publicKeyMap, err := com.CLOLCInitializeEpoch(auditors, organizations)
+	publicKeyMap, err := com.InitializeEpoch(auditors, organizations)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +135,7 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 func TestVerifyResultVerifyAuditPairResult(t *testing.T) {
 	// entity setup
 	com, auditors, organizations := generateEntities(2)
-	publicKeyMap, err := com.CLOLCInitializeEpoch(auditors, organizations)
+	publicKeyMap, err := com.InitializeEpoch(auditors, organizations)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -10,16 +10,16 @@ import (
 	"github.com/auti-project/auti/internal/organization"
 )
 
-func generateEntities(numOrganizations int) (*committee.Committee, []*auditor.Auditor, []*organization.Organization) {
-	organizations := make([]*organization.Organization, numOrganizations)
+func generateEntities(numOrganizations int) (*committee.CLOLCCommittee, []*auditor.CLOLCAuditor, []*organization.CLOLCOrganization) {
+	organizations := make([]*organization.CLOLCOrganization, numOrganizations)
 	for i := 0; i < numOrganizations; i++ {
-		organizations[i] = organization.New("org" + string(rune(i)))
+		organizations[i] = organization.CLOLCNew("org" + string(rune(i)))
 	}
-	auditors := make([]*auditor.Auditor, numOrganizations)
+	auditors := make([]*auditor.CLOLCAuditor, numOrganizations)
 	for i := 0; i < numOrganizations; i++ {
-		auditors[i] = auditor.New("aud"+string(rune(i)), []*organization.Organization{organizations[i]})
+		auditors[i] = auditor.CLOLCNew("aud"+string(rune(i)), []*organization.CLOLCOrganization{organizations[i]})
 	}
-	com := committee.New("com", auditors)
+	com := committee.CLOLCNew("com", auditors)
 	return com, auditors, organizations
 }
 
@@ -29,7 +29,7 @@ func InitializeEpoch(numOrganizations, iterations int) error {
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
 		startTime := time.Now()
-		_, err := com.CLOLCInitializeEpoch(auditors, organizations)
+		_, err := com.InitializeEpoch(auditors, organizations)
 		if err != nil {
 			return err
 		}

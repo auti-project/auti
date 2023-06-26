@@ -3,10 +3,7 @@ package organization
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
-
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction"
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -16,110 +13,6 @@ var (
 
 type TypeID string
 type TypeEpochID []byte
-
-type Organization struct {
-	ID                  TypeID
-	IDHash              string
-	EpochID             TypeEpochID
-	epochAccumulatorMap map[[2]string]kyber.Point
-	epochTXRandomness   map[[2]string]kyber.Scalar
-}
-
-func New(id string) *Organization {
-	defer sha256Func.Reset()
-	sha256Func.Write([]byte(id))
-	idHash := hex.EncodeToString(sha256Func.Sum(nil))
-	org := &Organization{
-		ID:                  TypeID(id),
-		IDHash:              idHash,
-		epochAccumulatorMap: make(map[[2]string]kyber.Point),
-		epochTXRandomness:   make(map[[2]string]kyber.Scalar),
-	}
-	return org
-}
-
-func (o *Organization) SetEpochID(randID []byte) {
-	o.EpochID = randID
-}
-
-func (o *Organization) RecordTransaction(tx *transaction.CLOLCLocalPlain) error {
-	// Submit the transaction to the local chain
-	sha256Func := sha256.New()
-	sha256Func.Write([]byte(tx.CounterParty))
-	counterPartyHash := sha256Func.Sum(nil)
-	commitment, randScalar, err := crypto.PedersenCommit(tx.Amount)
-	if err != nil {
-		return err
-	}
-	commitmentBytes, err := commitment.MarshalBinary()
-	if err != nil {
-		return err
-	}
-	clolcHidden := &transaction.CLOLCLocalHidden{
-		CounterParty: counterPartyHash,
-		Commitment:   commitmentBytes,
-		Timestamp:    tx.Timestamp,
-	}
-	if err = o.SubmitTXLocalChain(clolcHidden); err != nil {
-		return err
-	}
-	counterPartyHashStr := hex.EncodeToString(counterPartyHash)
-	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
-	// Accumulate the commitment to the corresponding accumulator
-	if _, ok := o.epochAccumulatorMap[orgMapKey]; !ok {
-		o.epochAccumulatorMap[orgMapKey] = commitment
-	} else {
-		o.epochAccumulatorMap[orgMapKey].Add(
-			o.epochAccumulatorMap[orgMapKey],
-			commitment,
-		)
-	}
-	// Record the randomness used in the commitment
-	o.epochTXRandomness[orgMapKey] = randScalar
-	return nil
-}
-
-func (o *Organization) Accumulate(counterParty TypeID, commitment kyber.Point) {
-	counterPartyHashStr := IDHashString(counterParty)
-	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
-	// Accumulate the commitment to the corresponding accumulator
-	if _, ok := o.epochAccumulatorMap[orgMapKey]; !ok {
-		o.epochAccumulatorMap[orgMapKey] = commitment
-	} else {
-		o.epochAccumulatorMap[orgMapKey].Add(
-			o.epochAccumulatorMap[orgMapKey],
-			commitment,
-		)
-	}
-}
-
-//func (o *Organization) ComposeTXLocalChain(counterParty TypeID,
-//	amount float64, timestamp int64) *transaction.CLOLCLocalPlain {
-//	if timestamp == 0 {
-//		timestamp = time.Now().UnixNano()
-//	}
-//	return transaction.NewCLOLCLocalPlain(string(counterParty), amount, timestamp)
-//}
-
-func (o *Organization) SubmitTXLocalChain(tx *transaction.CLOLCLocalHidden) error {
-	panic("not implemented")
-}
-
-func (o *Organization) ComposeTXOrgChain(counterParty TypeID) (*transaction.CLOLCOrgPlain, error) {
-	counterPartyHashStr := IDHashString(counterParty)
-	orgMapKey := IDHashKey(o.IDHash, counterPartyHashStr)
-	accumulator, ok := o.epochAccumulatorMap[orgMapKey]
-	if !ok {
-		return nil, fmt.Errorf("no transaction from %s to %s", o.ID, counterParty)
-	}
-	epochIDHashPoint := EpochIDHashPoint(o.EpochID)
-	resultPoint := crypto.KyberSuite.Point().Add(accumulator, epochIDHashPoint)
-	result, err := resultPoint.MarshalBinary()
-	if err != nil {
-		panic(err)
-	}
-	return transaction.NewCLOLCOrgPlain(result), nil
-}
 
 func IDHashBytes(id TypeID) []byte {
 	defer sha256Func.Reset()
