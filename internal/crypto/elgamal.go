@@ -1,10 +1,7 @@
 package crypto
 
 import (
-	"bytes"
-	"encoding/binary"
 	"errors"
-	"fmt"
 
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
@@ -116,23 +113,4 @@ func DecryptPoint(privateKey kyber.Scalar, cipherTextBytes []byte) (kyber.Point,
 	dataPoint.Neg(dataPoint)
 	dataPoint.Add(dataPoint, cipherText.C2)
 	return dataPoint, nil
-}
-
-func int64ToBytes(i int64) ([]byte, error) {
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.BigEndian, i)
-	if err != nil {
-		return nil, fmt.Errorf("int64ToBytes: %v", err)
-	}
-	return buf.Bytes(), nil
-}
-
-func bytesToInt64(b []byte) (int64, error) {
-	buf := bytes.NewReader(b)
-	var i int64
-	err := binary.Read(buf, binary.BigEndian, &i)
-	if err != nil {
-		return 0, fmt.Errorf("bytesToInt64: %v", err)
-	}
-	return i, nil
 }
