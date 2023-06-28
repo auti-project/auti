@@ -6,6 +6,8 @@ const (
 	PhaseConsistencyExamination = "ce"
 	PhaseResultVerification     = "rv"
 
+	ProcessINDefault = "default"
+
 	ProcessTRLocalChainSubmit  = "local_submit"
 	ProcessTRLocalChainPrepare = "local_prepare"
 	ProcessTRLocalChainRead    = "local_read"
@@ -35,7 +37,9 @@ const (
 
 var (
 	PhaseProcessMap = map[string][]string{
-		PhaseInitialization: {},
+		PhaseInitialization: {
+			ProcessINDefault,
+		},
 		PhaseTransactionRecord: {
 			ProcessTRLocalChainSubmit,
 			ProcessTRLocalChainPrepare,

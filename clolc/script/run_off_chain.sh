@@ -3,7 +3,7 @@
 CURR_DIR=$(pwd)
 
 cd "$CURR_DIR"/1_initialization || exit
-./bench.sh
+./1_bench_default.sh
 sleep 5
 
 cd "$CURR_DIR"/2_transaction_record || exit

@@ -19,7 +19,10 @@ func main() {
 	var err error
 	switch *benchPhasePtr {
 	case PhaseInitialization:
-		err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
+		switch *benchProcessPtr {
+		case ProcessINDefault:
+			err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
+		}
 	case PhaseTransactionRecord:
 		switch *benchProcessPtr {
 		case ProcessTRLocalChainSubmit:
