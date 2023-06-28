@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	bf "github.com/auti-project/auti/clolc/internal/benchfeature"
-	. "github.com/auti-project/auti/clolc/internal/flags"
+	bf "github.com/auti-project/auti/benchmark/clolc/internal/benchfeature"
+	. "github.com/auti-project/auti/benchmark/clolc/internal/flags"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	case PhaseInitialization:
 		switch *benchProcessPtr {
 		case ProcessINDefault:
-			err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
+			err = bf.InitializeEpochDefault(*numOrgPtr, *numIterPtr)
 		}
 	case PhaseTransactionRecord:
 		switch *benchProcessPtr {

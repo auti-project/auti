@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/benchmark/timecounter"
 	clolcaud "github.com/auti-project/auti/internal/auditor/clolc"
-	"github.com/auti-project/auti/internal/committee/clolc"
+	clolccom "github.com/auti-project/auti/internal/committee/clolc"
 	clolcorg "github.com/auti-project/auti/internal/organization/clolc"
 )
 
-func generateEntities(numOrganizations int) (*clolc.Committee, []*clolcaud.Auditor, []*clolcorg.Organization) {
+func generateEntities(numOrganizations int) (*clolccom.Committee, []*clolcaud.Auditor, []*clolcorg.Organization) {
 	organizations := make([]*clolcorg.Organization, numOrganizations)
 	for i := 0; i < numOrganizations; i++ {
 		organizations[i] = clolcorg.New("org" + string(rune(i)))
@@ -19,12 +19,12 @@ func generateEntities(numOrganizations int) (*clolc.Committee, []*clolcaud.Audit
 	for i := 0; i < numOrganizations; i++ {
 		auditors[i] = clolcaud.New("aud"+string(rune(i)), []*clolcorg.Organization{organizations[i]})
 	}
-	com := clolc.New("com", auditors)
+	com := clolccom.New("com", auditors)
 	return com, auditors, organizations
 }
 
-func InitializeEpoch(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC initialize epoch")
+func InitializeEpochDefault(numOrganizations, iterations int) error {
+	fmt.Println("[CLOLC-IN] Default")
 	fmt.Printf("Num Org: %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)

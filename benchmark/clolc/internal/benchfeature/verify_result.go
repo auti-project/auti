@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auti-project/auti/clolc/internal/audchain"
-	"github.com/auti-project/auti/clolc/internal/orgchain"
-	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/benchmark/clolc/internal/audchain"
+	"github.com/auti-project/auti/benchmark/clolc/internal/orgchain"
+	"github.com/auti-project/auti/benchmark/timecounter"
 )
 
 func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC verify result verify org and aud result")
+	fmt.Println("[CLOLC-RV] Verify org and aud result")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -43,7 +43,7 @@ func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 }
 
 func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC verify result verify audit pair result")
+	fmt.Println("[CLOLC-RV] Verify audit pair result")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)

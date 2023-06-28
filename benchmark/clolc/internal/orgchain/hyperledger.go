@@ -1,4 +1,4 @@
-package audchain
+package orgchain
 
 import (
 	"bufio"
@@ -11,25 +11,25 @@ import (
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
-	"github.com/auti-project/auti/clolc/internal/constants"
-	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/benchmark/clolc/internal/constants"
+	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 const (
 	channelName    = "mychannel"
-	contractType   = "auti-aud-chain"
-	audWalletPath  = "wallet"
-	audWalletLabel = "appUser"
-	aud1MSPid      = "Aud1MSP"
+	contractType   = "auti-org-chain"
+	orgWalletPath  = "wallet"
+	orgWalletLabel = "appUser"
+	org1MSPid      = "Org1MSP"
 )
 
 var (
 	fabloFilePath string
-	aud1CCPPath   string
-	aud1CREDPath  string
-	aud1CertPath  string
-	aud1KeyDir    string
+	org1CCPPath   string
+	org1CREDPath  string
+	org1CertPath  string
+	org1KeyDir    string
 )
 
 func init() {
@@ -37,27 +37,27 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
-	err = os.RemoveAll(audWalletPath)
+	err = os.RemoveAll(orgWalletPath)
 	if err != nil {
 		log.Fatalf("Error removing wallet directory: %v", err)
 	}
 
-	autiAudChainDir := os.Getenv("AUTI_AUD_CHAIN_DIR")
+	autiOrgChainDir := os.Getenv("AUTI_ORG_CHAIN_DIR")
 
-	fabloFilePath = filepath.Join(autiAudChainDir, "fablo-target", "fabric-config")
+	fabloFilePath = filepath.Join(autiOrgChainDir, "fablo-target", "fabric-config")
 
-	aud1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-aud1.yaml")
-	aud1CREDPath = filepath.Join(
+	org1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-org1.yaml")
+	org1CREDPath = filepath.Join(
 		fabloFilePath,
 		"crypto-config",
 		"peerOrganizations",
-		"aud1.example.com",
+		"org1.example.com",
 		"users",
-		"User1@aud1.example.com",
+		"User1@org1.example.com",
 		"msp",
 	)
-	aud1CertPath = filepath.Join(aud1CREDPath, "signcerts", "User1@aud1.example.com-cert.pem")
-	aud1KeyDir = filepath.Join(aud1CREDPath, "keystore")
+	org1CertPath = filepath.Join(org1CREDPath, "signcerts", "User1@org1.example.com-cert.pem")
+	org1KeyDir = filepath.Join(org1CREDPath, "keystore")
 }
 
 func SubmitTX(numTXs int) ([]string, error) {
@@ -94,7 +94,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 }
 
 func ReadTX() error {
-	f, err := os.Open(constants.AudChainTXIDLogPath)
+	f, err := os.Open(constants.OrgChainTXIDLogPath)
 	if err != nil {
 		return err
 	}
@@ -129,12 +129,12 @@ func ReadAllTXsByPage() error {
 	defer lc.Close()
 	var (
 		bookmark string
-		txList   []*clolc.AudOnChain
+		txList   []*clolc.OrgOnChain
 	)
 	startTime := time.Now()
 	for {
 		var (
-			pageTXList []*clolc.AudOnChain
+			pageTXList []*clolc.OrgOnChain
 			err        error
 		)
 		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)
@@ -152,7 +152,7 @@ func ReadAllTXsByPage() error {
 }
 
 func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(constants.AudChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(constants.OrgChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
@@ -170,28 +170,28 @@ func SaveTXIDs(txIDs []string) error {
 	return nil
 }
 
-func populateWallet(wallet *gateway.Wallet) error {
+func populateOrgWallet(wallet *gateway.Wallet) error {
 	// read the certificate pem
-	cert, err := os.ReadFile(filepath.Clean(aud1CertPath))
+	cert, err := os.ReadFile(filepath.Clean(org1CertPath))
 	if err != nil {
 		return err
 	}
 
 	// there's a single file in this dir containing the private key
-	files, err := os.ReadDir(aud1KeyDir)
+	files, err := os.ReadDir(org1KeyDir)
 	if err != nil {
 		return err
 	}
 	if len(files) != 1 {
 		return fmt.Errorf("keystore folder should have contain one file")
 	}
-	keyPath := filepath.Join(aud1KeyDir, files[0].Name())
+	keyPath := filepath.Join(org1KeyDir, files[0].Name())
 	key, err := os.ReadFile(filepath.Clean(keyPath))
 	if err != nil {
 		return err
 	}
 
-	identity := gateway.NewX509Identity(aud1MSPid, string(cert), string(key))
+	identity := gateway.NewX509Identity(org1MSPid, string(cert), string(key))
 
-	return wallet.Put(audWalletLabel, identity)
+	return wallet.Put(orgWalletLabel, identity)
 }

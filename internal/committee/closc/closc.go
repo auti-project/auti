@@ -1,9 +1,12 @@
 package closc
 
 import (
+	"crypto/rand"
+
 	"github.com/auti-project/auti/internal/auditor"
-	"github.com/auti-project/auti/internal/auditor/clolc"
+	closcaud "github.com/auti-project/auti/internal/auditor/closc"
 	"github.com/auti-project/auti/internal/committee"
+	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/organization"
 )
 
@@ -15,7 +18,7 @@ type Committee struct {
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func New(id string, auditors []*clolc.Auditor) *Committee {
+func New(id string, auditors []*closcaud.Auditor) *Committee {
 	com := &Committee{
 		ID:               committee.TypeID(id),
 		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
@@ -33,4 +36,18 @@ func (c *Committee) reinitializeMaps() {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 
-//func (c *CLOSCCommittee) InitializeEpoch(auditors []*auditor.CLOSC)
+func (c *Committee) InitializeEpoch(auditors []*closcaud.Auditor) error {
+	c.reinitializeMaps()
+	for _, aud := range auditors {
+		// Generate epoch ID for each auditor
+		epochIDBytes := make([]byte, constants.SecurityParameterBytes)
+		_, err := rand.Read(epochIDBytes)
+		if err != nil {
+			return err
+		}
+		c.epochAuditorIDMap[aud.ID] = epochIDBytes
+		// Distribute epoch auditor IDs
+		aud.SetEpochID(epochIDBytes)
+	}
+	return nil
+}

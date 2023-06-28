@@ -35,31 +35,31 @@ func New(id string, organizations []*clolcorg.Organization) *Auditor {
 	return aud
 }
 
-func (c *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
-	c.epochTXRandMap = txRandMap
+func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
+	a.epochTXRandMap = txRandMap
 }
 
-func (c *Auditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
+func (a *Auditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
 	key := organization.IDHashKey(organization.IDHashString(orgID1), organization.IDHashString(orgID2))
-	if txRand, ok := c.epochTXRandMap[key]; ok {
+	if txRand, ok := a.epochTXRandMap[key]; ok {
 		return txRand
 	}
 	return nil
 }
 
-func (c *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
-	c.epochOrgSecretKeyMap = orgSecretKeyMap
+func (a *Auditor) SetEpochSecretKey(orgSecretKeyMap map[string]crypto.TypePrivateKey) {
+	a.epochOrgSecretKeyMap = orgSecretKeyMap
 }
 
-func (c *Auditor) SetEpochID(id []byte) {
-	c.EpochID = id
+func (a *Auditor) SetEpochID(id []byte) {
+	a.EpochID = id
 }
 
-func (c *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
-	c.epochOrgIDMap = idMap
+func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
+	a.epochOrgIDMap = idMap
 }
 
-func (c *Auditor) AccumulateCommitments(
+func (a *Auditor) AccumulateCommitments(
 	orgID organization.TypeID, txList []*clolc.LocalHidden,
 ) (kyber.Point, error) {
 	if len(txList) == 0 {
@@ -71,7 +71,7 @@ func (c *Auditor) AccumulateCommitments(
 	orgIDHashStr := organization.IDHashString(orgID)
 	counterPartyIDHashStr := hex.EncodeToString(txList[0].CounterParty)
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHashStr)
-	randomScalars := c.epochTXRandMap[orgKey]
+	randomScalars := a.epochTXRandMap[orgKey]
 	result := crypto.KyberSuite.Point().Null()
 	for idx, tx := range txList {
 		commitmentBytes := tx.Commitment
@@ -85,7 +85,7 @@ func (c *Auditor) AccumulateCommitments(
 	return result, nil
 }
 
-func (c *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Point, error) {
+func (a *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Point, error) {
 	if len(orgTXRandList) != len(comTXRandList) {
 		return nil, fmt.Errorf("length of two lists are not equal")
 	}
@@ -98,22 +98,22 @@ func (c *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.P
 	return result, nil
 }
 
-func (c *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
+func (a *Auditor) ComputeC(res, A kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Sub(A, res)
 	return result
 }
 
-func (c *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
+func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 	result := crypto.KyberSuite.Point().Add(pointA, pointB)
 	result.Neg(result)
 	return result
 }
 
-func (c *Auditor) EncryptConsistencyExamResult(
+func (a *Auditor) EncryptConsistencyExamResult(
 	orgID organization.TypeID, counterPartyIDHash string,
 	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point,
 ) (*clolc.AudPlain, error) {
-	txID, err := c.ComputeCETransactionID(orgID, counterPartyIDHash)
+	txID, err := a.ComputeCETransactionID(orgID, counterPartyIDHash)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (c *Auditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	epochIDHashPoint := auditor.EpochIDHashPoint(c.EpochID)
+	epochIDHashPoint := auditor.EpochIDHashPoint(a.EpochID)
 	idPointD := crypto.KyberSuite.Point().Add(epochIDHashPoint, pointD)
 	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {
@@ -156,13 +156,13 @@ func (c *Auditor) EncryptConsistencyExamResult(
 	), nil
 }
 
-func (c *Auditor) ComputeCETransactionID(
+func (a *Auditor) ComputeCETransactionID(
 	orgID organization.TypeID, counterPartyIDHash string,
 ) ([]byte, error) {
 	orgIDHashStr := organization.IDHashString(orgID)
 	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
-	randomnesses := c.epochTXRandMap[orgKey]
-	epochOrgID := c.epochOrgIDMap[orgID]
+	randomnesses := a.epochTXRandMap[orgKey]
+	epochOrgID := a.epochOrgIDMap[orgID]
 	epochOrgIDBytes := make([]byte, len(epochOrgID))
 	copy(epochOrgIDBytes, epochOrgID)
 	randAccumulator := crypto.KyberSuite.Scalar().Zero()
@@ -180,13 +180,13 @@ func (c *Auditor) ComputeCETransactionID(
 	return result, nil
 }
 
-func (c *Auditor) DecryptResAndB(orgIDHash string,
+func (a *Auditor) DecryptResAndB(orgIDHash string,
 	tx *clolc.AudOnChain) (kyber.Point, kyber.Point, error) {
 	plainTX, err := tx.ToPlain()
 	if err != nil {
 		return nil, nil, err
 	}
-	privateKey, ok := c.epochOrgSecretKeyMap[orgIDHash]
+	privateKey, ok := a.epochOrgSecretKeyMap[orgIDHash]
 	if !ok {
 		return nil, nil, fmt.Errorf("no private key for organization %s", orgIDHash)
 	}
@@ -201,7 +201,7 @@ func (c *Auditor) DecryptResAndB(orgIDHash string,
 	return res, pointB, nil
 }
 
-func (c *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
+func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 	result := crypto.KyberSuite.Point().Null()
 	result.Add(result, res)
 	result.Add(result, B)

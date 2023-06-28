@@ -1,4 +1,4 @@
-package localchain
+package audchain
 
 import (
 	"bufio"
@@ -11,34 +11,25 @@ import (
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
-	"github.com/auti-project/auti/clolc/internal/constants"
-	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/benchmark/clolc/internal/constants"
+	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 const (
 	channelName    = "mychannel"
-	contractType   = "auti-local-chain"
-	orgWalletPath  = "orgWallet"
-	orgWalletLabel = "orgAPPUser"
-	audWalletPath  = "audWallet"
-	audWalletLabel = "audAPPUser"
-	org1MSPid      = "Org1MSP"
+	contractType   = "auti-aud-chain"
+	audWalletPath  = "wallet"
+	audWalletLabel = "appUser"
 	aud1MSPid      = "Aud1MSP"
 )
 
 var (
 	fabloFilePath string
-
-	org1CCPPath  string
-	org1CREDPath string
-	org1CertPath string
-	org1KeyDir   string
-
-	aud1CCPPath  string
-	aud1CREDPath string
-	aud1CertPath string
-	aud1KeyDir   string
+	aud1CCPPath   string
+	aud1CREDPath  string
+	aud1CertPath  string
+	aud1KeyDir    string
 )
 
 func init() {
@@ -46,31 +37,14 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error setting DISCOVERY_AS_LOCALHOST environment variable: %v", err)
 	}
-	err = os.RemoveAll(orgWalletPath)
-	if err != nil {
-		log.Fatalf("Error removing wallet directory: %v", err)
-	}
 	err = os.RemoveAll(audWalletPath)
 	if err != nil {
 		log.Fatalf("Error removing wallet directory: %v", err)
 	}
 
-	autiLocalChainDir := os.Getenv("AUTI_LOCAL_CHAIN_DIR")
+	autiAudChainDir := os.Getenv("AUTI_AUD_CHAIN_DIR")
 
-	fabloFilePath = filepath.Join(autiLocalChainDir, "fablo-target", "fabric-config")
-
-	org1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-org1.yaml")
-	org1CREDPath = filepath.Join(
-		fabloFilePath,
-		"crypto-config",
-		"peerOrganizations",
-		"org1.example.com",
-		"users",
-		"User1@org1.example.com",
-		"msp",
-	)
-	org1CertPath = filepath.Join(org1CREDPath, "signcerts", "User1@org1.example.com-cert.pem")
-	org1KeyDir = filepath.Join(org1CREDPath, "keystore")
+	fabloFilePath = filepath.Join(autiAudChainDir, "fablo-target", "fabric-config")
 
 	aud1CCPPath = filepath.Join(fabloFilePath, "connection-profiles", "connection-profile-aud1.yaml")
 	aud1CREDPath = filepath.Join(
@@ -87,7 +61,7 @@ func init() {
 }
 
 func SubmitTX(numTXs int) ([]string, error) {
-	lc, err := NewController(orgWalletPath, orgWalletLabel, org1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +74,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 		if right > numTXs {
 			right = numTXs
 		}
-		for trial := 0; trial < constants.SubmitTXMaxRetries; trial++ {
+		for trail := 0; trail < constants.SubmitTXMaxRetries; trail++ {
 			batchTXIDs, err := lc.SubmitBatchTXs(dummyTXs[batch:right])
 			if err == nil {
 				txIDs = append(txIDs, batchTXIDs...)
@@ -120,7 +94,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 }
 
 func ReadTX() error {
-	f, err := os.Open(constants.LocalChainTXIDLogPath)
+	f, err := os.Open(constants.AudChainTXIDLogPath)
 	if err != nil {
 		return err
 	}
@@ -134,7 +108,7 @@ func ReadTX() error {
 	if err != nil {
 		return err
 	}
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return err
 	}
@@ -148,19 +122,19 @@ func ReadTX() error {
 }
 
 func ReadAllTXsByPage() error {
-	lc, err := NewController(audWalletPath, audWalletLabel, aud1CCPPath)
+	lc, err := NewController()
 	if err != nil {
 		return err
 	}
 	defer lc.Close()
 	var (
 		bookmark string
-		txList   []*clolc.LocalOnChain
+		txList   []*clolc.AudOnChain
 	)
 	startTime := time.Now()
 	for {
 		var (
-			pageTXList []*clolc.LocalOnChain
+			pageTXList []*clolc.AudOnChain
 			err        error
 		)
 		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)
@@ -178,7 +152,7 @@ func ReadAllTXsByPage() error {
 }
 
 func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(constants.LocalChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(constants.AudChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}
@@ -196,38 +170,14 @@ func SaveTXIDs(txIDs []string) error {
 	return nil
 }
 
-func populateOrgWallet(wallet *gateway.Wallet) error {
+func populateWallet(wallet *gateway.Wallet) error {
 	// read the certificate pem
-	cert, err := os.ReadFile(filepath.Clean(org1CertPath))
-	if err != nil {
-		return err
-	}
-
-	// there's a single file in this dir containing the private key
-	files, err := os.ReadDir(org1KeyDir)
-	if err != nil {
-		return err
-	}
-	if len(files) != 1 {
-		return fmt.Errorf("keystore folder should have contain one file")
-	}
-	keyPath := filepath.Join(org1KeyDir, files[0].Name())
-	key, err := os.ReadFile(filepath.Clean(keyPath))
-	if err != nil {
-		return err
-	}
-
-	identity := gateway.NewX509Identity(org1MSPid, string(cert), string(key))
-
-	return wallet.Put(orgWalletLabel, identity)
-}
-
-func populateAudWallet(wallet *gateway.Wallet) error {
 	cert, err := os.ReadFile(filepath.Clean(aud1CertPath))
 	if err != nil {
 		return err
 	}
 
+	// there's a single file in this dir containing the private key
 	files, err := os.ReadDir(aud1KeyDir)
 	if err != nil {
 		return err

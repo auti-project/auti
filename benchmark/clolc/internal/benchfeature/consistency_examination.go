@@ -6,16 +6,16 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
-	"github.com/auti-project/auti/clolc/internal/audchain"
-	"github.com/auti-project/auti/clolc/internal/localchain"
-	"github.com/auti-project/auti/clolc/internal/timecounter"
+	"github.com/auti-project/auti/benchmark/clolc/internal/audchain"
+	"github.com/auti-project/auti/benchmark/clolc/internal/localchain"
+	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 	"github.com/auti-project/auti/internal/organization"
 )
 
 func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC consistency examination accumulate commitment")
+	fmt.Println("[CLOLC-CE] Accumulate Commitment")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -36,7 +36,7 @@ func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int
 }
 
 func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC consistency examination compute B")
+	fmt.Println("[CLOLC-CE] Compute B")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -62,7 +62,7 @@ func ConsistencyExaminationComputeB(numOrganizations, iterations int) error {
 }
 
 func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC consistency examination compute C")
+	fmt.Println("[CLOLC-CE] Compute C")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -82,7 +82,7 @@ func ConsistencyExaminationComputeC(numOrganizations, iterations int) error {
 }
 
 func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC consistency examination compute D")
+	fmt.Println("[CLOLC-CE] Compute D")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -102,7 +102,7 @@ func ConsistencyExaminationComputeD(numOrganizations, iterations int) error {
 }
 
 func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
-	fmt.Println("CLOLC consistency examination encrypt")
+	fmt.Println("[CLOLC-CE] Encrypt")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(numOrganizations)
@@ -133,7 +133,7 @@ func ConsistencyExaminationEncrypt(numOrganizations, iterations int) error {
 }
 
 func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC consistency examination submit TX")
+	fmt.Println("[CLOLC-CE] Submit TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if _, err := audchain.SubmitTX(numTotalTXs); err != nil {
@@ -145,7 +145,7 @@ func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
 }
 
 func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC consistency examination read TX")
+	fmt.Println("[CLOLC-CE] Read TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := audchain.ReadTX(); err != nil {
@@ -157,7 +157,7 @@ func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
 }
 
 func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
-	fmt.Println("CLOLC consistency examination read all TXs")
+	fmt.Println("[CLOLC-CE] Read all TXs")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := audchain.ReadAllTXsByPage(); err != nil {
@@ -169,7 +169,7 @@ func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
 }
 
 func PrepareAudTX(numTotalTXs int) error {
-	fmt.Println("CLOLC prepare aud transaction")
+	fmt.Println("[CLOLC-CE] Prepare aud transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := audchain.SubmitTX(numTotalTXs)
 	if err != nil {
@@ -183,7 +183,7 @@ func PrepareAudTX(numTotalTXs int) error {
 }
 
 func ConsistencyExaminationDecrypt(iterations int) error {
-	fmt.Println("CLOLC consistency examination decrypt")
+	fmt.Println("[CLOLC-CE] Decrypt")
 	fmt.Printf("Num iter: %d\n", iterations)
 	com, auditors, organizations := generateEntities(2)
 	_, err := com.InitializeEpoch(auditors, organizations)
@@ -208,7 +208,7 @@ func ConsistencyExaminationDecrypt(iterations int) error {
 }
 
 func ConsistencyExaminationCheck(iterations int) error {
-	fmt.Println("CLOLC consistency examination check")
+	fmt.Println("[CLOLC-CE] Check")
 	fmt.Printf("Num iter: %d\n", iterations)
 	for i := 0; i < iterations; i++ {
 		com, auditors, organizations := generateEntities(2)
