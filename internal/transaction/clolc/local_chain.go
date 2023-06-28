@@ -11,9 +11,7 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-const (
-	amountAmplifier = 100
-)
+const amountAmplifier = 100
 
 type LocalPlain struct {
 	CounterParty string

@@ -8,6 +8,8 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
+const amountAmplifier = 100
+
 // Plain is the struct for plaintext transaction
 type Plain struct {
 	Sender    string
@@ -18,27 +20,29 @@ type Plain struct {
 }
 
 // NewPlain creates a new plaintext transaction
-func NewPlain(sender, receiver string, amount int64, counter uint64, timestamp int64) *Plain {
+func NewPlain(sender, receiver string, amount float64, counter uint64, timestamp int64) *Plain {
+	amountInt := int64(amount * amountAmplifier)
 	return &Plain{
 		Sender:    sender,
 		Receiver:  receiver,
-		Amount:    amount,
+		Amount:    amountInt,
 		Counter:   counter,
 		Timestamp: timestamp,
 	}
 }
 
-func NewPairPlain(sender, receiver string, amount int64, counter uint64, timestamp int64) (*Plain, *Plain) {
+func NewPairPlain(sender, receiver string, amount float64, counter uint64, timestamp int64) (*Plain, *Plain) {
+	amountInt := int64(amount * amountAmplifier)
 	return &Plain{
 			Sender:    sender,
 			Receiver:  receiver,
-			Amount:    amount,
+			Amount:    amountInt,
 			Counter:   counter,
 			Timestamp: timestamp,
 		}, &Plain{
 			Sender:    receiver,
 			Receiver:  sender,
-			Amount:    -amount,
+			Amount:    -amountInt,
 			Counter:   counter,
 			Timestamp: timestamp,
 		}
