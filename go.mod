@@ -2,7 +2,10 @@ module github.com/auti-project/auti
 
 go 1.20
 
-require go.dedis.ch/kyber/v3 v3.1.0
+require (
+	github.com/txaty/go-merkletree v0.1.15
+	go.dedis.ch/kyber/v3 v3.1.0
+)
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
@@ -35,6 +38,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.1.1 // indirect
+	github.com/txaty/gool v0.1.4 // indirect
 	github.com/weppos/publicsuffix-go v0.5.0 // indirect
 	github.com/zmap/zcrypto v0.0.0-20190729165852-9051775e6a2e // indirect
 	github.com/zmap/zlint v0.0.0-20190806154020-fd021b4cfbeb // indirect

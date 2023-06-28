@@ -16,6 +16,10 @@ func NewLocalCommitmentPlain(commitment []byte) *LocalCommitmentPlain {
 	}
 }
 
+func (l *LocalCommitmentPlain) Serialize() ([]byte, error) {
+	return l.Commitment, nil
+}
+
 func (l *LocalCommitmentPlain) ToOnChain() *LocalCommitmentOnChain {
 	return NewLocalCommitmentOnChain(hex.EncodeToString(l.Commitment))
 }
