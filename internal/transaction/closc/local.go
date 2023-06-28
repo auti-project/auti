@@ -18,12 +18,30 @@ type Plain struct {
 }
 
 // NewPlain creates a new plaintext transaction
-func NewPlain(sender, receiver string, amount int64) *Plain {
+func NewPlain(sender, receiver string, amount int64, counter uint64, timestamp int64) *Plain {
 	return &Plain{
-		Sender:   sender,
-		Receiver: receiver,
-		Amount:   amount,
+		Sender:    sender,
+		Receiver:  receiver,
+		Amount:    amount,
+		Counter:   counter,
+		Timestamp: timestamp,
 	}
+}
+
+func NewPairPlain(sender, receiver string, amount int64, counter uint64, timestamp int64) (*Plain, *Plain) {
+	return &Plain{
+			Sender:    sender,
+			Receiver:  receiver,
+			Amount:    amount,
+			Counter:   counter,
+			Timestamp: timestamp,
+		}, &Plain{
+			Sender:    receiver,
+			Receiver:  sender,
+			Amount:    -amount,
+			Counter:   counter,
+			Timestamp: timestamp,
+		}
 }
 
 // Hidden is the struct for hidden transaction
