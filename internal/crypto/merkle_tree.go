@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"container/heap"
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 
 	mt "github.com/txaty/go-merkletree"
@@ -33,6 +34,29 @@ func GenerateMerkleProofs(dataBlocks []mt.DataBlock) ([]*mt.Proof, error) {
 
 func VerifyMerkleProof(block mt.DataBlock, proof *mt.Proof, root []byte) (bool, error) {
 	return mt.Verify(block, proof, root, merkleTreeConfig)
+}
+
+type MerkleProof struct {
+	Siblings [][]byte `json:"siblings"`
+	Path     uint32   `json:"path"`
+}
+
+func MerkleProofMarshal(proof *mt.Proof) ([]byte, error) {
+	return json.Marshal(&MerkleProof{
+		Siblings: proof.Siblings,
+		Path:     proof.Path,
+	})
+}
+
+func MerkleProofUnmarshal(data []byte) (*mt.Proof, error) {
+	var proof MerkleProof
+	if err := json.Unmarshal(data, &proof); err != nil {
+		return nil, err
+	}
+	return &mt.Proof{
+		Siblings: proof.Siblings,
+		Path:     proof.Path,
+	}, nil
 }
 
 type ProofNode struct {
