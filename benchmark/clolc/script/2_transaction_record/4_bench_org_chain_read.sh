@@ -19,7 +19,7 @@ touch $LOG_FILE_DIR
 
 # install fablo if not installed
 [ -f ./fablo ] ||
-curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
+  curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo
 
 export AUTI_ORG_CHAIN_DIR=${PWD}
 
@@ -32,7 +32,7 @@ clean_up
 #./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_ORG_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
- docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 sleep 5
 TOTAL_TXS=0
 for i in 1000 9000 90000 900000; do
@@ -43,7 +43,7 @@ for i in 1000 9000 90000 900000; do
     echo "No: $j" >>$LOG_FILE_DIR
     ./clolc.out -phase tr -process org_read -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
-    
+
     ./clolc.out -phase tr -process org_read_all -numTXs $TOTAL_TXS -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 5
   done
