@@ -8,16 +8,21 @@ const (
 
 	ProcessINDefault = "default"
 	ProcessINRandGen = "rand_gen"
+
+	ProcessTRCommitment     = "commitment"
+	ProcessTRMerkleProofGen = "merkle_proof_gen"
 )
 
-var (
-	PhaseProcessMap = map[string][]string{
-		PhaseInitialization: {
-			ProcessINDefault,
-			ProcessINRandGen,
-		},
-	}
-)
+var PhaseProcessMap = map[string][]string{
+	PhaseInitialization: {
+		ProcessINDefault,
+		ProcessINRandGen,
+	},
+	PhaseTransactionRecord: {
+		ProcessTRCommitment,
+		ProcessTRMerkleProofGen,
+	},
+}
 
 func GetPhases() string {
 	var phases string

@@ -12,7 +12,7 @@ func main() {
 	benchProcessPtr := flag.String("process", "", GetPhasesAndProcesses())
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
-	numPtr := flag.Int("num", 100, "Number/Quantity")
+	numPtr := flag.Int("num", 100, "Number/Quantity/Depth")
 	flag.Parse()
 
 	var err error
@@ -23,6 +23,13 @@ func main() {
 			err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
 		case ProcessINRandGen:
 			err = bf.InitializeRandGen(*numPtr, *numIterPtr)
+		}
+	case PhaseTransactionRecord:
+		switch *benchProcessPtr {
+		case ProcessTRCommitment:
+			err = bf.TransactionRecordCommitment(*numPtr, *numIterPtr)
+		case ProcessTRMerkleProofGen:
+			err = bf.TransactionRecordMerkleProofGen(*numPtr, *numIterPtr)
 		}
 	}
 	if err != nil {

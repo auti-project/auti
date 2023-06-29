@@ -35,42 +35,40 @@ const (
 	ProcessRVVerifyAuditPairResult = "aud_pair"
 )
 
-var (
-	PhaseProcessMap = map[string][]string{
-		PhaseInitialization: {
-			ProcessINDefault,
-		},
-		PhaseTransactionRecord: {
-			ProcessTRLocalChainSubmit,
-			ProcessTRLocalChainPrepare,
-			ProcessTRLocalChainRead,
-			ProcessTRLocalChainReadAll,
-			ProcessTRCommitment,
-			ProcessTRAccumulate,
-			ProcessTROrgChainSubmit,
-			ProcessTROrgChainPrepare,
-			ProcessTROrgChainRead,
-			ProcessTROrgChainReadAll,
-		},
-		PhaseConsistencyExamination: {
-			ProcessCEAccumulateCommitment,
-			ProcessCEComputeB,
-			ProcessCEComputeC,
-			ProcessCEComputeD,
-			ProcessCEEncrypt,
-			ProcessCEDecrypt,
-			ProcessCEAudChainSubmit,
-			ProcessCEAudChainPrepare,
-			ProcessCEAudChainRead,
-			ProcessCEAudChainReadAll,
-			ProcessCECheck,
-		},
-		PhaseResultVerification: {
-			ProcessRVVerifyOrgAndAudResult,
-			ProcessRVVerifyAuditPairResult,
-		},
-	}
-)
+var PhaseProcessMap = map[string][]string{
+	PhaseInitialization: {
+		ProcessINDefault,
+	},
+	PhaseTransactionRecord: {
+		ProcessTRLocalChainSubmit,
+		ProcessTRLocalChainPrepare,
+		ProcessTRLocalChainRead,
+		ProcessTRLocalChainReadAll,
+		ProcessTRCommitment,
+		ProcessTRAccumulate,
+		ProcessTROrgChainSubmit,
+		ProcessTROrgChainPrepare,
+		ProcessTROrgChainRead,
+		ProcessTROrgChainReadAll,
+	},
+	PhaseConsistencyExamination: {
+		ProcessCEAccumulateCommitment,
+		ProcessCEComputeB,
+		ProcessCEComputeC,
+		ProcessCEComputeD,
+		ProcessCEEncrypt,
+		ProcessCEDecrypt,
+		ProcessCEAudChainSubmit,
+		ProcessCEAudChainPrepare,
+		ProcessCEAudChainRead,
+		ProcessCEAudChainReadAll,
+		ProcessCECheck,
+	},
+	PhaseResultVerification: {
+		ProcessRVVerifyOrgAndAudResult,
+		ProcessRVVerifyAuditPairResult,
+	},
+}
 
 func GetPhases() string {
 	var phases string

@@ -21,15 +21,15 @@ func PedersenCommit(amount int64) (kyber.Point, kyber.Scalar, error) {
 	return commitment, randScalar, nil
 }
 
-func PedersonCommitWithHash(amount, timestamp int64, receiverHash []byte, counter uint64) (kyber.Point, kyber.Scalar, error) {
+func timestampReceiverCounterHash(timestamp int64, receiverHash []byte, counter uint64) ([]byte, error) {
 	// concatenated bytes for calculating the commitment
 	timestampByte, err := int64ToBytes(timestamp)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	counterByte, err := uint64ToBytes(counter)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	concatBytes := append(timestampByte, receiverHash...)
 	concatBytes = append(concatBytes, counterByte...)
@@ -37,12 +37,19 @@ func PedersonCommitWithHash(amount, timestamp int64, receiverHash []byte, counte
 	sha256Func := sha256.New()
 	sha256Func.Write(concatBytes)
 	concatByteHash := sha256Func.Sum(nil)
-	// calculate the commitment
+	return concatByteHash, nil
+}
+
+func PedersonCommitWithHash(amount, timestamp int64, receiverHash []byte, counter uint64) (kyber.Point, kyber.Scalar, error) {
 	amountScalar, err := amountToScalar(amount)
 	if err != nil {
 		return nil, nil, err
 	}
 	commitment := KyberSuite.Point().Mul(amountScalar, PointG)
+	concatByteHash, err := timestampReceiverCounterHash(timestamp, receiverHash, counter)
+	if err != nil {
+		return nil, nil, err
+	}
 	hashScalar := KyberSuite.Scalar().SetBytes(concatByteHash)
 	hashPoint := KyberSuite.Point().Mul(hashScalar, PointH)
 	commitment.Add(commitment, hashPoint)
