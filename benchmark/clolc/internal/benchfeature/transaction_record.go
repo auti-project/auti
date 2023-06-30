@@ -24,7 +24,7 @@ func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
 	return nil
 }
 
-func PrepareLocalTX(numTotalTXs int) error {
+func TransactionRecordLocalPrepareTX(numTotalTXs int) error {
 	fmt.Println("[CLOLC-TR] Prepare local transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := localchain.SubmitTX(numTotalTXs)
@@ -98,7 +98,7 @@ func TransactionRecordAccumulate(numTotalTXs, iterations int) error {
 	return nil
 }
 
-func PrepareOrgTX(numTotalTXs int) error {
+func TransactionRecordOrgPrepareTX(numTotalTXs int) error {
 	fmt.Println("[CLOLC-TR] Prepare transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := orgchain.SubmitTX(numTotalTXs)

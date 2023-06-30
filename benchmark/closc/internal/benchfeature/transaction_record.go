@@ -10,6 +10,7 @@ import (
 
 	mt "github.com/txaty/go-merkletree"
 
+	"github.com/auti-project/auti/benchmark/closc/internal/localchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
@@ -117,6 +118,57 @@ func TransactionRecordMerkleProofGen(depth, iterations int) error {
 		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
+	fmt.Println("[CLOSC-TV] Local submit transaction")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		_, err := localchain.SubmitTX(numTXs)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordLocalPrepareTX(numTotalTXs int) error {
+	fmt.Println("[CLOSC-TV] Local prepare transaction")
+	fmt.Printf("Num TXs: %d\n", numTotalTXs)
+	txIDs, err := localchain.SubmitTX(numTotalTXs)
+	if err != nil {
+		return err
+	}
+	if err = localchain.SaveTXIDs(txIDs); err != nil {
+		return err
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
+	fmt.Println("[CLOSC-TV] Local read transaction")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		if err := localchain.ReadTX(); err != nil {
+			return err
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func TransactionRecordLocalReadAllTXs(numTotals, iterations int) error {
+	fmt.Println("[CLOSC-TV] Local read all transactions")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotals, iterations)
+	for i := 0; i < iterations; i++ {
+		if err := localchain.ReadAllTXsByPage(); err != nil {
+			return err
+		}
 	}
 	fmt.Println()
 	return nil

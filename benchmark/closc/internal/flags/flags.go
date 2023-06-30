@@ -9,8 +9,16 @@ const (
 	ProcessINDefault = "default"
 	ProcessINRandGen = "rand_gen"
 
-	ProcessTRCommitment     = "commitment"
-	ProcessTRMerkleProofGen = "merkle_proof_gen"
+	ProcessTRCommitment                  = "commitment"
+	ProcessTRMerkleProofGen              = "merkle_proof_gen"
+	ProcessTRLocalChainSubmit            = "local_submit"
+	ProcessTRLocalChainPrepare           = "local_prepare"
+	ProcessTRLocalChainRead              = "local_read"
+	ProcessTRLocalChainReadAll           = "local_read_all"
+	ProcessTRLocalChainCommitmentSubmit  = "local_commit_submit"
+	ProcessTRLocalChainCommitmentPrepare = "local_commit_prepare"
+	ProcessTRLocalCHainCommitmentRead    = "local_commit_read"
+	ProcessTRLocalChainCommitmentReadAll = "local_commit_read_all"
 )
 
 var PhaseProcessMap = map[string][]string{

@@ -13,6 +13,7 @@ function clean_up() {
   rm -rf orgWallet
   rm -rf keystore
   rm lc_tx_id.log
+  rm lc_commit_tx.log
   rm oc_tx_id.log
   rm ac_tx_id.log
 }

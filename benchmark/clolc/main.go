@@ -28,7 +28,7 @@ func main() {
 		case ProcessTRLocalChainSubmit:
 			err = bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainPrepare:
-			err = bf.PrepareLocalTX(*numTXsPtr)
+			err = bf.TransactionRecordLocalPrepareTX(*numTXsPtr)
 		case ProcessTRLocalChainRead:
 			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
@@ -36,7 +36,7 @@ func main() {
 		case ProcessTROrgChainSubmit:
 			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:
-			err = bf.PrepareOrgTX(*numTXsPtr)
+			err = bf.TransactionRecordOrgPrepareTX(*numTXsPtr)
 		case ProcessTROrgChainRead:
 			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainReadAll:
@@ -63,7 +63,7 @@ func main() {
 		case ProcessCEAudChainSubmit:
 			err = bf.ConsistencyExaminationAudSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:
-			err = bf.PrepareAudTX(*numTXsPtr)
+			err = bf.ConsistencyExaminationAudPrepareTX(*numTXsPtr)
 		case ProcessCEAudChainRead:
 			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainReadAll:

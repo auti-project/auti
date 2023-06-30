@@ -168,7 +168,7 @@ func ConsistencyExaminationAudReadAllTXs(numTotalTXs, iterations int) error {
 	return nil
 }
 
-func PrepareAudTX(numTotalTXs int) error {
+func ConsistencyExaminationAudPrepareTX(numTotalTXs int) error {
 	fmt.Println("[CLOLC-CE] Prepare aud transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
 	txIDs, err := audchain.SubmitTX(numTotalTXs)

@@ -11,9 +11,9 @@ import (
 
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
-	"github.com/auti-project/auti/benchmark/clolc/internal/constants"
+	"github.com/auti-project/auti/benchmark/closc/internal/constants"
 	"github.com/auti-project/auti/benchmark/timecounter"
-	"github.com/auti-project/auti/internal/transaction/clolc"
+	"github.com/auti-project/auti/internal/transaction/closc"
 )
 
 const (
@@ -153,12 +153,12 @@ func ReadAllTXsByPage() error {
 	defer lc.Close()
 	var (
 		bookmark string
-		txList   []*clolc.LocalOnChain
+		txList   []*closc.LocalOnChain
 	)
 	startTime := time.Now()
 	for {
 		var (
-			pageTXList []*clolc.LocalOnChain
+			pageTXList []*closc.LocalOnChain
 			err        error
 		)
 		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)

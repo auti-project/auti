@@ -30,6 +30,14 @@ func main() {
 			err = bf.TransactionRecordCommitment(*numPtr, *numIterPtr)
 		case ProcessTRMerkleProofGen:
 			err = bf.TransactionRecordMerkleProofGen(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainSubmit:
+			err = bf.TransactionRecordLocalSubmitTX(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainPrepare:
+			err = bf.TransactionRecordLocalPrepareTX(*numPtr)
+		case ProcessTRLocalChainRead:
+			err = bf.TransactionRecordLocalReadTX(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainReadAll:
+			err = bf.TransactionRecordLocalReadAllTXs(*numPtr, *numIterPtr)
 		}
 	}
 	if err != nil {
