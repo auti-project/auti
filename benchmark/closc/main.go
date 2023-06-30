@@ -38,6 +38,14 @@ func main() {
 			err = bf.TransactionRecordLocalReadTX(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
 			err = bf.TransactionRecordLocalReadAllTXs(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainCommitmentSubmit:
+			err = bf.TransactionRecordLocalCommitmentSubmitTX(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainCommitmentPrepare:
+			err = bf.TransactionRecordLocalCommitmentPrepareTX(*numPtr)
+		case ProcessTRLocalCHainCommitmentRead:
+			err = bf.TransactionRecordLocalCommitmentReadTX(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainCommitmentReadAll:
+			err = bf.TransactionRecordLocalCommitmentReadAllTXs(*numPtr, *numIterPtr)
 		}
 	}
 	if err != nil {

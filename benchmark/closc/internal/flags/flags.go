@@ -29,6 +29,14 @@ var PhaseProcessMap = map[string][]string{
 	PhaseTransactionRecord: {
 		ProcessTRCommitment,
 		ProcessTRMerkleProofGen,
+		ProcessTRLocalChainSubmit,
+		ProcessTRLocalChainPrepare,
+		ProcessTRLocalChainRead,
+		ProcessTRLocalChainReadAll,
+		ProcessTRLocalChainCommitmentSubmit,
+		ProcessTRLocalChainCommitmentPrepare,
+		ProcessTRLocalCHainCommitmentRead,
+		ProcessTRLocalChainCommitmentReadAll,
 	},
 }
 
