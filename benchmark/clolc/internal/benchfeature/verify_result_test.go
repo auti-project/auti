@@ -6,9 +6,9 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
+	"github.com/auti-project/auti/internal/clolc/organization"
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
@@ -22,8 +22,8 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	localTXs1, localTXs2 := generateLocalTXPairList(organizations[0].ID, organizations[1].ID)
 	// hide the local transactions
 	var (
-		hiddenTXs1   = make([]*clolc.LocalHidden, testNumTXs)
-		hiddenTXs2   = make([]*clolc.LocalHidden, testNumTXs)
+		hiddenTXs1   = make([]*transaction.LocalHidden, testNumTXs)
+		hiddenTXs2   = make([]*transaction.LocalHidden, testNumTXs)
 		points1      = make([]kyber.Point, testNumTXs)
 		points2      = make([]kyber.Point, testNumTXs)
 		randScalars1 = make([]kyber.Scalar, testNumTXs)
@@ -144,8 +144,8 @@ func TestVerifyResultVerifyAuditPairResult(t *testing.T) {
 	localTXs1, localTXs2 := generateLocalTXPairList(organizations[0].ID, organizations[1].ID)
 	// hide the local transactions
 	var (
-		hiddenTXs1   = make([]*clolc.LocalHidden, testNumTXs)
-		hiddenTXs2   = make([]*clolc.LocalHidden, testNumTXs)
+		hiddenTXs1   = make([]*transaction.LocalHidden, testNumTXs)
+		hiddenTXs2   = make([]*transaction.LocalHidden, testNumTXs)
 		points1      = make([]kyber.Point, testNumTXs)
 		points2      = make([]kyber.Point, testNumTXs)
 		randScalars1 = make([]kyber.Scalar, testNumTXs)

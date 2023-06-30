@@ -1,27 +1,28 @@
-package closc
+package auditor
 
 import (
 	mt "github.com/txaty/go-merkletree"
 	"go.dedis.ch/kyber/v3"
 
-	"github.com/auti-project/auti/internal/auditor"
+	closcorg "github.com/auti-project/auti/internal/closc/organization"
+	"github.com/auti-project/auti/internal/closc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
-	closcorg "github.com/auti-project/auti/internal/organization/closc"
-	"github.com/auti-project/auti/internal/transaction/closc"
 )
 
+type TypeID string
+type TypeEpochID []byte
+
 type Auditor struct {
-	ID            auditor.TypeID
-	AuditedOrgIDs []organization.TypeID
-	EpochID       auditor.TypeEpochID
+	ID            TypeID
+	AuditedOrgIDs []closcorg.TypeID
+	EpochID       TypeEpochID
 }
 
 func New(id string, organizations []*closcorg.Organization) *Auditor {
 	aud := &Auditor{
-		ID: auditor.TypeID(id),
+		ID: TypeID(id),
 	}
-	aud.AuditedOrgIDs = make([]organization.TypeID, len(organizations))
+	aud.AuditedOrgIDs = make([]closcorg.TypeID, len(organizations))
 	for idx, org := range organizations {
 		aud.AuditedOrgIDs[idx] = org.ID
 	}
@@ -32,7 +33,7 @@ func (a *Auditor) SetEpochID(id []byte) {
 	a.EpochID = id
 }
 
-func (a *Auditor) VerifyMerkleProof(tx closc.LocalOnChain) (uint, error) {
+func (a *Auditor) VerifyMerkleProof(tx transaction.LocalOnChain) (uint, error) {
 	txPlain, err := tx.ToPlain()
 	if err != nil {
 		return 0, err

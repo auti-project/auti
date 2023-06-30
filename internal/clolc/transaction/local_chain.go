@@ -1,4 +1,4 @@
-package clolc
+package transaction
 
 import (
 	"crypto/sha256"

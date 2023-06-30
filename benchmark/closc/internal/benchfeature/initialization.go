@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/auti-project/auti/benchmark/timecounter"
-	closcaud "github.com/auti-project/auti/internal/auditor/closc"
-	closccom "github.com/auti-project/auti/internal/committee/closc"
+	closcaud "github.com/auti-project/auti/internal/closc/auditor"
+	closccom "github.com/auti-project/auti/internal/closc/committee"
+	closcorg "github.com/auti-project/auti/internal/closc/organization"
 	"github.com/auti-project/auti/internal/constants"
-	closcorg "github.com/auti-project/auti/internal/organization/closc"
 )
 
 func generateEntities(numOrganizations int) (*closccom.Committee, []*closcaud.Auditor, []*closcorg.Organization) {

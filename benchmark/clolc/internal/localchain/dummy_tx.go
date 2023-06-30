@@ -9,14 +9,14 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
-	"github.com/auti-project/auti/internal/organization"
-	"github.com/auti-project/auti/internal/transaction/clolc"
+	"github.com/auti-project/auti/internal/clolc/organization"
+	"github.com/auti-project/auti/internal/clolc/transaction"
 )
 
 var numCPUs = runtime.NumCPU()
 
-func DummyOnChainTransactions(numTXs int) []*clolc.LocalOnChain {
-	results := make([]*clolc.LocalOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.LocalOnChain {
+	results := make([]*transaction.LocalOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -35,7 +35,7 @@ func DummyOnChainTransactions(numTXs int) []*clolc.LocalOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*clolc.LocalOnChain, error) {
+func DummyOnChainTransaction() (*transaction.LocalOnChain, error) {
 	dummyCounterPartyBytes := make([]byte, 32)
 	_, err := crand.Read(dummyCounterPartyBytes)
 	if err != nil {
@@ -52,8 +52,8 @@ func DummyOnChainTransaction() (*clolc.LocalOnChain, error) {
 	return hiddenTX.ToOnChain(), nil
 }
 
-func DummyPlainTransactions(numTXs int) []*clolc.LocalPlain {
-	results := make([]*clolc.LocalPlain, numTXs)
+func DummyPlainTransactions(numTXs int) []*transaction.LocalPlain {
+	results := make([]*transaction.LocalPlain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -72,7 +72,7 @@ func DummyPlainTransactions(numTXs int) []*clolc.LocalPlain {
 	return results
 }
 
-func DummyPlainTransaction() (*clolc.LocalPlain, error) {
+func DummyPlainTransaction() (*transaction.LocalPlain, error) {
 	currTimestamp := time.Now().UnixNano()
 	randAmount := rand.Float64()
 	dummyCounterPartyBytes := make([]byte, 32)
@@ -80,7 +80,7 @@ func DummyPlainTransaction() (*clolc.LocalPlain, error) {
 	if err != nil {
 		return nil, err
 	}
-	plainTX := clolc.NewLocalPlain(
+	plainTX := transaction.NewLocalPlain(
 		string(dummyCounterPartyBytes),
 		randAmount,
 		currTimestamp,
@@ -112,8 +112,8 @@ func DummyHiddenTXCommitments(numTXs int) []kyber.Point {
 	return results
 }
 
-func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs int) []*clolc.LocalHidden {
-	results := make([]*clolc.LocalHidden, numTXs)
+func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs int) []*transaction.LocalHidden {
+	results := make([]*transaction.LocalHidden, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)

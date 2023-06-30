@@ -1,4 +1,4 @@
-package closc
+package transaction
 
 import (
 	"crypto/sha256"

@@ -9,9 +9,9 @@ import (
 	"github.com/auti-project/auti/benchmark/clolc/internal/audchain"
 	"github.com/auti-project/auti/benchmark/clolc/internal/localchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
+	"github.com/auti-project/auti/internal/clolc/organization"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
 )
 
 func ConsistencyExaminationAccumulateCommitment(numOrganizations, iterations int) error {

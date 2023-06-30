@@ -5,14 +5,14 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/auti-project/auti/internal/closc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction/closc"
 )
 
 var numCPUs = runtime.NumCPU()
 
-func DummyCommitmentOnChainTransactions(numTXs int) []*closc.LocalCommitmentOnChain {
-	results := make([]*closc.LocalCommitmentOnChain, numTXs)
+func DummyCommitmentOnChainTransactions(numTXs int) []*transaction.LocalCommitmentOnChain {
+	results := make([]*transaction.LocalCommitmentOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -31,7 +31,7 @@ func DummyCommitmentOnChainTransactions(numTXs int) []*closc.LocalCommitmentOnCh
 	return results
 }
 
-func DummyCommitmentOnChainTransaction() (*closc.LocalCommitmentOnChain, error) {
+func DummyCommitmentOnChainTransaction() (*transaction.LocalCommitmentOnChain, error) {
 	dummyCounterPartyBytes := make([]byte, 32)
 	_, err := crand.Read(dummyCounterPartyBytes)
 	if err != nil {
@@ -44,8 +44,8 @@ func DummyCommitmentOnChainTransaction() (*closc.LocalCommitmentOnChain, error) 
 	return plainTX.ToOnChain(), nil
 }
 
-func DummyCommitmentPlainTransactions(numTXs int) []*closc.LocalCommitmentPlain {
-	results := make([]*closc.LocalCommitmentPlain, numTXs)
+func DummyCommitmentPlainTransactions(numTXs int) []*transaction.LocalCommitmentPlain {
+	results := make([]*transaction.LocalCommitmentPlain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -64,12 +64,12 @@ func DummyCommitmentPlainTransactions(numTXs int) []*closc.LocalCommitmentPlain 
 	return results
 }
 
-func DummyCommitmentPlainTransaction() (*closc.LocalCommitmentPlain, error) {
+func DummyCommitmentPlainTransaction() (*transaction.LocalCommitmentPlain, error) {
 	randScalar := crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
 	randPoint := crypto.KyberSuite.Point().Mul(randScalar, nil)
 	dummyCommitment, err := randPoint.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	return closc.NewLocalCommitmentPlain(dummyCommitment), nil
+	return transaction.NewLocalCommitmentPlain(dummyCommitment), nil
 }

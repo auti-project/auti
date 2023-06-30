@@ -7,8 +7,8 @@ import (
 
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 var (
@@ -16,8 +16,8 @@ var (
 	kyberSuite = edwards25519.NewBlakeSHA256Ed25519()
 )
 
-func DummyOnChainTransactions(numTXs int) []*clolc.AudOnChain {
-	results := make([]*clolc.AudOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.AudOnChain {
+	results := make([]*transaction.AudOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -36,7 +36,7 @@ func DummyOnChainTransactions(numTXs int) []*clolc.AudOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*clolc.AudOnChain, error) {
+func DummyOnChainTransaction() (*transaction.AudOnChain, error) {
 	randIDBytes := make([]byte, 32)
 	_, err := crand.Read(randIDBytes)
 	if err != nil {
@@ -53,7 +53,7 @@ func DummyOnChainTransaction() (*clolc.AudOnChain, error) {
 			return nil, err
 		}
 	}
-	tx := clolc.NewAudPlain(
+	tx := transaction.NewAudPlain(
 		randIDBytes, randCipherBytes[0], randCipherBytes[1], randCipherBytes[2], randCipherBytes[3],
 	)
 	return tx.ToOnChain(), nil

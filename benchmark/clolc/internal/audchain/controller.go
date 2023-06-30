@@ -9,7 +9,7 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
-	"github.com/auti-project/auti/internal/transaction/clolc"
+	"github.com/auti-project/auti/internal/clolc/transaction"
 )
 
 const (
@@ -56,7 +56,7 @@ func (c *Controller) Close() {
 	c.gw.Close()
 }
 
-func (c *Controller) SubmitTX(tx *clolc.AudOnChain) (string, error) {
+func (c *Controller) SubmitTX(tx *transaction.AudOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := c.ct.SubmitTransaction(createTXFuncName,
 		tx.ID,
@@ -84,12 +84,12 @@ func (c *Controller) TXExists(txID string) (bool, error) {
 	return result, nil
 }
 
-func (c *Controller) GetAllTXs() ([]*clolc.AudOnChain, error) {
+func (c *Controller) GetAllTXs() ([]*transaction.AudOnChain, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXFuncName)
 	if err != nil {
 		return nil, err
 	}
-	var txList []*clolc.AudOnChain
+	var txList []*transaction.AudOnChain
 	err = json.Unmarshal(results, &txList)
 	if err != nil {
 		return nil, err
@@ -97,12 +97,12 @@ func (c *Controller) GetAllTXs() ([]*clolc.AudOnChain, error) {
 	return txList, nil
 }
 
-func (c *Controller) ReadTX(id string) (*clolc.AudOnChain, error) {
+func (c *Controller) ReadTX(id string) (*transaction.AudOnChain, error) {
 	result, err := c.ct.EvaluateTransaction(readTXFuncName, id)
 	if err != nil {
 		return nil, err
 	}
-	var tx clolc.AudOnChain
+	var tx transaction.AudOnChain
 	err = json.Unmarshal(result, &tx)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *Controller) ReadTX(id string) (*clolc.AudOnChain, error) {
 	return &tx, nil
 }
 
-func (c *Controller) SubmitBatchTXs(txList []*clolc.AudOnChain) ([]string, error) {
+func (c *Controller) SubmitBatchTXs(txList []*transaction.AudOnChain) ([]string, error) {
 	txListJSON, err := json.Marshal(txList)
 	if err != nil {
 		return nil, err
@@ -129,11 +129,11 @@ func (c *Controller) SubmitBatchTXs(txList []*clolc.AudOnChain) ([]string, error
 }
 
 type PageResponse struct {
-	Bookmark string              `json:"bookmark"`
-	TXs      []*clolc.AudOnChain `json:"txs"`
+	Bookmark string                    `json:"bookmark"`
+	TXs      []*transaction.AudOnChain `json:"txs"`
 }
 
-func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*clolc.AudOnChain, string, error) {
+func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.AudOnChain, string, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXsByPageName, bookmark)
 	if err != nil {
 		return nil, "", err

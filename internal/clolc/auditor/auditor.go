@@ -1,4 +1,4 @@
-package clolc
+package auditor
 
 import (
 	"crypto/sha256"
@@ -7,28 +7,31 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
-	"github.com/auti-project/auti/internal/auditor"
+	clolcorg "github.com/auti-project/auti/internal/clolc/organization"
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
-	clolcorg "github.com/auti-project/auti/internal/organization/clolc"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
+var sha256Func = sha256.New()
+
+type TypeID string
+type TypeEpochID []byte
+
 type Auditor struct {
-	ID                   auditor.TypeID
-	AuditedOrgIDs        []organization.TypeID
+	ID                   TypeID
+	AuditedOrgIDs        []clolcorg.TypeID
 	epochTXRandMap       map[[2]string][]kyber.Scalar
-	EpochID              auditor.TypeEpochID
+	EpochID              TypeEpochID
 	epochOrgSecretKeyMap map[string]crypto.TypePrivateKey
-	epochOrgIDMap        map[organization.TypeID]organization.TypeEpochID
+	epochOrgIDMap        map[clolcorg.TypeID]clolcorg.TypeEpochID
 }
 
 func New(id string, organizations []*clolcorg.Organization) *Auditor {
 	aud := &Auditor{
-		ID: auditor.TypeID(id),
+		ID: TypeID(id),
 	}
-	aud.AuditedOrgIDs = make([]organization.TypeID, len(organizations))
+	aud.AuditedOrgIDs = make([]clolcorg.TypeID, len(organizations))
 	for idx, org := range organizations {
 		aud.AuditedOrgIDs[idx] = org.ID
 	}
@@ -39,8 +42,8 @@ func (a *Auditor) SetEpochTXRandomness(txRandMap map[[2]string][]kyber.Scalar) {
 	a.epochTXRandMap = txRandMap
 }
 
-func (a *Auditor) GetEpochTXRandomness(orgID1, orgID2 organization.TypeID) []kyber.Scalar {
-	key := organization.IDHashKey(organization.IDHashString(orgID1), organization.IDHashString(orgID2))
+func (a *Auditor) GetEpochTXRandomness(orgID1, orgID2 clolcorg.TypeID) []kyber.Scalar {
+	key := clolcorg.IDHashKey(clolcorg.IDHashString(orgID1), clolcorg.IDHashString(orgID2))
 	if txRand, ok := a.epochTXRandMap[key]; ok {
 		return txRand
 	}
@@ -55,12 +58,12 @@ func (a *Auditor) SetEpochID(id []byte) {
 	a.EpochID = id
 }
 
-func (a *Auditor) SetEpochOrgIDMap(idMap map[organization.TypeID]organization.TypeEpochID) {
+func (a *Auditor) SetEpochOrgIDMap(idMap map[clolcorg.TypeID]clolcorg.TypeEpochID) {
 	a.epochOrgIDMap = idMap
 }
 
 func (a *Auditor) AccumulateCommitments(
-	orgID organization.TypeID, txList []*clolc.LocalHidden,
+	orgID clolcorg.TypeID, txList []*transaction.LocalHidden,
 ) (kyber.Point, error) {
 	if len(txList) == 0 {
 		return nil, fmt.Errorf("empty transaction list")
@@ -68,9 +71,9 @@ func (a *Auditor) AccumulateCommitments(
 	if constants.MaxNumTXInEpoch < len(txList) {
 		return nil, fmt.Errorf("too many transactions in the epoch: %d", len(txList))
 	}
-	orgIDHashStr := organization.IDHashString(orgID)
+	orgIDHashStr := clolcorg.IDHashString(orgID)
 	counterPartyIDHashStr := hex.EncodeToString(txList[0].CounterParty)
-	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHashStr)
+	orgKey := clolcorg.IDHashKey(orgIDHashStr, counterPartyIDHashStr)
 	randomScalars := a.epochTXRandMap[orgKey]
 	result := crypto.KyberSuite.Point().Null()
 	for idx, tx := range txList {
@@ -110,9 +113,9 @@ func (a *Auditor) ComputeD(pointA, pointB kyber.Point) kyber.Point {
 }
 
 func (a *Auditor) EncryptConsistencyExamResult(
-	orgID organization.TypeID, counterPartyIDHash string,
+	orgID clolcorg.TypeID, counterPartyIDHash string,
 	res, pointB, pointC, pointD kyber.Point, publicKey kyber.Point,
-) (*clolc.AudPlain, error) {
+) (*transaction.AudPlain, error) {
 	txID, err := a.ComputeCETransactionID(orgID, counterPartyIDHash)
 	if err != nil {
 		return nil, err
@@ -141,7 +144,7 @@ func (a *Auditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	epochIDHashPoint := auditor.EpochIDHashPoint(a.EpochID)
+	epochIDHashPoint := EpochIDHashPoint(a.EpochID)
 	idPointD := crypto.KyberSuite.Point().Add(epochIDHashPoint, pointD)
 	cipherD, err := crypto.EncryptPoint(publicKey, idPointD)
 	if err != nil {
@@ -151,16 +154,16 @@ func (a *Auditor) EncryptConsistencyExamResult(
 	if err != nil {
 		return nil, err
 	}
-	return clolc.NewAudPlain(
+	return transaction.NewAudPlain(
 		txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes,
 	), nil
 }
 
 func (a *Auditor) ComputeCETransactionID(
-	orgID organization.TypeID, counterPartyIDHash string,
+	orgID clolcorg.TypeID, counterPartyIDHash string,
 ) ([]byte, error) {
-	orgIDHashStr := organization.IDHashString(orgID)
-	orgKey := organization.IDHashKey(orgIDHashStr, counterPartyIDHash)
+	orgIDHashStr := clolcorg.IDHashString(orgID)
+	orgKey := clolcorg.IDHashKey(orgIDHashStr, counterPartyIDHash)
 	randomnesses := a.epochTXRandMap[orgKey]
 	epochOrgID := a.epochOrgIDMap[orgID]
 	epochOrgIDBytes := make([]byte, len(epochOrgID))
@@ -181,7 +184,7 @@ func (a *Auditor) ComputeCETransactionID(
 }
 
 func (a *Auditor) DecryptResAndB(orgIDHash string,
-	tx *clolc.AudOnChain) (kyber.Point, kyber.Point, error) {
+	tx *transaction.AudOnChain) (kyber.Point, kyber.Point, error) {
 	plainTX, err := tx.ToPlain()
 	if err != nil {
 		return nil, nil, err
@@ -208,4 +211,40 @@ func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 	result.Add(result, txRes)
 	result.Add(result, txB)
 	return result.Equal(crypto.KyberSuite.Point().Null())
+}
+
+func IDHashBytes(id TypeID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write([]byte(id))
+	return sha256Func.Sum(nil)
+}
+
+func IDHashString(id TypeID) string {
+	return hex.EncodeToString(IDHashBytes(id))
+}
+
+func IDHashScalar(id TypeID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(IDHashBytes(id))
+}
+
+func IDHashPoint(id TypeID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(IDHashScalar(id), nil)
+}
+
+func EpochIDHashBytes(epochID TypeEpochID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write(epochID)
+	return sha256Func.Sum(nil)
+}
+
+func EpochIDHashString(epochID TypeEpochID) string {
+	return hex.EncodeToString(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashScalar(epochID TypeEpochID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashPoint(epochID TypeEpochID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(EpochIDHashScalar(epochID), nil)
 }

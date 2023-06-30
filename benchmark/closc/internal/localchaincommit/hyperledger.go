@@ -13,7 +13,7 @@ import (
 
 	"github.com/auti-project/auti/benchmark/closc/internal/constants"
 	"github.com/auti-project/auti/benchmark/timecounter"
-	"github.com/auti-project/auti/internal/transaction/closc"
+	"github.com/auti-project/auti/internal/closc/transaction"
 )
 
 const (
@@ -153,12 +153,12 @@ func ReadAllTXsByPage() error {
 	defer lc.Close()
 	var (
 		bookmark string
-		txList   []*closc.LocalCommitmentOnChain
+		txList   []*transaction.LocalCommitmentOnChain
 	)
 	startTime := time.Now()
 	for {
 		var (
-			pageTXList []*closc.LocalCommitmentOnChain
+			pageTXList []*transaction.LocalCommitmentOnChain
 			err        error
 		)
 		pageTXList, bookmark, err = lc.ReadAllTXsByPage(bookmark)

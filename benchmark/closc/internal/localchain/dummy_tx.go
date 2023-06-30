@@ -8,8 +8,8 @@ import (
 
 	mt "github.com/txaty/go-merkletree"
 
+	"github.com/auti-project/auti/internal/closc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction/closc"
 )
 
 const (
@@ -19,8 +19,8 @@ const (
 
 var numCPUs = runtime.NumCPU()
 
-func DummyOnChainTransactions(numTXs int) []*closc.LocalOnChain {
-	results := make([]*closc.LocalOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.LocalOnChain {
+	results := make([]*transaction.LocalOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -39,7 +39,7 @@ func DummyOnChainTransactions(numTXs int) []*closc.LocalOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*closc.LocalOnChain, error) {
+func DummyOnChainTransaction() (*transaction.LocalOnChain, error) {
 	dummyCounterPartyBytes := make([]byte, 32)
 	_, err := crand.Read(dummyCounterPartyBytes)
 	if err != nil {
@@ -52,8 +52,8 @@ func DummyOnChainTransaction() (*closc.LocalOnChain, error) {
 	return plainTX.ToOnChain(), nil
 }
 
-func DummyPlainTransactions(numTXs int) []*closc.LocalPlain {
-	results := make([]*closc.LocalPlain, numTXs)
+func DummyPlainTransactions(numTXs int) []*transaction.LocalPlain {
+	results := make([]*transaction.LocalPlain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -72,7 +72,7 @@ func DummyPlainTransactions(numTXs int) []*closc.LocalPlain {
 	return results
 }
 
-func DummyPlainTransaction() (*closc.LocalPlain, error) {
+func DummyPlainTransaction() (*transaction.LocalPlain, error) {
 	randScalar := crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
 	randPoint := crypto.KyberSuite.Point().Mul(randScalar, nil)
 	dummyCommitment, err := randPoint.MarshalBinary()
@@ -101,5 +101,5 @@ func DummyPlainTransaction() (*closc.LocalPlain, error) {
 	if err != nil {
 		return nil, err
 	}
-	return closc.NewLocalPlain(dummyCommitment, dummyRoot, dummyProofBytes), nil
+	return transaction.NewLocalPlain(dummyCommitment, dummyRoot, dummyProofBytes), nil
 }

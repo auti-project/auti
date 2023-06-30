@@ -1,4 +1,4 @@
-package closc
+package transaction
 
 import (
 	"crypto/sha256"
@@ -56,7 +56,7 @@ type Hidden struct {
 	Timestamp  int64
 }
 
-func (p *Plain) Hide() (*Hidden, kyber.Scalar, error) {
+func (p *Plain) Hide() (*Hidden, kyber.Point, error) {
 	// sender hash
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(p.Sender))
@@ -65,7 +65,7 @@ func (p *Plain) Hide() (*Hidden, kyber.Scalar, error) {
 	sha256Func.Reset()
 	sha256Func.Write([]byte(p.Receiver))
 	receiverHash := sha256Func.Sum(nil)
-	commitment, hashScalar, err := crypto.PedersonCommitWithHash(
+	commitment, hashPoint, err := crypto.PedersonCommitWithHash(
 		p.Amount, p.Timestamp, receiverHash, p.Counter,
 	)
 	if err != nil {
@@ -75,7 +75,7 @@ func (p *Plain) Hide() (*Hidden, kyber.Scalar, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return NewHidden(senderHash, receiverHash, commitmentBytes, p.Timestamp), hashScalar, nil
+	return NewHidden(senderHash, receiverHash, commitmentBytes, p.Timestamp), hashPoint, nil
 }
 
 func NewHidden(sender, receiver, commitment []byte, timestamp int64) *Hidden {

@@ -5,16 +5,16 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 var (
 	numCPUs = runtime.NumCPU()
 )
 
-func DummyOnChainTransactions(numTXs int) []*clolc.OrgOnChain {
-	results := make([]*clolc.OrgOnChain, numTXs)
+func DummyOnChainTransactions(numTXs int) []*transaction.OrgOnChain {
+	results := make([]*transaction.OrgOnChain, numTXs)
 	wg := sync.WaitGroup{}
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -33,7 +33,7 @@ func DummyOnChainTransactions(numTXs int) []*clolc.OrgOnChain {
 	return results
 }
 
-func DummyOnChainTransaction() (*clolc.OrgOnChain, error) {
+func DummyOnChainTransaction() (*transaction.OrgOnChain, error) {
 	randID, err := crypto.RandBytes()
 	if err != nil {
 		return nil, err
@@ -50,6 +50,6 @@ func DummyOnChainTransaction() (*clolc.OrgOnChain, error) {
 	if err != nil {
 		return nil, err
 	}
-	tx := clolc.NewOrgPlain(accumulatorBytes)
+	tx := transaction.NewOrgPlain(accumulatorBytes)
 	return tx.ToOnChain(), nil
 }

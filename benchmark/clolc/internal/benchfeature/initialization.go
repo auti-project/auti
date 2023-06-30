@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/auti-project/auti/benchmark/timecounter"
-	clolcaud "github.com/auti-project/auti/internal/auditor/clolc"
-	clolccom "github.com/auti-project/auti/internal/committee/clolc"
-	clolcorg "github.com/auti-project/auti/internal/organization/clolc"
+	clolcaud "github.com/auti-project/auti/internal/clolc/auditor"
+	clolccom "github.com/auti-project/auti/internal/clolc/committee"
+	clolcorg "github.com/auti-project/auti/internal/clolc/organization"
 )
 
 func generateEntities(numOrganizations int) (*clolccom.Committee, []*clolcaud.Auditor, []*clolcorg.Organization) {

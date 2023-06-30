@@ -1,16 +1,16 @@
-package closc
+package organization
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
-
-	"github.com/auti-project/auti/internal/organization"
 )
 
 var sha256Func = sha256.New()
 
+type TypeID string
+
 type Organization struct {
-	ID     organization.TypeID
+	ID     TypeID
 	IDHash string
 }
 
@@ -19,7 +19,7 @@ func New(id string) *Organization {
 	sha256Func.Write([]byte(id))
 	idHash := hex.EncodeToString(sha256Func.Sum(nil))
 	org := &Organization{
-		ID:     organization.TypeID(id),
+		ID:     TypeID(id),
 		IDHash: idHash,
 	}
 	return org

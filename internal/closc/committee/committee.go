@@ -1,27 +1,27 @@
-package closc
+package committee
 
 import (
 	"crypto/rand"
 
-	"github.com/auti-project/auti/internal/auditor"
-	closcaud "github.com/auti-project/auti/internal/auditor/closc"
-	"github.com/auti-project/auti/internal/committee"
+	"github.com/auti-project/auti/internal/closc/auditor"
+	closcorg "github.com/auti-project/auti/internal/closc/organization"
 	"github.com/auti-project/auti/internal/constants"
-	"github.com/auti-project/auti/internal/organization"
 )
 
+type TypeID string
+
 type Committee struct {
-	ID                committee.TypeID
-	managedEntityMap  map[auditor.TypeID][]organization.TypeID
+	ID                TypeID
+	managedEntityMap  map[auditor.TypeID][]closcorg.TypeID
 	managedAuditorIDs []auditor.TypeID
-	managedOrgIDs     []organization.TypeID
+	managedOrgIDs     []closcorg.TypeID
 	epochAuditorIDMap map[auditor.TypeID]auditor.TypeEpochID
 }
 
-func New(id string, auditors []*closcaud.Auditor) *Committee {
+func New(id string, auditors []*auditor.Auditor) *Committee {
 	com := &Committee{
-		ID:               committee.TypeID(id),
-		managedEntityMap: make(map[auditor.TypeID][]organization.TypeID),
+		ID:               TypeID(id),
+		managedEntityMap: make(map[auditor.TypeID][]closcorg.TypeID),
 	}
 	com.managedAuditorIDs = make([]auditor.TypeID, len(auditors))
 	for idx, aud := range auditors {
@@ -36,7 +36,7 @@ func (c *Committee) reinitializeMaps() {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 
-func (c *Committee) InitializeEpoch(auditors []*closcaud.Auditor) error {
+func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) error {
 	c.reinitializeMaps()
 	for _, aud := range auditors {
 		// Generate epoch ID for each auditor

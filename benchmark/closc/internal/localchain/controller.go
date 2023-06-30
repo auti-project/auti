@@ -9,7 +9,7 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
-	"github.com/auti-project/auti/internal/transaction/closc"
+	"github.com/auti-project/auti/internal/closc/transaction"
 )
 
 const (
@@ -64,7 +64,7 @@ func (c *Controller) Close() {
 	c.gw.Close()
 }
 
-func (c *Controller) SubmitTX(tx *closc.LocalOnChain) (string, error) {
+func (c *Controller) SubmitTX(tx *transaction.LocalOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := c.ct.SubmitTransaction(createTXFuncName,
 		tx.Commitment,
@@ -77,7 +77,7 @@ func (c *Controller) SubmitTX(tx *closc.LocalOnChain) (string, error) {
 	return string(txID), nil
 }
 
-func (c *Controller) SubmitBatchTXs(txList []*closc.LocalOnChain) ([]string, error) {
+func (c *Controller) SubmitBatchTXs(txList []*transaction.LocalOnChain) ([]string, error) {
 	txListJSON, err := json.Marshal(txList)
 	if err != nil {
 		return nil, err
@@ -108,12 +108,12 @@ func (c *Controller) TXExists(txID string) (bool, error) {
 	return result, nil
 }
 
-func (c *Controller) ReadTX(id string) (*closc.LocalOnChain, error) {
+func (c *Controller) ReadTX(id string) (*transaction.LocalOnChain, error) {
 	result, err := c.ct.EvaluateTransaction(readTXFuncName, id)
 	if err != nil {
 		return nil, err
 	}
-	var tx closc.LocalOnChain
+	var tx transaction.LocalOnChain
 	err = json.Unmarshal(result, &tx)
 	if err != nil {
 		return nil, err
@@ -121,12 +121,12 @@ func (c *Controller) ReadTX(id string) (*closc.LocalOnChain, error) {
 	return &tx, nil
 }
 
-func (c *Controller) ReadAllTXs() ([]*closc.LocalOnChain, error) {
+func (c *Controller) ReadAllTXs() ([]*transaction.LocalOnChain, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXFuncName)
 	if err != nil {
 		return nil, err
 	}
-	var txList []*closc.LocalOnChain
+	var txList []*transaction.LocalOnChain
 	err = json.Unmarshal(results, &txList)
 	if err != nil {
 		return nil, err
@@ -135,11 +135,11 @@ func (c *Controller) ReadAllTXs() ([]*closc.LocalOnChain, error) {
 }
 
 type PageResponse struct {
-	Bookmark string                `json:"bookmark"`
-	TXs      []*closc.LocalOnChain `json:"txs"`
+	Bookmark string                      `json:"bookmark"`
+	TXs      []*transaction.LocalOnChain `json:"txs"`
 }
 
-func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*closc.LocalOnChain, string, error) {
+func (c *Controller) ReadAllTXsByPage(bookmark string) ([]*transaction.LocalOnChain, string, error) {
 	results, err := c.ct.EvaluateTransaction(readAllTXsByPageName, bookmark)
 	if err != nil {
 		return nil, "", err

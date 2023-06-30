@@ -1,4 +1,4 @@
-package clolc
+package organization
 
 import (
 	"crypto/sha256"
@@ -7,17 +7,19 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
-	"github.com/auti-project/auti/internal/organization"
-	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
 var sha256Func = sha256.New()
 
+type TypeID string
+type TypeEpochID []byte
+
 type Organization struct {
-	ID                  organization.TypeID
+	ID                  TypeID
 	IDHash              string
-	EpochID             organization.TypeEpochID
+	EpochID             TypeEpochID
 	epochAccumulatorMap map[[2]string]kyber.Point
 	epochTXRandomness   map[[2]string]kyber.Scalar
 }
@@ -27,7 +29,7 @@ func New(id string) *Organization {
 	sha256Func.Write([]byte(id))
 	idHash := hex.EncodeToString(sha256Func.Sum(nil))
 	org := &Organization{
-		ID:                  organization.TypeID(id),
+		ID:                  TypeID(id),
 		IDHash:              idHash,
 		epochAccumulatorMap: make(map[[2]string]kyber.Point),
 		epochTXRandomness:   make(map[[2]string]kyber.Scalar),
@@ -39,7 +41,7 @@ func (c *Organization) SetEpochID(randID []byte) {
 	c.EpochID = randID
 }
 
-func (c *Organization) RecordTransaction(tx *clolc.LocalPlain) error {
+func (c *Organization) RecordTransaction(tx *transaction.LocalPlain) error {
 	// Submit the transaction to the local chain
 	sha256Func := sha256.New()
 	sha256Func.Write([]byte(tx.CounterParty))
@@ -52,7 +54,7 @@ func (c *Organization) RecordTransaction(tx *clolc.LocalPlain) error {
 	if err != nil {
 		return err
 	}
-	clolcHidden := &clolc.LocalHidden{
+	clolcHidden := &transaction.LocalHidden{
 		CounterParty: counterPartyHash,
 		Commitment:   commitmentBytes,
 		Timestamp:    tx.Timestamp,
@@ -61,7 +63,7 @@ func (c *Organization) RecordTransaction(tx *clolc.LocalPlain) error {
 		return err
 	}
 	counterPartyHashStr := hex.EncodeToString(counterPartyHash)
-	orgMapKey := organization.IDHashKey(c.IDHash, counterPartyHashStr)
+	orgMapKey := IDHashKey(c.IDHash, counterPartyHashStr)
 	// Accumulate the commitment to the corresponding accumulator
 	if _, ok := c.epochAccumulatorMap[orgMapKey]; !ok {
 		c.epochAccumulatorMap[orgMapKey] = commitment
@@ -76,9 +78,9 @@ func (c *Organization) RecordTransaction(tx *clolc.LocalPlain) error {
 	return nil
 }
 
-func (c *Organization) Accumulate(counterParty organization.TypeID, commitment kyber.Point) {
-	counterPartyHashStr := organization.IDHashString(counterParty)
-	orgMapKey := organization.IDHashKey(c.IDHash, counterPartyHashStr)
+func (c *Organization) Accumulate(counterParty TypeID, commitment kyber.Point) {
+	counterPartyHashStr := IDHashString(counterParty)
+	orgMapKey := IDHashKey(c.IDHash, counterPartyHashStr)
 	// Accumulate the commitment to the corresponding accumulator
 	if _, ok := c.epochAccumulatorMap[orgMapKey]; !ok {
 		c.epochAccumulatorMap[orgMapKey] = commitment
@@ -90,22 +92,65 @@ func (c *Organization) Accumulate(counterParty organization.TypeID, commitment k
 	}
 }
 
-func (c *Organization) SubmitTXLocalChain(tx *clolc.LocalHidden) error {
+func (c *Organization) SubmitTXLocalChain(tx *transaction.LocalHidden) error {
 	panic("not implemented")
 }
 
-func (c *Organization) ComposeTXOrgChain(counterParty organization.TypeID) (*clolc.OrgPlain, error) {
-	counterPartyHashStr := organization.IDHashString(counterParty)
-	orgMapKey := organization.IDHashKey(c.IDHash, counterPartyHashStr)
+func (c *Organization) ComposeTXOrgChain(counterParty TypeID) (*transaction.OrgPlain, error) {
+	counterPartyHashStr := IDHashString(counterParty)
+	orgMapKey := IDHashKey(c.IDHash, counterPartyHashStr)
 	accumulator, ok := c.epochAccumulatorMap[orgMapKey]
 	if !ok {
 		return nil, fmt.Errorf("no transaction from %s to %s", c.ID, counterParty)
 	}
-	epochIDHashPoint := organization.EpochIDHashPoint(c.EpochID)
+	epochIDHashPoint := EpochIDHashPoint(c.EpochID)
 	resultPoint := crypto.KyberSuite.Point().Add(accumulator, epochIDHashPoint)
 	result, err := resultPoint.MarshalBinary()
 	if err != nil {
 		panic(err)
 	}
-	return clolc.NewOrgPlain(result), nil
+	return transaction.NewOrgPlain(result), nil
+}
+
+func IDHashBytes(id TypeID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write([]byte(id))
+	return sha256Func.Sum(nil)
+}
+
+func IDHashString(id TypeID) string {
+	return hex.EncodeToString(IDHashBytes(id))
+}
+
+func IDHashScalar(id TypeID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(IDHashBytes(id))
+}
+
+func IDHashPoint(id TypeID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(IDHashScalar(id), nil)
+}
+
+func IDHashKey(orgIDHash1, orgIDHash2 string) [2]string {
+	if orgIDHash1 < orgIDHash2 {
+		return [2]string{orgIDHash1, orgIDHash2}
+	}
+	return [2]string{orgIDHash2, orgIDHash1}
+}
+
+func EpochIDHashBytes(epochID TypeEpochID) []byte {
+	defer sha256Func.Reset()
+	sha256Func.Write(epochID)
+	return sha256Func.Sum(nil)
+}
+
+func EpochIDHashString(epochID TypeEpochID) string {
+	return hex.EncodeToString(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashScalar(epochID TypeEpochID) kyber.Scalar {
+	return crypto.KyberSuite.Scalar().SetBytes(EpochIDHashBytes(epochID))
+}
+
+func EpochIDHashPoint(epochID TypeEpochID) kyber.Point {
+	return crypto.KyberSuite.Point().Mul(EpochIDHashScalar(epochID), nil)
 }
