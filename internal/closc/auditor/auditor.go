@@ -10,7 +10,7 @@ import (
 )
 
 type TypeID string
-type TypeEpochID []byte
+type TypeEpochID kyber.Point
 
 type Auditor struct {
 	ID            TypeID
@@ -29,8 +29,8 @@ func New(id string, organizations []*closcorg.Organization) *Auditor {
 	return aud
 }
 
-func (a *Auditor) SetEpochID(id []byte) {
-	a.EpochID = id
+func (a *Auditor) SetEpochID(id kyber.Point) {
+	a.EpochID = crypto.KyberSuite.Point().Set(id)
 }
 
 func (a *Auditor) VerifyMerkleProof(tx transaction.LocalOnChain) (uint, error) {
@@ -101,7 +101,7 @@ func (a *Auditor) VerifyCommitment(commitmentList1, commitmentList2 [][]byte,
 }
 
 func (a *Auditor) AccumulateCommitments(commitments []kyber.Point) (kyber.Point, error) {
-	sum := crypto.KyberSuite.Point().Null()
+	sum := crypto.KyberSuite.Point().Set(a.EpochID)
 	for _, commitment := range commitments {
 		sum = sum.Add(sum, commitment)
 	}

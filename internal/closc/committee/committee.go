@@ -1,11 +1,9 @@
 package committee
 
 import (
-	"crypto/rand"
-
 	"github.com/auti-project/auti/internal/closc/auditor"
 	closcorg "github.com/auti-project/auti/internal/closc/organization"
-	"github.com/auti-project/auti/internal/constants"
+	"github.com/auti-project/auti/internal/crypto"
 )
 
 type TypeID string
@@ -40,14 +38,11 @@ func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) error {
 	c.reinitializeMaps()
 	for _, aud := range auditors {
 		// Generate epoch ID for each auditor
-		epochIDBytes := make([]byte, constants.SecurityParameterBytes)
-		_, err := rand.Read(epochIDBytes)
-		if err != nil {
-			return err
-		}
-		c.epochAuditorIDMap[aud.ID] = epochIDBytes
+		randScalar := crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
+		randPoint := crypto.KyberSuite.Point().Mul(randScalar, crypto.PointG)
+		c.epochAuditorIDMap[aud.ID] = randPoint
 		// Distribute epoch auditor IDs
-		aud.SetEpochID(epochIDBytes)
+		aud.SetEpochID(randPoint)
 	}
 	return nil
 }
