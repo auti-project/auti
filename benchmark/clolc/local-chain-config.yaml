@@ -35,4 +35,4 @@ chaincodes:
     lang: golang
     channel: mychannel
     endorsement: AND('Org1MSP.member', 'Aud1MSP.member')
-    directory: "contract/clolc_local_chain"
+    directory: "contract/local_chain"

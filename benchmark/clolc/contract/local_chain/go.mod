@@ -1,4 +1,4 @@
-module github.com/auti-project/auti/clolc/contract/clolc_local_chain
+module github.com/auti-project/auti/clolc/contract/local_chain
 
 go 1.20
 

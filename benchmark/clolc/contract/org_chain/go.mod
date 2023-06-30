@@ -1,4 +1,4 @@
-module github.com/auti-project/auti/clolc/contract/clolc_aud_chain
+module github.com/auti-project/auti/clolc/contract/org_chain
 
 go 1.20
 

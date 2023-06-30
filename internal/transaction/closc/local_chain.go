@@ -78,6 +78,10 @@ func NewLocalPlainFromProof(commitment, merkleRoot []byte, merkleProof *mt.Proof
 	return NewLocalPlain(commitment, merkleRoot, merkleProofJSON), nil
 }
 
+func (l *LocalPlain) Serialize() ([]byte, error) {
+	return l.Commitment, nil
+}
+
 func (l *LocalPlain) ToOnChain() *LocalOnChain {
 	return NewLocalOnChain(
 		hex.EncodeToString(l.Commitment),

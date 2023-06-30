@@ -5,7 +5,7 @@ import (
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
-	"github.com/auti-project/auti/clolc/contract/clolc_org_chain/chaincode"
+	"github.com/auti-project/auti/clolc/contract/org_chain/chaincode"
 )
 
 func main() {

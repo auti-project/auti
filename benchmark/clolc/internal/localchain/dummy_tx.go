@@ -13,9 +13,7 @@ import (
 	"github.com/auti-project/auti/internal/transaction/clolc"
 )
 
-var (
-	numCPUs = runtime.NumCPU()
-)
+var numCPUs = runtime.NumCPU()
 
 func DummyOnChainTransactions(numTXs int) []*clolc.LocalOnChain {
 	results := make([]*clolc.LocalOnChain, numTXs)
