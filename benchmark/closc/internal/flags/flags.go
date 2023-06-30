@@ -19,6 +19,9 @@ const (
 	ProcessTRLocalChainCommitmentPrepare = "local_commit_prepare"
 	ProcessTRLocalCHainCommitmentRead    = "local_commit_read"
 	ProcessTRLocalChainCommitmentReadAll = "local_commit_read_all"
+
+	ProcessCEMerkleProofVerify = "merkle_proof_verify"
+	ProcessCEMerkleProofMerge  = "merkle_proof_merge"
 )
 
 var PhaseProcessMap = map[string][]string{

@@ -51,3 +51,6 @@ func (c *Committee) InitializeEpoch(auditors []*closcaud.Auditor) error {
 	}
 	return nil
 }
+
+// TODO: Implement this
+//func (c *Committee) VerifyMerkleBatchProof()

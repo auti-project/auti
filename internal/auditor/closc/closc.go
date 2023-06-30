@@ -1,6 +1,7 @@
 package closc
 
 import (
+	mt "github.com/txaty/go-merkletree"
 	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/internal/auditor"
@@ -77,25 +78,39 @@ func (a *Auditor) VerifyCommitment(commitmentList1, commitmentList2 [][]byte,
 	}
 	sum := crypto.KyberSuite.Point().Null()
 	for i := 0; i < len(commitmentList1); i++ {
+		// commitment 1
 		commitPoint := crypto.KyberSuite.Point()
 		if err := commitPoint.UnmarshalBinary(commitmentList1[i]); err != nil {
 			return false, err
 		}
 		sum = sum.Add(sum, commitPoint)
-	}
-	for i := 0; i < len(commitmentList2); i++ {
-		commitPoint := crypto.KyberSuite.Point()
+		// commitment 2
+		commitPoint = crypto.KyberSuite.Point()
 		if err := commitPoint.UnmarshalBinary(commitmentList2[i]); err != nil {
 			return false, err
 		}
 		sum = sum.Add(sum, commitPoint)
-	}
-	for i := 0; i < len(hashPoints1); i++ {
+		// hash point 1
 		sum = sum.Sub(sum, hashPoints1[i])
-	}
-	for i := 0; i < len(hashPoints2); i++ {
+		// hash point 2
 		sum = sum.Sub(sum, hashPoints2[i])
 	}
 	// TODO: test this
 	return sum.Equal(crypto.KyberSuite.Point().Null()), nil
+}
+
+func (a *Auditor) AccumulateCommitments(commitments []kyber.Point) (kyber.Point, error) {
+	sum := crypto.KyberSuite.Point().Null()
+	for _, commitment := range commitments {
+		sum = sum.Add(sum, commitment)
+	}
+	return sum, nil
+}
+
+func (a *Auditor) MergeProof(commitments []mt.DataBlock, proofs []*mt.Proof) ([]byte, error) {
+	batchProof, err := crypto.NewBatchProof(commitments, proofs)
+	if err != nil {
+		return nil, err
+	}
+	return crypto.MerkleBatchProofMarshal(batchProof)
 }
