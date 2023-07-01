@@ -55,6 +55,13 @@ func main() {
 		case ProcessTROrgChainReadAll:
 			err = bf.TransactionRecordOrgReadAllTXs(*numPtr, *numIterPtr)
 		}
+	case PhaseConsistencyExamination:
+		switch *benchProcessPtr {
+		case ProcessCEMerkleProofVerify:
+			err = bf.ConsistencyExaminationMerkleProofVerify(*numPtr, *numIterPtr)
+		case ProcessCEMerkleProofMerge:
+			err = bf.ConsistencyExaminationMerkleProofMerge(*numPtr, *numIterPtr)
+		}
 	}
 	if err != nil {
 		return

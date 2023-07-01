@@ -23,12 +23,12 @@ const (
 var (
 	numCPUs              = runtime.NumCPU()
 	kyberSuite           = edwards25519.NewBlakeSHA256Ed25519()
-	genRandHashBytesOnce sync.Once
+	onceGenRandHashBytes sync.Once
 	allRandHashByteList  [][]byte
 )
 
 func genAllRandHashBytes() [][]byte {
-	genRandHashBytesOnce.Do(func() {
+	onceGenRandHashBytes.Do(func() {
 		allRandHashByteList = make([][]byte, numRandHashBytes)
 		for i := 0; i < numRandHashBytes; i++ {
 			allRandHashByteList[i] = make([]byte, hashByteLen)

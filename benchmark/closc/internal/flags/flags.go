@@ -49,6 +49,10 @@ var PhaseProcessMap = map[string][]string{
 		ProcessTROrgChainRead,
 		ProcessTROrgChainReadAll,
 	},
+	PhaseConsistencyExamination: {
+		ProcessCEMerkleProofVerify,
+		ProcessCEMerkleProofMerge,
+	},
 }
 
 func GetPhases() string {
