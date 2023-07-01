@@ -7,12 +7,12 @@ import (
 )
 
 type Transaction struct {
-	Commitment string `json:"commitment"`
+	MerkleRoot string `json:"merkle_root"`
 }
 
-func NewTransaction(commitment string) *Transaction {
+func NewTransaction(merkleRoot string) *Transaction {
 	return &Transaction{
-		Commitment: commitment,
+		MerkleRoot: merkleRoot,
 	}
 }
 

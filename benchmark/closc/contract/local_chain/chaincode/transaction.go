@@ -20,8 +20,8 @@ func NewTransaction(commitment, merkleRoot, merkleProof string) *Transaction {
 	}
 }
 
-func (l *Transaction) KeyVal() (string, []byte, error) {
-	txJSON, err := json.Marshal(l)
+func (t *Transaction) KeyVal() (string, []byte, error) {
+	txJSON, err := json.Marshal(t)
 	if err != nil {
 		return "", nil, err
 	}
