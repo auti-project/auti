@@ -1,6 +1,9 @@
 package committee
 
 import (
+	mt "github.com/txaty/go-merkletree"
+	"go.dedis.ch/kyber/v3"
+
 	"github.com/auti-project/auti/internal/closc/auditor"
 	closcorg "github.com/auti-project/auti/internal/closc/organization"
 	"github.com/auti-project/auti/internal/crypto"
@@ -34,18 +37,59 @@ func (c *Committee) reinitializeMaps() {
 	c.epochAuditorIDMap = make(map[auditor.TypeID]auditor.TypeEpochID)
 }
 
+func GenerateAuditorEpochID() kyber.Point {
+	randScalar := crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
+	randPoint := crypto.KyberSuite.Point().Mul(randScalar, crypto.PointG)
+	return randPoint
+}
+
 func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) error {
 	c.reinitializeMaps()
 	for _, aud := range auditors {
 		// Generate epoch ID for each auditor
-		randScalar := crypto.KyberSuite.Scalar().Pick(crypto.KyberSuite.RandomStream())
-		randPoint := crypto.KyberSuite.Point().Mul(randScalar, crypto.PointG)
-		c.epochAuditorIDMap[aud.ID] = randPoint
+		epochID := GenerateAuditorEpochID()
+		c.epochAuditorIDMap[aud.ID] = epochID
 		// Distribute epoch auditor IDs
-		aud.SetEpochID(randPoint)
+		aud.SetEpochID(epochID)
 	}
 	return nil
 }
 
-// TODO: Implement this
-//func (c *Committee) VerifyMerkleBatchProof()
+func (c *Committee) VerifyMerkleBatchProof(commitments []mt.DataBlock,
+	batchProof *crypto.MerkleBatchProof, merkleRoot []byte) (int, error) {
+	ok, err := crypto.BatchVerify(commitments, batchProof, merkleRoot)
+	if err != nil {
+		return 0, err
+	}
+	if !ok {
+		return 0, nil
+	}
+	return 1, nil
+}
+
+func (c *Committee) SummarizeMerkleBatchProofVerificationResults(verificationResults []int) bool {
+	if len(verificationResults) == 0 {
+		return false
+	}
+	result := verificationResults[0]
+	for i := 1; i < len(verificationResults); i++ {
+		result *= verificationResults[i]
+		if result == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (c *Committee) VerifyCommitment(commitments []kyber.Point) bool {
+	sum := crypto.KyberSuite.Point().Null()
+	for _, commitment := range commitments {
+		sum = crypto.KyberSuite.Point().Add(sum, commitment)
+	}
+	for _, auditorID := range c.managedAuditorIDs {
+		auditorEpochID := c.epochAuditorIDMap[auditorID]
+		sum = crypto.KyberSuite.Point().Sub(sum, auditorEpochID)
+	}
+	// TODO: check this
+	return sum.Equal(crypto.KyberSuite.Point().Null())
+}

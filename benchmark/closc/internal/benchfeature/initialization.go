@@ -1,15 +1,16 @@
 package benchfeature
 
 import (
-	"crypto/rand"
 	"fmt"
 	"time"
 
+	"go.dedis.ch/kyber/v3"
+
 	"github.com/auti-project/auti/benchmark/timecounter"
 	closcaud "github.com/auti-project/auti/internal/closc/auditor"
+	"github.com/auti-project/auti/internal/closc/committee"
 	closccom "github.com/auti-project/auti/internal/closc/committee"
 	closcorg "github.com/auti-project/auti/internal/closc/organization"
-	"github.com/auti-project/auti/internal/constants"
 )
 
 func generateEntities(numOrganizations int) (*closccom.Committee, []*closcaud.Auditor, []*closcorg.Organization) {
@@ -47,13 +48,9 @@ func InitializeRandGen(num, iterations int) error {
 	fmt.Printf("Num: %d, Num iter: %d\n", num, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		randByteList := make([][]byte, num)
+		epochIDs := make([]kyber.Point, num)
 		for j := 0; j < num; j++ {
-			randByteList[j] = make([]byte, constants.SecurityParameterBytes)
-			_, err := rand.Read(randByteList[j])
-			if err != nil {
-				return err
-			}
+			epochIDs[j] = committee.GenerateAuditorEpochID()
 		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
