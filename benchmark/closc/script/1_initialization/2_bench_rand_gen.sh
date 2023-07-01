@@ -11,16 +11,16 @@ LOG_DIR="logs"
 if [ ! -d $LOG_DIR ]; then
   mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/closc_in_default.log"
+LOG_FILE_DIR="${LOG_DIR}/closc_in_rand_gen.log"
 if [ -f $LOG_FILE_DIR ]; then
   rm $LOG_FILE_DIR
 fi
 touch $LOG_FILE_DIR
 
-for numOrg in 2 4 8 16 32 64 128 256; do
+for numRand in 1000 10000 100000 1000000; do
   for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
-    ./closc.out -phase in -process default -numOrg $numOrg -numIter 1 | tee -a $LOG_FILE_DIR
+    ./closc.out -phase in -process rand_gen -num $numRand -numIter 1 | tee -a $LOG_FILE_DIR
     sleep 1
   done
 done
