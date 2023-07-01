@@ -32,6 +32,10 @@ const (
 	ProcessCEAudChainPrepare                         = "aud_prepare"
 	ProcessCEAudChainRead                            = "aud_read"
 	ProcessCEAudChainReadAll                         = "aud_read_all"
+
+	ProcessRVVerifyMerkleBatchProof                       = "verify_batch_proof"
+	ProcessRVSummarizeMerkleBatchProofVerificationResults = "summarize_batch_proof"
+	ProcessRVVerifyCommitments                            = "verify_commits"
 )
 
 var PhaseProcessMap = map[string][]string{

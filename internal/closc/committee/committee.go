@@ -56,7 +56,7 @@ func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) error {
 }
 
 func (c *Committee) VerifyMerkleBatchProof(commitments []mt.DataBlock,
-	batchProof *crypto.MerkleBatchProof, merkleRoot []byte) (int, error) {
+	batchProof *crypto.MerkleBatchProof, merkleRoot []byte) (uint, error) {
 	ok, err := crypto.BatchVerify(commitments, batchProof, merkleRoot)
 	if err != nil {
 		return 0, err
@@ -67,7 +67,7 @@ func (c *Committee) VerifyMerkleBatchProof(commitments []mt.DataBlock,
 	return 1, nil
 }
 
-func (c *Committee) SummarizeMerkleBatchProofVerificationResults(verificationResults []int) bool {
+func (c *Committee) SummarizeMerkleBatchProofVerificationResults(verificationResults []uint) bool {
 	if len(verificationResults) == 0 {
 		return false
 	}

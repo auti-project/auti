@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	bf "github.com/auti-project/auti/benchmark/closc/internal/benchfeature"
 	. "github.com/auti-project/auti/benchmark/closc/internal/flags"
@@ -74,8 +75,19 @@ func main() {
 		case ProcessCEAudChainReadAll:
 			err = bf.ConsistencyExaminationAudReadAllTXs(*numPtr, *numIterPtr)
 		}
+	case PhaseResultVerification:
+		switch *benchProcessPtr {
+		case ProcessRVVerifyMerkleBatchProof:
+			err = bf.ResultVerificationVerifyMerkleBatchProof(*numPtr, *numIterPtr)
+		case ProcessRVSummarizeMerkleBatchProofVerificationResults:
+			err = bf.ResultVerificationSummarizeMerkleBatchProofVerificationResults(*numPtr, *numIterPtr)
+		case ProcessRVVerifyCommitments:
+			err = bf.ResultVerificationVerifyCommitments(*numPtr, *numIterPtr)
+		}
+	default:
+		log.Fatalf("Error: %v", "Invalid phase")
 	}
 	if err != nil {
-		return
+		log.Fatalf("Error: %v", err)
 	}
 }

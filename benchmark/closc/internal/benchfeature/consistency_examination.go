@@ -23,19 +23,21 @@ var merkleTreeConfig = &mt.Config{
 	RunInParallel:      true,
 }
 
-func genDummyDataBlockAndProof(treeDepth int) (dataBlocks []mt.DataBlock, merkleProofs []*mt.Proof, err error) {
+func genDummyDataBlockAndProof(treeDepth int) (
+	dataBlocks []mt.DataBlock, merkleProofs []*mt.Proof, merkleRoot []byte, err error,
+) {
 	numTXs := 1 << treeDepth
 	dummyDataBlocks := generateDataBlocks(numTXs)
 	tree, err := mt.New(merkleTreeConfig, dummyDataBlocks)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	return dummyDataBlocks, tree.Proofs, nil
+	return dummyDataBlocks, tree.Proofs, tree.Root, nil
 }
 
 func genDummyLocalOnChainTX(treeDepth int) (txList []transaction.LocalOnChain, err error) {
 	numTXs := 1 << treeDepth
-	dummyCommitments, merkleProofs, err := genDummyDataBlockAndProof(treeDepth)
+	dummyCommitments, merkleProofs, _, err := genDummyDataBlockAndProof(treeDepth)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +114,12 @@ func ConsistencyExaminationMerkleProofMerge(numTXs, iterations int) error {
 	fmt.Println("[CLOLC-CE] Merkle Proof Merge")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTXs, iterations)
 	numTotalTXs := 1 << mergeTreeDepth
-	dummyBlocks, dummyProofs, err := genDummyDataBlockAndProof(mergeTreeDepth)
+	dummyBlocks, dummyProofs, _, err := genDummyDataBlockAndProof(mergeTreeDepth)
+	if err != nil {
+		return err
+	}
 	aud := auditor.New("aud", nil)
 	for i := 0; i < iterations; i++ {
-		if err != nil {
-			return err
-		}
 		indexes := randIndexes(numTXs, numTotalTXs)
 		selectedBlocks := make([]mt.DataBlock, numTXs)
 		selectedProofs := make([]*mt.Proof, numTXs)
@@ -126,7 +128,7 @@ func ConsistencyExaminationMerkleProofMerge(numTXs, iterations int) error {
 			selectedProofs[j] = dummyProofs[indexes[j]]
 		}
 		startTime := time.Now()
-		if _, err = aud.MergeProof(selectedBlocks, dummyProofs); err != nil {
+		if _, err = aud.MergeProof(selectedBlocks, selectedProofs); err != nil {
 			return err
 		}
 		elapsed := time.Since(startTime)
