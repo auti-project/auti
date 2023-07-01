@@ -114,7 +114,7 @@ func TransactionRecordMerkleProofGen(depth, iterations int) error {
 	dataBlocks := generateDataBlocks(numDataBlock)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
-		_, err := crypto.GenerateMerkleProofs(dataBlocks)
+		_, _, err := crypto.GenerateMerkleProofs(dataBlocks)
 		if err != nil {
 			return err
 		}

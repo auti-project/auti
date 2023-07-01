@@ -38,7 +38,7 @@ func genDummyDataBlockAndProof(treeDepth int) (
 
 func genDummyLocalOnChainTX(treeDepth int) (txList []transaction.LocalOnChain, err error) {
 	numTXs := 1 << treeDepth
-	dummyCommitments, merkleProofs, _, err := genDummyDataBlockAndProof(treeDepth)
+	dummyCommitments, merkleProofs, root, err := genDummyDataBlockAndProof(treeDepth)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +57,7 @@ func genDummyLocalOnChainTX(treeDepth int) (txList []transaction.LocalOnChain, e
 		txList[i] = transaction.LocalOnChain{
 			Commitment:  dummyCommitmentStr,
 			MerkleProof: merkleProofStr,
+			MerkleRoot:  hex.EncodeToString(root),
 		}
 	}
 	return txList, nil
@@ -74,13 +75,13 @@ func ConsistencyExaminationMerkleProofVerify(treeDepth, iterations int) error {
 	for i := 0; i < iterations; i++ {
 		randIdx := rand.Int() % numTXs
 		startTime := time.Now()
-		_, err := aud.VerifyMerkleProof(txList[randIdx])
+		ret, err := aud.VerifyMerkleProof(txList[randIdx])
 		if err != nil {
 			return err
 		}
-		// if ret != 1 {
-		// 	return fmt.Errorf("merkle proof verification failed")
-		// }
+		if ret != 1 {
+			return fmt.Errorf("merkle proof verification failed")
+		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
 		runtime.GC()

@@ -21,12 +21,12 @@ func hashFunc(data []byte) ([]byte, error) {
 	return sha256Digest.Sum(nil), nil
 }
 
-func GenerateMerkleProofs(dataBlocks []mt.DataBlock) ([]*mt.Proof, error) {
+func GenerateMerkleProofs(dataBlocks []mt.DataBlock) ([]*mt.Proof, []byte, error) {
 	tree, err := mt.New(merkleTreeConfig, dataBlocks)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return tree.Proofs, nil
+	return tree.Proofs, tree.Root, nil
 }
 
 func VerifyMerkleProof(block mt.DataBlock, proof *mt.Proof, root []byte) (bool, error) {
