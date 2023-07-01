@@ -74,9 +74,9 @@ func main() {
 	case PhaseResultVerification:
 		switch *benchProcessPtr {
 		case ProcessRVVerifyOrgAndAudResult:
-			err = bf.VerifyResultVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
+			err = bf.ResultVerificationVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
 		case ProcessRVVerifyAuditPairResult:
-			err = bf.VerifyResultVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
+			err = bf.ResultVerificationVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
 		}
 	default:
 		log.Fatalf("Error: %v", "Invalid phase")

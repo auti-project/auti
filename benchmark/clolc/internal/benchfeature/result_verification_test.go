@@ -11,7 +11,7 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
+func TestResultVerificationVerifyOrgAndAudResult(t *testing.T) {
 	// entity setup
 	com, auditors, organizations := generateEntities(2)
 	publicKeyMap, err := com.InitializeEpoch(auditors, organizations)
@@ -133,7 +133,7 @@ func TestVerifyResultVerifyOrgAndAudResult(t *testing.T) {
 	}
 }
 
-func TestVerifyResultVerifyAuditPairResult(t *testing.T) {
+func TestResultVerificationVerifyAuditPairResult(t *testing.T) {
 	// entity setup
 	com, auditors, organizations := generateEntities(2)
 	publicKeyMap, err := com.InitializeEpoch(auditors, organizations)

@@ -9,7 +9,7 @@ import (
 	"github.com/auti-project/auti/benchmark/timecounter"
 )
 
-func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
+func ResultVerificationVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 	fmt.Println("[CLOLC-RV] Verify org and aud result")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
@@ -42,7 +42,7 @@ func VerifyResultVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 	return nil
 }
 
-func VerifyResultVerifyAuditPairResult(numOrganizations, iterations int) error {
+func ResultVerificationVerifyAuditPairResult(numOrganizations, iterations int) error {
 	fmt.Println("[CLOLC-RV] Verify audit pair result")
 	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
