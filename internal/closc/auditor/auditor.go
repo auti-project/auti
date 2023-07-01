@@ -4,7 +4,7 @@ import (
 	mt "github.com/txaty/go-merkletree"
 	"go.dedis.ch/kyber/v3"
 
-	closcorg "github.com/auti-project/auti/internal/closc/organization"
+	"github.com/auti-project/auti/internal/closc/organization"
 	"github.com/auti-project/auti/internal/closc/transaction"
 	"github.com/auti-project/auti/internal/crypto"
 )
@@ -14,15 +14,15 @@ type TypeEpochID kyber.Point
 
 type Auditor struct {
 	ID            TypeID
-	AuditedOrgIDs []closcorg.TypeID
+	AuditedOrgIDs []organization.TypeID
 	EpochID       TypeEpochID
 }
 
-func New(id string, organizations []*closcorg.Organization) *Auditor {
+func New(id string, organizations []*organization.Organization) *Auditor {
 	aud := &Auditor{
 		ID: TypeID(id),
 	}
-	aud.AuditedOrgIDs = make([]closcorg.TypeID, len(organizations))
+	aud.AuditedOrgIDs = make([]organization.TypeID, len(organizations))
 	for idx, org := range organizations {
 		aud.AuditedOrgIDs[idx] = org.ID
 	}
@@ -109,7 +109,7 @@ func (a *Auditor) AccumulateCommitments(commitments []kyber.Point) (kyber.Point,
 }
 
 func (a *Auditor) MergeProof(commitments []mt.DataBlock, proofs []*mt.Proof) ([]byte, error) {
-	batchProof, err := crypto.NewBatchProof(commitments, proofs)
+	batchProof, err := crypto.NewMerkleBatchProof(commitments, proofs)
 	if err != nil {
 		return nil, err
 	}

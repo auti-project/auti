@@ -56,7 +56,7 @@ func generateRandInputs(num int) []randInput {
 }
 
 func TransactionRecordCommitment(num, iterations int) error {
-	fmt.Println("[CLOSC-TV] Commitment")
+	fmt.Println("[CLOSC-TR] Commitment")
 	fmt.Printf("Num: %d, Num iter: %d\n", num, iterations)
 	for i := 0; i < iterations; i++ {
 		randInputs := generateRandInputs(num)
@@ -108,7 +108,7 @@ func generateDataBlocks(num int) []mt.DataBlock {
 }
 
 func TransactionRecordMerkleProofGen(depth, iterations int) error {
-	fmt.Println("[CLOSC-TV] Merkle proof generation")
+	fmt.Println("[CLOSC-TR] Merkle proof generation")
 	fmt.Printf("Depth: %d, Num iter: %d\n", depth, iterations)
 	numDataBlock := 1 << depth
 	dataBlocks := generateDataBlocks(numDataBlock)
@@ -126,7 +126,7 @@ func TransactionRecordMerkleProofGen(depth, iterations int) error {
 }
 
 func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local submit transaction")
+	fmt.Println("[CLOSC-TR] Local submit transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		_, err := localchain.SubmitTX(numTXs)
@@ -139,7 +139,7 @@ func TransactionRecordLocalSubmitTX(numTXs, iterations int) error {
 }
 
 func TransactionRecordLocalPrepareTX(numTotalTXs int) error {
-	fmt.Println("[CLOSC-TV] Local prepare transaction")
+	fmt.Println("[CLOSC-TR] Local prepare transaction")
 	fmt.Printf("Num TXs: %d\n", numTotalTXs)
 	txIDs, err := localchain.SubmitTX(numTotalTXs)
 	if err != nil {
@@ -153,7 +153,7 @@ func TransactionRecordLocalPrepareTX(numTotalTXs int) error {
 }
 
 func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local read transaction")
+	fmt.Println("[CLOSC-TR] Local read transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := localchain.ReadTX(); err != nil {
@@ -165,7 +165,7 @@ func TransactionRecordLocalReadTX(numTotalTXs, iterations int) error {
 }
 
 func TransactionRecordLocalReadAllTXs(numTotals, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local read all transactions")
+	fmt.Println("[CLOSC-TR] Local read all transactions")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotals, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := localchain.ReadAllTXsByPage(); err != nil {
@@ -177,7 +177,7 @@ func TransactionRecordLocalReadAllTXs(numTotals, iterations int) error {
 }
 
 func TransactionRecordLocalCommitmentSubmitTX(numTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local submit commitment transaction")
+	fmt.Println("[CLOSC-TR] Local submit commitment transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		_, err := localchaincommit.SubmitTX(numTXs)
@@ -190,7 +190,7 @@ func TransactionRecordLocalCommitmentSubmitTX(numTXs, iterations int) error {
 }
 
 func TransactionRecordLocalCommitmentPrepareTX(numTotalTXs int) error {
-	fmt.Println("[CLOSC-TV] Local prepare commitment transaction")
+	fmt.Println("[CLOSC-TR] Local prepare commitment transaction")
 	fmt.Printf("Num TXs: %d\n", numTotalTXs)
 	txIDs, err := localchaincommit.SubmitTX(numTotalTXs)
 	if err != nil {
@@ -204,7 +204,7 @@ func TransactionRecordLocalCommitmentPrepareTX(numTotalTXs int) error {
 }
 
 func TransactionRecordLocalCommitmentReadTX(numTotalTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local read commitment transaction")
+	fmt.Println("[CLOSC-TR] Local read commitment transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := localchaincommit.ReadTX(); err != nil {
@@ -216,7 +216,7 @@ func TransactionRecordLocalCommitmentReadTX(numTotalTXs, iterations int) error {
 }
 
 func TransactionRecordLocalCommitmentReadAllTXs(numTotals, iterations int) error {
-	fmt.Println("[CLOSC-TV] Local read all commitment transactions")
+	fmt.Println("[CLOSC-TR] Local read all commitment transactions")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotals, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := localchaincommit.ReadAllTXsByPage(); err != nil {
@@ -228,7 +228,7 @@ func TransactionRecordLocalCommitmentReadAllTXs(numTotals, iterations int) error
 }
 
 func TransactionRecordOrgSubmitTX(numTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Org submit transaction")
+	fmt.Println("[CLOSC-TR] Org submit transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		_, err := orgchain.SubmitTX(numTXs)
@@ -241,7 +241,7 @@ func TransactionRecordOrgSubmitTX(numTXs, iterations int) error {
 }
 
 func TransactionRecordOrgPrepareTX(numTotalTXs int) error {
-	fmt.Println("[CLOSC-TV] Org prepare transaction")
+	fmt.Println("[CLOSC-TR] Org prepare transaction")
 	fmt.Printf("Num TXs: %d\n", numTotalTXs)
 	txIDs, err := orgchain.SubmitTX(numTotalTXs)
 	if err != nil {
@@ -255,7 +255,7 @@ func TransactionRecordOrgPrepareTX(numTotalTXs int) error {
 }
 
 func TransactionRecordOrgReadTX(numTotalTXs, iterations int) error {
-	fmt.Println("[CLOSC-TV] Org read transaction")
+	fmt.Println("[CLOSC-TR] Org read transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := orgchain.ReadTX(); err != nil {
@@ -267,7 +267,7 @@ func TransactionRecordOrgReadTX(numTotalTXs, iterations int) error {
 }
 
 func TransactionRecordOrgReadAllTXs(numTotals, iterations int) error {
-	fmt.Println("[CLOSC-TV] Org read all transactions")
+	fmt.Println("[CLOSC-TR] Org read all transactions")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotals, iterations)
 	for i := 0; i < iterations; i++ {
 		if err := orgchain.ReadAllTXsByPage(); err != nil {

@@ -34,19 +34,19 @@ func MerkleBatchProofUnmarshal(data []byte) (*MerkleBatchProof, error) {
 
 type proofNodePQ []ProofNode
 
-func (p proofNodePQ) Len() int {
-	return len(p)
+func (p *proofNodePQ) Len() int {
+	return len(*p)
 }
 
-func (p proofNodePQ) Less(i, j int) bool {
-	if p[i].Coordinate[0] == p[j].Coordinate[0] {
-		return p[i].Coordinate[1] < p[j].Coordinate[1]
+func (p *proofNodePQ) Less(i, j int) bool {
+	if (*p)[i].Coordinate[0] == (*p)[j].Coordinate[0] {
+		return (*p)[i].Coordinate[1] < (*p)[j].Coordinate[1]
 	}
-	return p[i].Coordinate[0] < p[j].Coordinate[0]
+	return (*p)[i].Coordinate[0] < (*p)[j].Coordinate[0]
 }
 
-func (p proofNodePQ) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
+func (p *proofNodePQ) Swap(i, j int) {
+	(*p)[i], (*p)[j] = (*p)[j], (*p)[i]
 }
 
 func (p *proofNodePQ) Push(x interface{}) {
@@ -61,8 +61,8 @@ func (p *proofNodePQ) Pop() interface{} {
 	return x
 }
 
-// NewBatchProof creates a batched proof for the given data blocks and their individual proofs.
-func NewBatchProof(dataBlocks []mt.DataBlock, proofs []*mt.Proof) (*MerkleBatchProof, error) {
+// NewMerkleBatchProof creates a batched proof for the given data blocks and their individual proofs.
+func NewMerkleBatchProof(dataBlocks []mt.DataBlock, proofs []*mt.Proof) (*MerkleBatchProof, error) {
 	if len(dataBlocks) != len(proofs) {
 		return nil, errors.New("number of data blocks and proofs must be equal")
 	}
@@ -140,8 +140,8 @@ func NewBatchProof(dataBlocks []mt.DataBlock, proofs []*mt.Proof) (*MerkleBatchP
 	return batchProofs, nil
 }
 
-// BatchVerify verifies the batched proof against the given root hash.
-func BatchVerify(dataBlocks []mt.DataBlock, batchProof *MerkleBatchProof, root []byte) (bool, error) {
+// VerifyMerkleBatchProof verifies the batched proof against the given root hash.
+func VerifyMerkleBatchProof(dataBlocks []mt.DataBlock, batchProof *MerkleBatchProof, root []byte) (bool, error) {
 	if len(dataBlocks) != len(batchProof.Indexes) {
 		return false, errors.New("number of data blocks and proof data  must be equal")
 	}
@@ -157,10 +157,10 @@ func BatchVerify(dataBlocks []mt.DataBlock, batchProof *MerkleBatchProof, root [
 		if err != nil {
 			return false, err
 		}
-		blockHash, _ := hashFunc(blockBytes)
+		//blockHash, _ := hashFunc(blockBytes)
 		heap.Push(pq, ProofNode{
 			Coordinate: [2]int{0, batchProof.Indexes[idx]},
-			Data:       blockHash,
+			Data:       blockBytes,
 		})
 	}
 	for len(*pq) > 1 {
@@ -169,7 +169,10 @@ func BatchVerify(dataBlocks []mt.DataBlock, batchProof *MerkleBatchProof, root [
 		if node1.Coordinate[0] != node2.Coordinate[0] {
 			return false, errors.New("invalid proof")
 		}
-		hash, _ := hashFunc(append(node1.Data, node2.Data...))
+		hash, err := hashFunc(append(node1.Data, node2.Data...))
+		if err != nil {
+			return false, err
+		}
 		heap.Push(pq, ProofNode{
 			Coordinate: [2]int{node1.Coordinate[0] + 1, node1.Coordinate[1] / 2},
 			Data:       hash,

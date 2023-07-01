@@ -96,22 +96,18 @@ func randIndexes(numIdx, max int) []int {
 	if numIdx > max {
 		numIdx = max
 	}
-
 	// Generate a pool of indexes
 	pool := make([]int, max)
 	for i := 0; i < max; i++ {
 		pool[i] = i
 	}
-
 	// Shuffle the pool using Fisher-Yates algorithm
 	for i := max - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)
 		pool[i], pool[j] = pool[j], pool[i]
 	}
-
 	// Take the first numIdx elements from the shuffled pool
 	return pool[:numIdx]
-
 }
 
 func ConsistencyExaminationMerkleProofMerge(numTXs, iterations int) error {

@@ -57,7 +57,7 @@ func (c *Committee) InitializeEpoch(auditors []*auditor.Auditor) error {
 
 func (c *Committee) VerifyMerkleBatchProof(commitments []mt.DataBlock,
 	batchProof *crypto.MerkleBatchProof, merkleRoot []byte) (uint, error) {
-	ok, err := crypto.BatchVerify(commitments, batchProof, merkleRoot)
+	ok, err := crypto.VerifyMerkleBatchProof(commitments, batchProof, merkleRoot)
 	if err != nil {
 		return 0, err
 	}
