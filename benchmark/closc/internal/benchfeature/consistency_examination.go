@@ -9,6 +9,7 @@ import (
 	mt "github.com/txaty/go-merkletree"
 	"go.dedis.ch/kyber/v3"
 
+	"github.com/auti-project/auti/benchmark/closc/internal/audchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/closc/auditor"
 	"github.com/auti-project/auti/internal/closc/transaction"
@@ -183,6 +184,56 @@ func ConsistencyExaminationVerifyCommitments(numCommitments, iterations int) err
 		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudSubmitTX(numTotalTXs, iterations int) error {
+	fmt.Println("[CLOLC-CE] Aud Submit transaction")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		if _, err := audchain.SubmitTX(numTotalTXs); err != nil {
+			return err
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudPrepareTX(numTotalTX int) error {
+	fmt.Println("[CLOLC-CE] Aud Prepare transaction")
+	fmt.Printf("Num TXs: %d\n", numTotalTX)
+	txIDs, err := audchain.SubmitTX(numTotalTX)
+	if err != nil {
+		return err
+	}
+	if err = audchain.SaveTXIDs(txIDs); err != nil {
+		return err
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudReadTX(numTotalTXs, iterations int) error {
+	fmt.Println("[CLOLC-CE] Aud Read transaction")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)
+	for i := 0; i < iterations; i++ {
+		if err := audchain.ReadTX(); err != nil {
+			return err
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationAudReadAllTXs(numTotals, iterations int) error {
+	fmt.Println("[CLOLC-CE] Aud Read all transactions")
+	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotals, iterations)
+	for i := 0; i < iterations; i++ {
+		if err := audchain.ReadAllTXsByPage(); err != nil {
+			return err
+		}
 	}
 	fmt.Println()
 	return nil

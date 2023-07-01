@@ -28,6 +28,10 @@ const (
 	ProcessCEMerkleProofMerge                        = "merkle_proof_merge"
 	ProcessCESummarizeMerkleProofVerificationResults = "summarize_merkle_proof"
 	ProcessCEVerifyCommitments                       = "verify_commit"
+	ProcessCEAudChainSubmit                          = "aud_submit"
+	ProcessCEAudChainPrepare                         = "aud_prepare"
+	ProcessCEAudChainRead                            = "aud_read"
+	ProcessCEAudChainReadAll                         = "aud_read_all"
 )
 
 var PhaseProcessMap = map[string][]string{
@@ -56,6 +60,10 @@ var PhaseProcessMap = map[string][]string{
 		ProcessCEMerkleProofMerge,
 		ProcessCESummarizeMerkleProofVerificationResults,
 		ProcessCEVerifyCommitments,
+		ProcessCEAudChainSubmit,
+		ProcessCEAudChainPrepare,
+		ProcessCEAudChainRead,
+		ProcessCEAudChainReadAll,
 	},
 }
 
