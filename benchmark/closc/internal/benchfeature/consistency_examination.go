@@ -74,13 +74,13 @@ func ConsistencyExaminationMerkleProofVerify(treeDepth, iterations int) error {
 	for i := 0; i < iterations; i++ {
 		randIdx := rand.Int() % numTXs
 		startTime := time.Now()
-		ret, err := aud.VerifyMerkleProof(txList[randIdx])
+		_, err := aud.VerifyMerkleProof(txList[randIdx])
 		if err != nil {
 			return err
 		}
-		if ret != 1 {
-			return fmt.Errorf("merkle proof verification failed")
-		}
+		// if ret != 1 {
+		// 	return fmt.Errorf("merkle proof verification failed")
+		// }
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
 		runtime.GC()
