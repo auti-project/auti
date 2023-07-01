@@ -61,6 +61,10 @@ func main() {
 			err = bf.ConsistencyExaminationMerkleProofVerify(*numPtr, *numIterPtr)
 		case ProcessCEMerkleProofMerge:
 			err = bf.ConsistencyExaminationMerkleProofMerge(*numPtr, *numIterPtr)
+		case ProcessCESummarizeMerkleProofVerificationResults:
+			err = bf.ConsistencyExaminationSummarizeMerkleProofVerificationResults(*numPtr, *numIterPtr)
+		case ProcessCEVerifyCommitments:
+			err = bf.ConsistencyExaminationVerifyCommitments(*numPtr, *numIterPtr)
 		}
 	}
 	if err != nil {

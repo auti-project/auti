@@ -7,6 +7,7 @@ import (
 	"time"
 
 	mt "github.com/txaty/go-merkletree"
+	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/closc/auditor"
@@ -125,6 +126,59 @@ func ConsistencyExaminationMerkleProofMerge(numTXs, iterations int) error {
 		}
 		startTime := time.Now()
 		if _, err = aud.MergeProof(selectedBlocks, dummyProofs); err != nil {
+			return err
+		}
+		elapsed := time.Since(startTime)
+		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationSummarizeMerkleProofVerificationResults(numResults, iterations int) error {
+	fmt.Println("[CLOLC-CE] Summarize Merkle Proof Verification Results")
+	fmt.Printf("Num results: %d, Num iter: %d\n", numResults, iterations)
+	results := make([]uint, numResults)
+	for i := 0; i < iterations; i++ {
+		for j := 0; j < numResults; j++ {
+			results[j] = uint(rand.Int() % 2)
+		}
+		aud := auditor.New("aud", nil)
+		startTime := time.Now()
+		aud.SummarizeMerkleProofVerificationResults(results)
+		elapsed := time.Since(startTime)
+		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func ConsistencyExaminationVerifyCommitments(numCommitments, iterations int) error {
+	fmt.Println("[CLOLC-CE] Verify Commitments")
+	fmt.Printf("Num commitments: %d, Num iter: %d\n", numCommitments, iterations)
+	aud := auditor.New("aud", nil)
+	for i := 0; i < iterations; i++ {
+		commitments1 := make([][]byte, numCommitments)
+		commitments2 := make([][]byte, numCommitments)
+		hashPoints1 := make([]kyber.Point, numCommitments)
+		hashPoints2 := make([]kyber.Point, numCommitments)
+		var err error
+		for j := 0; j < numCommitments; j++ {
+			randPoint1 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+			randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+			commitments1[j], err = randPoint1.MarshalBinary()
+			if err != nil {
+				return err
+			}
+			commitments2[j], err = randPoint2.MarshalBinary()
+			if err != nil {
+				return err
+			}
+			hashPoints1[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+			hashPoints2[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		}
+		startTime := time.Now()
+		if _, err = aud.VerifyCommitments(commitments1, commitments2, hashPoints1, hashPoints2); err != nil {
 			return err
 		}
 		elapsed := time.Since(startTime)

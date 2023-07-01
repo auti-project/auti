@@ -66,7 +66,7 @@ func (a *Auditor) SummarizeMerkleProofVerificationResults(verificationResults []
 	return true
 }
 
-func (a *Auditor) VerifyCommitment(commitmentList1, commitmentList2 [][]byte,
+func (a *Auditor) VerifyCommitments(commitmentList1, commitmentList2 [][]byte,
 	hashPoints1, hashPoints2 []kyber.Point) (bool, error) {
 	if len(commitmentList1) != len(commitmentList2) {
 		return false, nil
