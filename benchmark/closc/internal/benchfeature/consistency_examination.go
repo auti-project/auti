@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"runtime"
+	"sync"
 	"time"
 
 	mt "github.com/txaty/go-merkletree"
@@ -170,20 +171,28 @@ func ConsistencyExaminationVerifyCommitments(numCommitments, iterations int) err
 		hashPoints1 := make([]kyber.Point, numCommitments)
 		hashPoints2 := make([]kyber.Point, numCommitments)
 		var err error
-		for j := 0; j < numCommitments; j++ {
-			randPoint1 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
-			randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
-			commitments1[j], err = randPoint1.MarshalBinary()
-			if err != nil {
-				return err
-			}
-			commitments2[j], err = randPoint2.MarshalBinary()
-			if err != nil {
-				return err
-			}
-			hashPoints1[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
-			hashPoints2[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		wg := sync.WaitGroup{}
+		for i := 0; i < numCPU; i++ {
+			wg.Add(1)
+			go func(idx, step int) {
+				defer wg.Done()
+				for j := idx; j < numCommitments; j += step {
+					randPoint1 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+					randPoint2 := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+					commitments1[j], err = randPoint1.MarshalBinary()
+					if err != nil {
+						panic(err)
+					}
+					commitments2[j], err = randPoint2.MarshalBinary()
+					if err != nil {
+						panic(err)
+					}
+					hashPoints1[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+					hashPoints2[j] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+				}
+			}(i, numCPU)
 		}
+		wg.Wait()
 		startTime := time.Now()
 		if _, err = aud.VerifyCommitments(commitments1, commitments2, hashPoints1, hashPoints2); err != nil {
 			return err
