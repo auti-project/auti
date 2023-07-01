@@ -56,7 +56,7 @@ func generateRandInputs(num int) []randInput {
 }
 
 func TransactionRecordCommitment(num, iterations int) error {
-	fmt.Print("[CLOSC-TV] Commitment")
+	fmt.Println("[CLOSC-TV] Commitment")
 	fmt.Printf("Num: %d, Num iter: %d\n", num, iterations)
 	for i := 0; i < iterations; i++ {
 		randInputs := generateRandInputs(num)
@@ -108,7 +108,7 @@ func generateDataBlocks(num int) []mt.DataBlock {
 }
 
 func TransactionRecordMerkleProofGen(depth, iterations int) error {
-	fmt.Print("[CLOSC-TV] Merkle proof generation")
+	fmt.Println("[CLOSC-TV] Merkle proof generation")
 	fmt.Printf("Depth: %d, Num iter: %d\n", depth, iterations)
 	numDataBlock := 1 << depth
 	dataBlocks := generateDataBlocks(numDataBlock)

@@ -44,7 +44,7 @@ func InitializeEpoch(numOrganizations, iterations int) error {
 }
 
 func InitializeRandGen(num, iterations int) error {
-	fmt.Print("[CLOSC-IN] Random generation")
+	fmt.Println("[CLOSC-IN] Random generation")
 	fmt.Printf("Num: %d, Num iter: %d\n", num, iterations)
 	for i := 0; i < iterations; i++ {
 		startTime := time.Now()
