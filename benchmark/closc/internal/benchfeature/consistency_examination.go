@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/rand"
+	"runtime"
 	"time"
 
 	mt "github.com/txaty/go-merkletree"
@@ -82,6 +83,7 @@ func ConsistencyExaminationMerkleProofVerify(treeDepth, iterations int) error {
 		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
+		runtime.GC()
 	}
 	fmt.Println()
 	return nil
@@ -133,6 +135,7 @@ func ConsistencyExaminationMerkleProofMerge(numTXs, iterations int) error {
 		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
+		runtime.GC()
 	}
 	fmt.Println()
 	return nil
