@@ -25,4 +25,4 @@ for numRand in 1000 10000 100000 1000000; do
   done
 done
 
-rm clolc.out
+rm closc.out
