@@ -11,7 +11,7 @@ LOG_DIR="logs"
 if [ ! -d $LOG_DIR ]; then
   mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/closc_rv_summarize_batch_proof.log"
+LOG_FILE_DIR="${LOG_DIR}/closc_rv_verify_commit.log"
 if [ -f $LOG_FILE_DIR ]; then
   rm $LOG_FILE_DIR
 fi
