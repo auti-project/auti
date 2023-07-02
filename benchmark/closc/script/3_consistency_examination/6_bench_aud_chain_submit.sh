@@ -38,7 +38,7 @@ python3 config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name
 #./closc.out -phase ce -process aud_submit -num 1000 -numIter 10 | tee -a $LOG_FILE_DIR
 #sleep 5
 
-for i in 10 100 1000 10000; do
+for i in 10 100 1000; do
   for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
