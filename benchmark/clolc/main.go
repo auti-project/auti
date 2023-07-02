@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	bf "github.com/auti-project/auti/benchmark/clolc/internal/benchfeature"
-	. "github.com/auti-project/auti/benchmark/clolc/internal/flags"
+	. "github.com/auti-project/auti/benchmark/clolc/internal/flag"
+	bf "github.com/auti-project/auti/benchmark/clolc/internal/task"
 )
 
 func main() {
@@ -21,62 +21,62 @@ func main() {
 	case PhaseInitialization:
 		switch *benchProcessPtr {
 		case ProcessINDefault:
-			err = bf.InitializeEpochDefault(*numOrgPtr, *numIterPtr)
+			err = bf.INDefault(*numOrgPtr, *numIterPtr)
 		}
 	case PhaseTransactionRecord:
 		switch *benchProcessPtr {
 		case ProcessTRLocalChainSubmit:
-			err = bf.TransactionRecordLocalSubmitTX(*numTXsPtr, *numIterPtr)
+			err = bf.TRLocalSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainPrepare:
-			err = bf.TransactionRecordLocalPrepareTX(*numTXsPtr)
+			err = bf.TRLocalPrepareTX(*numTXsPtr)
 		case ProcessTRLocalChainRead:
-			err = bf.TransactionRecordLocalReadTX(*numTXsPtr, *numIterPtr)
+			err = bf.TRLocalReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
-			err = bf.TransactionRecordLocalReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = bf.TRLocalReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainSubmit:
-			err = bf.TransactionRecordOrgSubmitTX(*numTXsPtr, *numIterPtr)
+			err = bf.TROrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:
-			err = bf.TransactionRecordOrgPrepareTX(*numTXsPtr)
+			err = bf.TROrgPrepareTX(*numTXsPtr)
 		case ProcessTROrgChainRead:
-			err = bf.TransactionRecordOrgReadTX(*numTXsPtr, *numIterPtr)
+			err = bf.TROrgReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainReadAll:
-			err = bf.TransactionRecordOrgReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = bf.TROrgReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessTRCommitment:
-			err = bf.TransactionRecordCommitment(*numTXsPtr, *numIterPtr)
+			err = bf.TRCommitment(*numTXsPtr, *numIterPtr)
 		case ProcessTRAccumulate:
-			err = bf.TransactionRecordAccumulate(*numTXsPtr, *numIterPtr)
+			err = bf.TRAccumulate(*numTXsPtr, *numIterPtr)
 		}
 	case PhaseConsistencyExamination:
 		switch *benchProcessPtr {
 		case ProcessCEAccumulateCommitment:
-			err = bf.ConsistencyExaminationAccumulateCommitment(*numOrgPtr, *numIterPtr)
+			err = bf.CEAccumulateCommitment(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeB:
-			err = bf.ConsistencyExaminationComputeB(*numOrgPtr, *numIterPtr)
+			err = bf.CEComputeB(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeC:
-			err = bf.ConsistencyExaminationComputeC(*numOrgPtr, *numIterPtr)
+			err = bf.CEComputeC(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeD:
-			err = bf.ConsistencyExaminationComputeD(*numOrgPtr, *numIterPtr)
+			err = bf.CEComputeD(*numOrgPtr, *numIterPtr)
 		case ProcessCEEncrypt:
-			err = bf.ConsistencyExaminationEncrypt(*numOrgPtr, *numIterPtr)
+			err = bf.CEEncrypt(*numOrgPtr, *numIterPtr)
 		case ProcessCEDecrypt:
-			err = bf.ConsistencyExaminationDecrypt(*numIterPtr)
+			err = bf.CEDecrypt(*numIterPtr)
 		case ProcessCEAudChainSubmit:
-			err = bf.ConsistencyExaminationAudSubmitTX(*numTXsPtr, *numIterPtr)
+			err = bf.CEAudSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:
-			err = bf.ConsistencyExaminationAudPrepareTX(*numTXsPtr)
+			err = bf.CEAudPrepareTX(*numTXsPtr)
 		case ProcessCEAudChainRead:
-			err = bf.ConsistencyExaminationAudReadTX(*numTXsPtr, *numIterPtr)
+			err = bf.CEAudReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainReadAll:
-			err = bf.ConsistencyExaminationAudReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = bf.CEAudReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessCECheck:
-			err = bf.ConsistencyExaminationCheck(*numIterPtr)
+			err = bf.CECheck(*numIterPtr)
 		}
 	case PhaseResultVerification:
 		switch *benchProcessPtr {
 		case ProcessRVVerifyOrgAndAudResult:
-			err = bf.ResultVerificationVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
+			err = bf.RVVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
 		case ProcessRVVerifyAuditPairResult:
-			err = bf.ResultVerificationVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
+			err = bf.RVVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
 		}
 	default:
 		log.Fatalf("Error: %v", "Invalid phase")

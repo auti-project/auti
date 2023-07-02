@@ -10,6 +10,7 @@ import (
 )
 
 type TypeID string
+
 type TypeEpochID kyber.Point
 
 type Auditor struct {

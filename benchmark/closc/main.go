@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	bf "github.com/auti-project/auti/benchmark/closc/internal/benchfeature"
-	. "github.com/auti-project/auti/benchmark/closc/internal/flags"
+	. "github.com/auti-project/auti/benchmark/closc/internal/flag"
+	"github.com/auti-project/auti/benchmark/closc/internal/task"
 )
 
 func main() {
@@ -21,68 +21,68 @@ func main() {
 	case PhaseInitialization:
 		switch *benchProcessPtr {
 		case ProcessINDefault:
-			err = bf.InitializeEpoch(*numOrgPtr, *numIterPtr)
+			err = task.INEpoch(*numOrgPtr, *numIterPtr)
 		case ProcessINRandGen:
-			err = bf.InitializeRandGen(*numPtr, *numIterPtr)
+			err = task.INRandGen(*numPtr, *numIterPtr)
 		}
 	case PhaseTransactionRecord:
 		switch *benchProcessPtr {
 		case ProcessTRCommitment:
-			err = bf.TransactionRecordCommitment(*numPtr, *numIterPtr)
+			err = task.TRCommitment(*numPtr, *numIterPtr)
 		case ProcessTRMerkleProofGen:
-			err = bf.TransactionRecordMerkleProofGen(*numPtr, *numIterPtr)
+			err = task.TRMerkleProofGen(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainSubmit:
-			err = bf.TransactionRecordLocalSubmitTX(*numPtr, *numIterPtr)
+			err = task.TRLocalSubmitTX(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainPrepare:
-			err = bf.TransactionRecordLocalPrepareTX(*numPtr)
+			err = task.TRLocalPrepareTX(*numPtr)
 		case ProcessTRLocalChainRead:
-			err = bf.TransactionRecordLocalReadTX(*numPtr, *numIterPtr)
+			err = task.TRLocalReadTX(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
-			err = bf.TransactionRecordLocalReadAllTXs(*numPtr, *numIterPtr)
+			err = task.TRLocalReadAllTXs(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainCommitmentSubmit:
-			err = bf.TransactionRecordLocalCommitmentSubmitTX(*numPtr, *numIterPtr)
+			err = task.TRLocalCommitmentSubmitTX(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainCommitmentPrepare:
-			err = bf.TransactionRecordLocalCommitmentPrepareTX(*numPtr)
+			err = task.TRLocalCommitmentPrepareTX(*numPtr)
 		case ProcessTRLocalCHainCommitmentRead:
-			err = bf.TransactionRecordLocalCommitmentReadTX(*numPtr, *numIterPtr)
+			err = task.TRLocalCommitmentReadTX(*numPtr, *numIterPtr)
 		case ProcessTRLocalChainCommitmentReadAll:
-			err = bf.TransactionRecordLocalCommitmentReadAllTXs(*numPtr, *numIterPtr)
+			err = task.TRLocalCommitmentReadAllTXs(*numPtr, *numIterPtr)
 		case ProcessTROrgChainSubmit:
-			err = bf.TransactionRecordOrgSubmitTX(*numPtr, *numIterPtr)
+			err = task.TROrgSubmitTX(*numPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:
-			err = bf.TransactionRecordOrgPrepareTX(*numPtr)
+			err = task.TROrgPrepareTX(*numPtr)
 		case ProcessTROrgChainRead:
-			err = bf.TransactionRecordOrgReadTX(*numPtr, *numIterPtr)
+			err = task.TROrgReadTX(*numPtr, *numIterPtr)
 		case ProcessTROrgChainReadAll:
-			err = bf.TransactionRecordOrgReadAllTXs(*numPtr, *numIterPtr)
+			err = task.TROrgReadAllTXs(*numPtr, *numIterPtr)
 		}
 	case PhaseConsistencyExamination:
 		switch *benchProcessPtr {
 		case ProcessCEMerkleProofVerify:
-			err = bf.ConsistencyExaminationMerkleProofVerify(*numPtr, *numIterPtr)
+			err = task.CEMerkleProofVerify(*numPtr, *numIterPtr)
 		case ProcessCEMerkleProofMerge:
-			err = bf.ConsistencyExaminationMerkleProofMerge(*numPtr, *numIterPtr)
+			err = task.CEMerkleProofMerge(*numPtr, *numIterPtr)
 		case ProcessCESummarizeMerkleProofVerificationResults:
-			err = bf.ConsistencyExaminationSummarizeMerkleProofVerificationResults(*numPtr, *numIterPtr)
+			err = task.CESummarizeMerkleProofVerificationResults(*numPtr, *numIterPtr)
 		case ProcessCEVerifyCommitments:
-			err = bf.ConsistencyExaminationVerifyCommitments(*numPtr, *numIterPtr)
+			err = task.CEVerifyCommitments(*numPtr, *numIterPtr)
 		case ProcessCEAudChainSubmit:
-			err = bf.ConsistencyExaminationAudSubmitTX(*numPtr, *numIterPtr)
+			err = task.CEAudSubmitTX(*numPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:
-			err = bf.ConsistencyExaminationAudPrepareTX(*numPtr)
+			err = task.CEAudPrepareTX(*numPtr)
 		case ProcessCEAudChainRead:
-			err = bf.ConsistencyExaminationAudReadTX(*numPtr, *numIterPtr)
+			err = task.CEAudReadTX(*numPtr, *numIterPtr)
 		case ProcessCEAudChainReadAll:
-			err = bf.ConsistencyExaminationAudReadAllTXs(*numPtr, *numIterPtr)
+			err = task.CEAudReadAllTXs(*numPtr, *numIterPtr)
 		}
 	case PhaseResultVerification:
 		switch *benchProcessPtr {
 		case ProcessRVVerifyMerkleBatchProof:
-			err = bf.ResultVerificationVerifyMerkleBatchProof(*numPtr, *numIterPtr)
+			err = task.RVVerifyMerkleBatchProof(*numPtr, *numIterPtr)
 		case ProcessRVSummarizeMerkleBatchProofVerificationResults:
-			err = bf.ResultVerificationSummarizeMerkleBatchProofVerificationResults(*numPtr, *numIterPtr)
+			err = task.RVSummarizeMerkleBatchProofVerificationResults(*numPtr, *numIterPtr)
 		case ProcessRVVerifyCommitments:
-			err = bf.ResultVerificationVerifyCommitments(*numPtr, *numIterPtr)
+			err = task.RVVerifyCommitments(*numPtr, *numIterPtr)
 		}
 	default:
 		log.Fatalf("Error: %v", "Invalid phase")
