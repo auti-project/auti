@@ -11,7 +11,7 @@ import (
 	mt "github.com/txaty/go-merkletree"
 	"go.dedis.ch/kyber/v3"
 
-	"github.com/auti-project/auti/benchmark/closc/internal/task/audchain"
+	"github.com/auti-project/auti/benchmark/closc/internal/blockchain/audchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/closc/auditor"
 	"github.com/auti-project/auti/internal/closc/transaction"

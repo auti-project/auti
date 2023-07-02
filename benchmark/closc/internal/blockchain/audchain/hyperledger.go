@@ -22,7 +22,7 @@ const (
 	audWalletPath     = "wallet"
 	audWalletLabel    = "appUser"
 	aud1MSPid         = "Aud1MSP"
-	submitTXBatchSize = 100
+	submitTXBatchSize = 5
 )
 
 var (
