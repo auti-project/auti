@@ -204,6 +204,7 @@ func CEAccumulateCommitments(numCommitments, iterations int) error {
 	fmt.Println("[CLOLC-CE] Accumulate Commitments")
 	fmt.Printf("Num commitments: %d, Num iter: %d\n", numCommitments, iterations)
 	aud := auditor.New("aud", nil)
+	aud.EpochID = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 	for i := 0; i < iterations; i++ {
 		dummyCommitments := make([]kyber.Point, numCommitments)
 		var wg sync.WaitGroup
