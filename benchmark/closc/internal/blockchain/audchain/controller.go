@@ -60,7 +60,6 @@ func (c *Controller) SubmitTX(tx *transaction.AudOnChain) (string, error) {
 	// log.Println("--> Submit Transaction: Invoke, function that adds a new asset")
 	txID, err := c.ct.SubmitTransaction(createTXFuncName,
 		tx.Commitment,
-		tx.BatchProof,
 	)
 	if err != nil {
 		log.Fatalf("Failed to Submit transaction: %v", err)

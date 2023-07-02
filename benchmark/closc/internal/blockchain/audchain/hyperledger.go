@@ -17,12 +17,11 @@ import (
 )
 
 const (
-	channelName       = "mychannel"
-	contractType      = "auti-aud-chain"
-	audWalletPath     = "wallet"
-	audWalletLabel    = "appUser"
-	aud1MSPid         = "Aud1MSP"
-	submitTXBatchSize = 5
+	channelName    = "mychannel"
+	contractType   = "auti-aud-chain"
+	audWalletPath  = "wallet"
+	audWalletLabel = "appUser"
+	aud1MSPid      = "Aud1MSP"
 )
 
 var (
@@ -70,8 +69,8 @@ func SubmitTX(numTXs int) ([]string, error) {
 	dummyTXs := DummyOnChainTransactions(numTXs)
 	var txIDs []string
 	startTime := time.Now()
-	for batch := 0; batch < numTXs; batch += submitTXBatchSize {
-		right := batch + submitTXBatchSize
+	for batch := 0; batch < numTXs; batch += constants.SubmitTXBatchSize {
+		right := batch + constants.SubmitTXBatchSize
 		if right > numTXs {
 			right = numTXs
 		}

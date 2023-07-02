@@ -6,50 +6,37 @@ import (
 	"encoding/json"
 
 	"go.dedis.ch/kyber/v3"
-
-	"github.com/auti-project/auti/internal/crypto"
 )
 
 type AudPlain struct {
 	Commitment []byte
-	BatchProof []byte
 }
 
-func NewAudPlain(commitment []byte, batchProof []byte) *AudPlain {
+func NewAudPlain(commitment []byte) *AudPlain {
 	return &AudPlain{
 		Commitment: commitment,
-		BatchProof: batchProof,
 	}
 }
 
-func NewAudPlainFromPointAndProof(commitment kyber.Point, batchProof *crypto.MerkleBatchProof) (*AudPlain, error) {
+func NewAudPlainFromPoint(commitment kyber.Point) (*AudPlain, error) {
 	commitmentBytes, err := commitment.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	batchProofBytes, err := crypto.MerkleBatchProofMarshal(batchProof)
-	if err != nil {
-		return nil, err
-	}
-	return NewAudPlain(commitmentBytes, batchProofBytes), nil
+	return NewAudPlain(commitmentBytes), nil
 }
 
 func (a *AudPlain) ToOnChain() *AudOnChain {
-	return NewAudOnChain(
-		hex.EncodeToString(a.Commitment),
-		hex.EncodeToString(a.BatchProof),
-	)
+	return NewAudOnChain(hex.EncodeToString(a.Commitment))
 }
 
 type AudOnChain struct {
 	Commitment string `json:"commitment"`
-	BatchProof string `json:"batch_proof"`
 }
 
-func NewAudOnChain(commitment string, batchProof string) *AudOnChain {
+func NewAudOnChain(commitment string) *AudOnChain {
 	return &AudOnChain{
 		Commitment: commitment,
-		BatchProof: batchProof,
 	}
 }
 
@@ -58,11 +45,7 @@ func (a *AudOnChain) ToPlain() (*AudPlain, error) {
 	if err != nil {
 		return nil, err
 	}
-	batchProof, err := hex.DecodeString(a.BatchProof)
-	if err != nil {
-		return nil, err
-	}
-	return NewAudPlain(commitment, batchProof), nil
+	return NewAudPlain(commitment), nil
 }
 
 func (a *AudOnChain) KeyVal() (string, []byte, error) {

@@ -6,7 +6,7 @@ import (
 
 	"go.dedis.ch/kyber/v3"
 
-	audchain2 "github.com/auti-project/auti/benchmark/clolc/internal/blockchain/audchain"
+	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/audchain"
 	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/localchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/clolc/organization"
@@ -136,7 +136,7 @@ func CEAudSubmitTX(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-CE] Submit TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		if _, err := audchain2.SubmitTX(numTotalTXs); err != nil {
+		if _, err := audchain.SubmitTX(numTotalTXs); err != nil {
 			return err
 		}
 	}
@@ -148,7 +148,7 @@ func CEAudReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-CE] Read TX")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		if err := audchain2.ReadTX(); err != nil {
+		if err := audchain.ReadTX(); err != nil {
 			return err
 		}
 	}
@@ -160,7 +160,7 @@ func CEAudReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-CE] Read all TXs")
 	fmt.Printf("Num total TXs %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		if err := audchain2.ReadAllTXsByPage(); err != nil {
+		if err := audchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
 	}
@@ -171,11 +171,11 @@ func CEAudReadAllTXs(numTotalTXs, iterations int) error {
 func CEAudPrepareTX(numTotalTXs int) error {
 	fmt.Println("[CLOLC-CE] Prepare aud transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
-	txIDs, err := audchain2.SubmitTX(numTotalTXs)
+	txIDs, err := audchain.SubmitTX(numTotalTXs)
 	if err != nil {
 		return err
 	}
-	if err = audchain2.SaveTXIDs(txIDs); err != nil {
+	if err = audchain.SaveTXIDs(txIDs); err != nil {
 		return err
 	}
 	fmt.Println()
@@ -191,7 +191,7 @@ func CEDecrypt(iterations int) error {
 		return err
 	}
 	for i := 0; i < iterations; i++ {
-		dummyTX, err := audchain2.DummyOnChainTransaction()
+		dummyTX, err := audchain.DummyOnChainTransaction()
 		if err != nil {
 			return err
 		}

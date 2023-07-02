@@ -6,7 +6,7 @@ import (
 
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 
-	localchain2 "github.com/auti-project/auti/benchmark/clolc/internal/blockchain/localchain"
+	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/localchain"
 	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/orgchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 )
@@ -15,7 +15,7 @@ func TRLocalSubmitTX(numTXs, iterations int) error {
 	fmt.Println("[CLOLC-TR] Local submit transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		_, err := localchain2.SubmitTX(numTXs)
+		_, err := localchain.SubmitTX(numTXs)
 		if err != nil {
 			return err
 		}
@@ -27,11 +27,11 @@ func TRLocalSubmitTX(numTXs, iterations int) error {
 func TRLocalPrepareTX(numTotalTXs int) error {
 	fmt.Println("[CLOLC-TR] Prepare local transaction")
 	fmt.Printf("Num TX: %d\n", numTotalTXs)
-	txIDs, err := localchain2.SubmitTX(numTotalTXs)
+	txIDs, err := localchain.SubmitTX(numTotalTXs)
 	if err != nil {
 		return err
 	}
-	if err = localchain2.SaveTXIDs(txIDs); err != nil {
+	if err = localchain.SaveTXIDs(txIDs); err != nil {
 		return err
 	}
 	fmt.Println()
@@ -42,7 +42,7 @@ func TRLocalReadTX(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-TR] Local read transaction")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		if err := localchain2.ReadTX(); err != nil {
+		if err := localchain.ReadTX(); err != nil {
 			return err
 		}
 	}
@@ -54,7 +54,7 @@ func TRLocalReadAllTXs(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-TR] Local read all transactions")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		if err := localchain2.ReadAllTXsByPage(); err != nil {
+		if err := localchain.ReadAllTXsByPage(); err != nil {
 			return err
 		}
 	}
@@ -66,7 +66,7 @@ func TRCommitment(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-TR] Commitment")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		dummyTXs := localchain2.DummyPlainTransactions(numTotalTXs)
+		dummyTXs := localchain.DummyPlainTransactions(numTotalTXs)
 		startTime := time.Now()
 		for _, tx := range dummyTXs {
 			if _, _, _, err := tx.Hide(); err != nil {
@@ -84,7 +84,7 @@ func TRAccumulate(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-TR] Accumulate")
 	fmt.Printf("Num TX: %d, Num iter: %d\n", numTotalTXs, iterations)
 	for i := 0; i < iterations; i++ {
-		dummyCommitments := localchain2.DummyHiddenTXCommitments(numTotalTXs)
+		dummyCommitments := localchain.DummyHiddenTXCommitments(numTotalTXs)
 		kyberSuite := edwards25519.NewBlakeSHA256Ed25519()
 		accumulator := kyberSuite.Point().Null()
 		startTime := time.Now()

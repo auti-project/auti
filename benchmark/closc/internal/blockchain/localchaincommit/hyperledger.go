@@ -118,7 +118,7 @@ func SubmitTX(numTXs int) ([]string, error) {
 }
 
 func ReadTX() error {
-	f, err := os.Open(constants.LocalChainTXIDLogPath)
+	f, err := os.Open(constants.LocalChainCommitTXLogPath)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func ReadAllTXsByPage() error {
 }
 
 func SaveTXIDs(txIDs []string) error {
-	f, err := os.OpenFile(constants.LocalChainTXIDLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f, err := os.OpenFile(constants.LocalChainCommitTXLogPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return err
 	}

@@ -8,13 +8,11 @@ import (
 
 type Transaction struct {
 	Commitment string `json:"commitment"`
-	BatchProof string `json:"batch_proof"`
 }
 
-func NewTransaction(commitment, batchProof string) *Transaction {
+func NewTransaction(commitment string) *Transaction {
 	return &Transaction{
 		Commitment: commitment,
-		BatchProof: batchProof,
 	}
 }
 

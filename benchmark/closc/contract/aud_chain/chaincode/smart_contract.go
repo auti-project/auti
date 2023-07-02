@@ -11,7 +11,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
-const pageSize = 5
+const pageSize = 10000
 
 // SmartContract provides functions for managing an Transaction.
 type SmartContract struct {
@@ -23,7 +23,6 @@ func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) 
 	transactions := []Transaction{
 		{
 			Commitment: "000",
-			BatchProof: "000",
 		},
 	}
 	for _, tx := range transactions {
@@ -39,9 +38,8 @@ func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) 
 }
 
 // CreateTX issues a new transaction to the world state with given details.
-func (s *SmartContract) CreateTX(ctx contractapi.TransactionContextInterface,
-	commitment, batchProof string) (string, error) {
-	tx := NewTransaction(commitment, batchProof)
+func (s *SmartContract) CreateTX(ctx contractapi.TransactionContextInterface, commitment string) (string, error) {
+	tx := NewTransaction(commitment)
 	key, val, err := tx.KeyVal()
 	if err != nil {
 		return "", err
