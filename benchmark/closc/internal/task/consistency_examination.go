@@ -200,6 +200,35 @@ func CEVerifyCommitments(numCommitments, iterations int) error {
 	return nil
 }
 
+func CEAccumulateCommitments(numCommitments, iterations int) error {
+	fmt.Println("[CLOLC-CE] Accumulate Commitments")
+	fmt.Printf("Num commitments: %d, Num iter: %d\n", numCommitments, iterations)
+	aud := auditor.New("aud", nil)
+	for i := 0; i < iterations; i++ {
+		dummyCommitments := make([]kyber.Point, numCommitments)
+		var wg sync.WaitGroup
+		for i := 0; i < numCPU; i++ {
+			wg.Add(1)
+			go func(idx, step int) {
+				defer wg.Done()
+				for j := idx; j < numCommitments; j += step {
+					randPoint := crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+					dummyCommitments[j] = randPoint
+				}
+			}(i, numCPU)
+		}
+		wg.Wait()
+		startTime := time.Now()
+		if _, err := aud.AccumulateCommitments(dummyCommitments); err != nil {
+			return err
+		}
+		elapsed := time.Since(startTime)
+		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
 func CEAudSubmitTX(numTotalTXs, iterations int) error {
 	fmt.Println("[CLOLC-CE] Aud Submit transaction")
 	fmt.Printf("Num TXs: %d, Num iter: %d\n", numTotalTXs, iterations)

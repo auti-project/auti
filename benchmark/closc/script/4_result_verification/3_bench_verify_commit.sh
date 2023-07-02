@@ -11,7 +11,7 @@ LOG_DIR="logs"
 if [ ! -d $LOG_DIR ]; then
   mkdir $LOG_DIR
 fi
-LOG_FILE_DIR="${LOG_DIR}/closc_ce_summarize_proof_result.log"
+LOG_FILE_DIR="${LOG_DIR}/closc_rv_summarize_batch_proof.log"
 if [ -f $LOG_FILE_DIR ]; then
   rm $LOG_FILE_DIR
 fi
@@ -20,7 +20,7 @@ touch $LOG_FILE_DIR
 for i in 1000 10000 100000 1000000; do
   #   for j in {1..10}; do
   #    echo "No: $j" >>$LOG_FILE_DIR
-  ./closc.out -phase ce -process summarize_proof_result -num $i -numIter 10 | tee -a $LOG_FILE_DIR
+  ./closc.out -phase rv -process verify_commits -num $i -numIter 10 | tee -a $LOG_FILE_DIR
   sleep 1
   #   done
 done

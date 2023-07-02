@@ -66,6 +66,8 @@ func main() {
 			err = task.CESummarizeMerkleProofVerificationResults(*numPtr, *numIterPtr)
 		case ProcessCEVerifyCommitments:
 			err = task.CEVerifyCommitments(*numPtr, *numIterPtr)
+		case ProcessCEAccumulateCommitments:
+			err = task.CEAccumulateCommitments(*numPtr, *numIterPtr)
 		case ProcessCEAudChainSubmit:
 			err = task.CEAudSubmitTX(*numPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:

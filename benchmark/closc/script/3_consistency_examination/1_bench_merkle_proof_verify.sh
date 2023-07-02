@@ -18,11 +18,11 @@ fi
 touch $LOG_FILE_DIR
 
 for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
-#   for j in {1..10}; do
-    echo "No: $j" >>$LOG_FILE_DIR
-    ./closc.out -phase ce -process merkle_proof_verify -num $i -numIter 10 | tee -a $LOG_FILE_DIR
-    sleep 1
-#   done
+  #   for j in {1..10}; do
+  #  echo "No: $j" >>$LOG_FILE_DIR
+  ./closc.out -phase ce -process merkle_proof_verify -num $i -numIter 10 | tee -a $LOG_FILE_DIR
+  sleep 1
+  #   done
 done
 
 rm closc.out
