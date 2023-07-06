@@ -35,7 +35,7 @@ docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
 TOTAL_TXS=0
 sleep 5
-for i in 1000 9000 90000 900000; do
+for i in 256 744 9000 90000 900000; do
   ./closc.out -phase ce -process aud_prepare -num $i | tee -a $LOG_FILE_DIR
   TOTAL_TXS=$((TOTAL_TXS + i))
   sleep 5

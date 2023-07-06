@@ -38,8 +38,8 @@ func (s *SmartContract) InitLedger(tci contractapi.TransactionContextInterface) 
 }
 
 // CreateTX issues a new transaction to the world state with given details.
-func (s *SmartContract) CreateTX(ctx contractapi.TransactionContextInterface, commitment string) (string, error) {
-	tx := NewTransaction(commitment)
+func (s *SmartContract) CreateTX(ctx contractapi.TransactionContextInterface, commitment, hash string) (string, error) {
+	tx := NewTransaction(commitment, hash)
 	key, val, err := tx.KeyVal()
 	if err != nil {
 		return "", err

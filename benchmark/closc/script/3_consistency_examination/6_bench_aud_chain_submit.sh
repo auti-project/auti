@@ -27,10 +27,18 @@ FABLO_AUD_CHAIN_CONFIG="aud-chain-config.yaml"
 rm -f $FABLO_AUD_CHAIN_CONFIG
 python3 config_gen.py --output_filename $FABLO_AUD_CHAIN_CONFIG --chaincode_name auti-aud-chain --chaincode_dir contract/aud_chain --num_orderers 3 --num_orgs 0 --num_auditors 8
 
+
+# 256 test
+clean_up
+./fablo up $FABLO_AUD_CHAIN_CONFIG
+docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
+docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
+sleep 5
+./closc.out -phase ce -process aud_submit -num 256 -numIter 10 | tee -a $LOG_FILE_DIR
+sleep 5
+
 # 1k test
 clean_up
-#./fablo generate $FABLO_ORG_CHAIN_CONFIG
-#./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
 ./fablo up $FABLO_AUD_CHAIN_CONFIG
 docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
 docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
@@ -42,8 +50,6 @@ for i in 10000 100000 1000000; do
   for j in {1..10}; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
-    #    ./fablo generate $FABLO_ORG_CHAIN_CONFIG
-    #    ./script/replace_port.sh ./fablo-target/fabric-docker/docker-compose.yaml
     ./fablo up $FABLO_AUD_CHAIN_CONFIG
     docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
     docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f

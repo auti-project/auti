@@ -10,33 +10,37 @@ import (
 
 type AudPlain struct {
 	Commitment []byte
+	Hash       []byte
 }
 
-func NewAudPlain(commitment []byte) *AudPlain {
+func NewAudPlain(commitment, hash []byte) *AudPlain {
 	return &AudPlain{
 		Commitment: commitment,
+		Hash:       hash,
 	}
 }
 
-func NewAudPlainFromPoint(commitment kyber.Point) (*AudPlain, error) {
+func NewAudPlainFromPoint(commitment kyber.Point, hash []byte) (*AudPlain, error) {
 	commitmentBytes, err := commitment.MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
-	return NewAudPlain(commitmentBytes), nil
+	return NewAudPlain(commitmentBytes, hash), nil
 }
 
 func (a *AudPlain) ToOnChain() *AudOnChain {
-	return NewAudOnChain(hex.EncodeToString(a.Commitment))
+	return NewAudOnChain(hex.EncodeToString(a.Commitment), hex.EncodeToString(a.Hash))
 }
 
 type AudOnChain struct {
 	Commitment string `json:"commitment"`
+	Hash       string `json:"hash"`
 }
 
-func NewAudOnChain(commitment string) *AudOnChain {
+func NewAudOnChain(commitment, hash string) *AudOnChain {
 	return &AudOnChain{
 		Commitment: commitment,
+		Hash:       hash,
 	}
 }
 
@@ -45,7 +49,11 @@ func (a *AudOnChain) ToPlain() (*AudPlain, error) {
 	if err != nil {
 		return nil, err
 	}
-	return NewAudPlain(commitment), nil
+	hash, err := hex.DecodeString(a.Hash)
+	if err != nil {
+		return nil, err
+	}
+	return NewAudPlain(commitment, hash), nil
 }
 
 func (a *AudOnChain) KeyVal() (string, []byte, error) {

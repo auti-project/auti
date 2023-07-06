@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	numCPUs    = runtime.NumCPU()
-	kyberSuite = edwards25519.NewBlakeSHA256Ed25519()
+	numCPUs     = runtime.NumCPU()
+	kyberSuite  = edwards25519.NewBlakeSHA256Ed25519()
+	hashByteLen = 32
 )
 
 func DummyOnChainTransactions(numTXs int) []*transaction.AudOnChain {
@@ -42,7 +43,12 @@ func DummyOnChainTransaction() (*transaction.AudOnChain, error) {
 		return nil, err
 	}
 	randPoint := kyberSuite.Point().Pick(kyberSuite.RandomStream())
-	tx, err := transaction.NewAudPlainFromPoint(randPoint)
+	randHashBytes := make([]byte, hashByteLen)
+	_, err = crand.Read(randHashBytes)
+	if err != nil {
+		return nil, err
+	}
+	tx, err := transaction.NewAudPlainFromPoint(randPoint, randHashBytes)
 	if err != nil {
 		return nil, err
 	}

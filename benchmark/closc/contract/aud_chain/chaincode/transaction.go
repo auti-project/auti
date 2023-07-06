@@ -8,11 +8,13 @@ import (
 
 type Transaction struct {
 	Commitment string `json:"commitment"`
+	Hash       string `json:"hash"`
 }
 
-func NewTransaction(commitment string) *Transaction {
+func NewTransaction(commitment, hash string) *Transaction {
 	return &Transaction{
 		Commitment: commitment,
+		Hash:       hash,
 	}
 }
 
