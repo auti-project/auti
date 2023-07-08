@@ -39,10 +39,10 @@ for i in 2 4 8 16 32 64 128 256 512 1024; do
 
     python generate_local_chain_config.py $i
 
-    start_time=$(date +%s)
+    start_time=$(($(date +%s%N)/1000000))
     ./fablo up $FABLO_LOCAL_CHAIN_CONFIG
-    end_time=$(date +%s)
-    echo "Fablo up time: $((end_time - start_time))" | tee -a $LOG_FILE_DIR
+    end_time=$(($(date +%s%N)/1000000))
+    echo "Fablo up time: {$((end_time - start_time))} ms" | tee -a $LOG_FILE_DIR
 
     docker ps -a --format '{{.Names}}' | grep '^cli' | xargs docker rm -f
     docker ps -a --format '{{.Names}}' | grep '^ca' | xargs docker rm -f
