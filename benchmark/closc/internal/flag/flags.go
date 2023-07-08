@@ -23,6 +23,7 @@ const (
 	ProcessTROrgChainPrepare             = "org_prepare"
 	ProcessTROrgChainRead                = "org_read"
 	ProcessTROrgChainReadAll             = "org_read_all"
+	ProcessTRLocalChainSC                = "local_sc"
 
 	ProcessCEMerkleProofVerify                       = "merkle_proof_verify"
 	ProcessCEMerkleProofMerge                        = "merkle_proof_merge"
@@ -59,6 +60,7 @@ var PhaseProcessMap = map[string][]string{
 		ProcessTROrgChainPrepare,
 		ProcessTROrgChainRead,
 		ProcessTROrgChainReadAll,
+		ProcessTRLocalChainSC,
 	},
 	PhaseConsistencyExamination: {
 		ProcessCEMerkleProofVerify,

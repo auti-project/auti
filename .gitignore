@@ -34,6 +34,7 @@ go.work
 fablo
 org-chain-config.yaml
 aud-chain-config.yaml
+local-chain-config-sc.yaml
 
 # Hyperledger Fabric related files
 orgWallet/

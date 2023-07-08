@@ -12,6 +12,7 @@ import (
 
 	"github.com/auti-project/auti/benchmark/closc/internal/blockchain/localchain"
 	"github.com/auti-project/auti/benchmark/closc/internal/blockchain/localchaincommit"
+	"github.com/auti-project/auti/benchmark/closc/internal/blockchain/localchainsc"
 	"github.com/auti-project/auti/benchmark/closc/internal/blockchain/orgchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/constants"
@@ -272,6 +273,20 @@ func TROrgReadAllTXs(numTotals, iterations int) error {
 	for i := 0; i < iterations; i++ {
 		if err := orgchain.ReadAllTXsByPage(); err != nil {
 			return err
+		}
+	}
+	fmt.Println()
+	return nil
+}
+
+func TRLocalSC(numSC, iterations int) error {
+	fmt.Println("[CLOSC-TR] Local smart contract")
+	fmt.Printf("Num SC: %d, Num iter: %d\n", numSC, iterations)
+	for i := 0; i < iterations; i++ {
+		for j := 0; j < numSC; j++ {
+			if _, err := localchainsc.SubmitTX(j); err != nil {
+				return err
+			}
 		}
 	}
 	fmt.Println()

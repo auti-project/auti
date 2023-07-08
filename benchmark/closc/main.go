@@ -13,7 +13,7 @@ func main() {
 	benchProcessPtr := flag.String("process", "", GetPhasesAndProcesses())
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
-	numPtr := flag.Int("num", 100, "Number/Quantity/Depth")
+	numPtr := flag.Int("num", 100, "Number/Quantity/Depth/Number of SC")
 	flag.Parse()
 
 	var err error
@@ -55,6 +55,8 @@ func main() {
 			err = task.TROrgReadTX(*numPtr, *numIterPtr)
 		case ProcessTROrgChainReadAll:
 			err = task.TROrgReadAllTXs(*numPtr, *numIterPtr)
+		case ProcessTRLocalChainSC:
+			err = task.TRLocalSC(*numPtr, *numIterPtr)
 		}
 	case PhaseConsistencyExamination:
 		switch *benchProcessPtr {
