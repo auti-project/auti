@@ -37,6 +37,7 @@ for i in 2 4 8 16 32 64 128 256 512 1024; do
     echo "No: $j" >>$LOG_FILE_DIR
     clean_up
 
+    rm $FABLO_LOCAL_CHAIN_CONFIG
     python generate_local_chain_config.py $i
 
     start_time=$(($(date +%s%N)/1000000))
