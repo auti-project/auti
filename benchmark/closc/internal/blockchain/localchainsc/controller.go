@@ -3,6 +3,7 @@ package localchainsc
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"path/filepath"
 
@@ -14,7 +15,7 @@ import (
 
 const (
 	channelName           = "mychannel"
-	contractType          = "auti-local-chain"
+	contractTypeTemplate  = "auti-local-chain%d"
 	createTXFuncName      = "CreateTX"
 	createBatchTXFuncName = "CreateBatchTXs"
 	txExistsName          = "TXExists"
@@ -29,7 +30,7 @@ type Controller struct {
 }
 
 func getContractType(num int) string {
-	return contractType + string(rune(num))
+	return fmt.Sprintf(contractTypeTemplate, num)
 }
 
 // NewController starts a new service instance
