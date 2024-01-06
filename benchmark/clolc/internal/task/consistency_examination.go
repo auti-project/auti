@@ -235,7 +235,7 @@ func CECheck(iterations int) error {
 	return nil
 }
 
-func CEBatchConsistencyExamination(iterations, numbRoutines int) error {
+func CEBatchConsistencyExaminationPartOne(iterations, numbRoutines int) error {
 	fmt.Println("[CLOLC-CE] Batch consistency examination")
 	if numbRoutines <= 0 {
 		numbRoutines = runtime.NumCPU()
@@ -265,7 +265,7 @@ func CEBatchConsistencyExamination(iterations, numbRoutines int) error {
 			go func(idx, step int) {
 				defer wg.Done()
 				for j := idx; j < 255; j += step {
-					results[j], err = auditors[0].ConsistencyExamination(
+					results[j], err = auditors[0].ConsistencyExaminationPartOne(
 						organizations[0].ID,
 						organizations[j+1].ID,
 						organizations[0].EpochID,
@@ -282,6 +282,50 @@ func CEBatchConsistencyExamination(iterations, numbRoutines int) error {
 				return fmt.Errorf("result %d is nil", i)
 			}
 		}
+		elapsed := time.Since(startTime)
+		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func CEBatchConsistencyExaminationPartTwo(iterations, numRoutines int) error {
+	fmt.Println("[CLOLC-CE] Batch consistency examination")
+	if numRoutines <= 0 {
+		numRoutines = runtime.NumCPU()
+	}
+	for iter := 0; iter < iterations; iter++ {
+		fmt.Printf("Num iter: %d, Num routines: %d\n", iterations, numRoutines)
+		// generate dummy data
+		com, auditors, organizations := generateEntities(256)
+		if _, err := com.InitializeEpoch(auditors, organizations); err != nil {
+			return err
+		}
+		dummyAudOnChainTXs := audchain.DummyOnChainTransactions(255)
+		randPointAccResultList := make([]kyber.Point, 255)
+		randPointAList := make([]kyber.Point, 255)
+		for i := 0; i < 255; i++ {
+			randPointAccResultList[i] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+			randPointAList[i] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
+		}
+		runtime.GC()
+		startTime := time.Now()
+		var wg sync.WaitGroup
+		for i := 0; i < numRoutines; i++ {
+			wg.Add(1)
+			go func(idx, step int) {
+				defer wg.Done()
+				for j := idx; j < 255; j += step {
+					if _, err := auditors[0].ConsistencyExaminationPartTwo(
+						organizations[0].ID, organizations[j+1].ID,
+						dummyAudOnChainTXs[j], randPointAccResultList[j], randPointAList[j],
+					); err != nil {
+						panic(err)
+					}
+				}
+			}(i, numRoutines)
+		}
+		wg.Wait()
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
 	}

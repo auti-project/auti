@@ -14,6 +14,7 @@ func main() {
 	numOrgPtr := flag.Int("numOrg", 2, "Number of organizations")
 	numIterPtr := flag.Int("numIter", 10, "Number of iterations")
 	numTXsPtr := flag.Int("numTXs", 100, "Number of transactions")
+	numRoutinesPtr := flag.Int("numRoutines", 0, "Number of routines")
 	flag.Parse()
 
 	var err error
@@ -71,7 +72,9 @@ func main() {
 		case ProcessCECheck:
 			err = bf.CECheck(*numIterPtr)
 		case ProcessCEConsistencyExaminationPartOneParallel:
-			err = bf.CEBatchConsistencyExamination(*numIterPtr, 0)
+			err = bf.CEBatchConsistencyExaminationPartOne(*numIterPtr, *numRoutinesPtr)
+		case ProcessCEConsistencyExaminationPartTwoParallel:
+			err = bf.CEBatchConsistencyExaminationPartTwo(*numIterPtr, *numRoutinesPtr)
 		}
 	case PhaseResultVerification:
 		switch *benchProcessPtr {

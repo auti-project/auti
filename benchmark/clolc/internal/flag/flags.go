@@ -31,6 +31,7 @@ const (
 	ProcessCEAudChainReadAll                       = "aud_read_all"
 	ProcessCECheck                                 = "check"
 	ProcessCEConsistencyExaminationPartOneParallel = "part_one_parallel"
+	ProcessCEConsistencyExaminationPartTwoParallel = "part_two_parallel"
 
 	ProcessRVVerifyOrgAndAudResult = "org_aud"
 	ProcessRVVerifyAuditPairResult = "aud_pair"
@@ -65,6 +66,7 @@ var PhaseProcessMap = map[string][]string{
 		ProcessCEAudChainReadAll,
 		ProcessCECheck,
 		ProcessCEConsistencyExaminationPartOneParallel,
+		ProcessCEConsistencyExaminationPartTwoParallel,
 	},
 	PhaseResultVerification: {
 		ProcessRVVerifyOrgAndAudResult,

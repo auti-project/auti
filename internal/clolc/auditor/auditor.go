@@ -168,7 +168,7 @@ func (a *Auditor) EncryptConsistencyExamResult(
 	), nil
 }
 
-func (a *Auditor) ConsistencyExamination(
+func (a *Auditor) ConsistencyExaminationPartOne(
 	orgID, counterPartyID clolcorg.TypeID,
 	orgEpochID clolcorg.TypeEpochID,
 	orgChainTX *transaction.OrgPlain,
@@ -205,6 +205,25 @@ func (a *Auditor) ConsistencyExamination(
 	return a.EncryptConsistencyExamResult(orgID, counterPartyIDHash, pointAccResult, pointB, pointC, pointD, pk)
 }
 
+func (a *Auditor) ConsistencyExaminationPartTwo(
+	orgID, counterPartyID clolcorg.TypeID,
+	audChainTX *transaction.AudOnChain,
+	pointAccResult, pointA kyber.Point,
+) (bool, error) {
+	counterPartyIDHash := clolcorg.IDHashString(counterPartyID)
+	// for testing purpose only
+	_, err := a.ComputeCETransactionID(orgID, counterPartyIDHash)
+	if err != nil {
+		panic(err)
+	}
+	orgIDHash := clolcorg.IDHashString(orgID)
+	pointAccResult2, pointA2, err := a.DecryptResAndB(orgIDHash, audChainTX)
+	if err != nil {
+		return false, err
+	}
+	return a.CheckResultConsistency(pointAccResult, pointA, pointAccResult2, pointA2), nil
+}
+
 func (a *Auditor) ComputeCETransactionID(
 	orgID clolcorg.TypeID, counterPartyIDHash string,
 ) ([]byte, error) {
@@ -229,8 +248,9 @@ func (a *Auditor) ComputeCETransactionID(
 	return result, nil
 }
 
-func (a *Auditor) DecryptResAndB(orgIDHash string,
-	tx *transaction.AudOnChain) (kyber.Point, kyber.Point, error) {
+func (a *Auditor) DecryptResAndB(
+	orgIDHash string, tx *transaction.AudOnChain,
+) (kyber.Point, kyber.Point, error) {
 	plainTX, err := tx.ToPlain()
 	if err != nil {
 		return nil, nil, err
