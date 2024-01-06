@@ -11,8 +11,6 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-var sha256Func = sha256.New()
-
 type TypeID string
 type TypeEpochID []byte
 
@@ -25,7 +23,7 @@ type Organization struct {
 }
 
 func New(id string) *Organization {
-	defer sha256Func.Reset()
+	sha256Func := sha256.New()
 	sha256Func.Write([]byte(id))
 	idHash := hex.EncodeToString(sha256Func.Sum(nil))
 	org := &Organization{
@@ -113,7 +111,7 @@ func (c *Organization) ComposeTXOrgChain(counterParty TypeID) (*transaction.OrgP
 }
 
 func IDHashBytes(id TypeID) []byte {
-	defer sha256Func.Reset()
+	sha256Func := sha256.New()
 	sha256Func.Write([]byte(id))
 	return sha256Func.Sum(nil)
 }
@@ -138,7 +136,7 @@ func IDHashKey(orgIDHash1, orgIDHash2 string) [2]string {
 }
 
 func EpochIDHashBytes(epochID TypeEpochID) []byte {
-	defer sha256Func.Reset()
+	sha256Func := sha256.New()
 	sha256Func.Write(epochID)
 	return sha256Func.Sum(nil)
 }

@@ -88,6 +88,15 @@ func (a *Auditor) AccumulateCommitments(
 	return result, nil
 }
 
+func (a *Auditor) ComputeA(orgEpochID clolcorg.TypeEpochID, orgChainTX *transaction.OrgPlain) (kyber.Point, error) {
+	orgIDHashPoint := clolcorg.EpochIDHashPoint(orgEpochID)
+	acc := crypto.KyberSuite.Point()
+	if err := acc.UnmarshalBinary(orgChainTX.Accumulator); err != nil {
+		return nil, err
+	}
+	return acc.Sub(acc, orgIDHashPoint), nil
+}
+
 func (a *Auditor) ComputeB(orgTXRandList, comTXRandList []kyber.Scalar) (kyber.Point, error) {
 	if len(orgTXRandList) != len(comTXRandList) {
 		return nil, fmt.Errorf("length of two lists are not equal")
@@ -157,6 +166,43 @@ func (a *Auditor) EncryptConsistencyExamResult(
 	return transaction.NewAudPlain(
 		txID, cipherResBytes, cipherBBytes, cipherCBytes, cipherDBytes,
 	), nil
+}
+
+func (a *Auditor) ConsistencyExamination(
+	orgID, counterPartyID clolcorg.TypeID,
+	orgEpochID clolcorg.TypeEpochID,
+	orgChainTX *transaction.OrgPlain,
+	localChainTXList []*transaction.LocalHidden,
+	orgTXRandList, comTXRandList []kyber.Scalar,
+	publicKeyMap map[string]crypto.TypePublicKey,
+) (*transaction.AudPlain, error) {
+	// compute accumulation of commitments
+	pointAccResult, err := a.AccumulateCommitments(orgID, localChainTXList)
+	if err != nil {
+		return nil, err
+	}
+	// compute A
+	pointA, err := a.ComputeA(orgEpochID, orgChainTX)
+	if err != nil {
+		return nil, err
+	}
+	// compute B
+	pointB, err := a.ComputeB(orgTXRandList, comTXRandList)
+	if err != nil {
+		return nil, err
+	}
+	// Compute C
+	pointC := a.ComputeC(pointAccResult, pointA)
+	// Compute D
+	pointD := a.ComputeD(pointA, pointB)
+	// Encrypt result
+	orgIDHash := clolcorg.IDHashString(orgID)
+	pk, ok := publicKeyMap[orgIDHash]
+	if !ok {
+		return nil, fmt.Errorf("no public key for organization %s", orgIDHash)
+	}
+	counterPartyIDHash := clolcorg.IDHashString(counterPartyID)
+	return a.EncryptConsistencyExamResult(orgID, counterPartyIDHash, pointAccResult, pointB, pointC, pointD, pk)
 }
 
 func (a *Auditor) ComputeCETransactionID(

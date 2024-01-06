@@ -70,6 +70,8 @@ func main() {
 			err = bf.CEAudReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessCECheck:
 			err = bf.CECheck(*numIterPtr)
+		case ProcessCEConsistencyExaminationPartOneParallel:
+			err = bf.CEBatchConsistencyExamination(*numIterPtr, 0)
 		}
 	case PhaseResultVerification:
 		switch *benchProcessPtr {

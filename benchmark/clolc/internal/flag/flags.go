@@ -19,17 +19,18 @@ const (
 	ProcessTROrgChainRead      = "org_read"
 	ProcessTROrgChainReadAll   = "org_read_all"
 
-	ProcessCEAccumulateCommitment = "acc_commit"
-	ProcessCEComputeB             = "cal_b"
-	ProcessCEComputeC             = "cal_c"
-	ProcessCEComputeD             = "cal_d"
-	ProcessCEEncrypt              = "encrypt"
-	ProcessCEDecrypt              = "decrypt"
-	ProcessCEAudChainSubmit       = "aud_submit"
-	ProcessCEAudChainPrepare      = "aud_prepare"
-	ProcessCEAudChainRead         = "aud_read"
-	ProcessCEAudChainReadAll      = "aud_read_all"
-	ProcessCECheck                = "check"
+	ProcessCEAccumulateCommitment                  = "acc_commit"
+	ProcessCEComputeB                              = "cal_b"
+	ProcessCEComputeC                              = "cal_c"
+	ProcessCEComputeD                              = "cal_d"
+	ProcessCEEncrypt                               = "encrypt"
+	ProcessCEDecrypt                               = "decrypt"
+	ProcessCEAudChainSubmit                        = "aud_submit"
+	ProcessCEAudChainPrepare                       = "aud_prepare"
+	ProcessCEAudChainRead                          = "aud_read"
+	ProcessCEAudChainReadAll                       = "aud_read_all"
+	ProcessCECheck                                 = "check"
+	ProcessCEConsistencyExaminationPartOneParallel = "part_one_parallel"
 
 	ProcessRVVerifyOrgAndAudResult = "org_aud"
 	ProcessRVVerifyAuditPairResult = "aud_pair"
@@ -63,6 +64,7 @@ var PhaseProcessMap = map[string][]string{
 		ProcessCEAudChainRead,
 		ProcessCEAudChainReadAll,
 		ProcessCECheck,
+		ProcessCEConsistencyExaminationPartOneParallel,
 	},
 	PhaseResultVerification: {
 		ProcessRVVerifyOrgAndAudResult,

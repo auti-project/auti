@@ -112,8 +112,10 @@ func DummyHiddenTXCommitments(numTXs int) []kyber.Point {
 	return results
 }
 
-func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs int) []*transaction.LocalHidden {
-	results := make([]*transaction.LocalHidden, numTXs)
+func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs int) ([]*transaction.LocalHidden, []kyber.Point, []kyber.Scalar) {
+	hiddenTXs := make([]*transaction.LocalHidden, numTXs)
+	commitments := make([]kyber.Point, numTXs)
+	randScalars := make([]kyber.Scalar, numTXs)
 	var wg sync.WaitGroup
 	for i := 0; i < numCPUs; i++ {
 		wg.Add(1)
@@ -125,14 +127,16 @@ func DummyHiddenTXWithCounterPartyID(counterPartyID organization.TypeID, numTXs 
 				if err != nil {
 					panic(err)
 				}
-				hiddenTX, _, _, err := tx.Hide()
+				hiddenTX, commitment, randScalar, err := tx.Hide()
 				if err != nil {
 					panic(err)
 				}
-				results[j] = hiddenTX
+				hiddenTXs[j] = hiddenTX
+				commitments[j] = commitment
+				randScalars[j] = randScalar
 			}
 		}(i, numCPUs)
 	}
 	wg.Wait()
-	return results
+	return hiddenTXs, commitments, randScalars
 }

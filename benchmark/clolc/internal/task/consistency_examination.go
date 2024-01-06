@@ -2,14 +2,18 @@ package task
 
 import (
 	"fmt"
+	"runtime"
+	"sync"
 	"time"
 
 	"go.dedis.ch/kyber/v3"
 
 	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/audchain"
 	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/localchain"
+	"github.com/auti-project/auti/benchmark/clolc/internal/blockchain/orgchain"
 	"github.com/auti-project/auti/benchmark/timecounter"
 	"github.com/auti-project/auti/internal/clolc/organization"
+	"github.com/auti-project/auti/internal/clolc/transaction"
 	"github.com/auti-project/auti/internal/constants"
 	"github.com/auti-project/auti/internal/crypto"
 )
@@ -23,7 +27,7 @@ func CEAccumulateCommitment(numOrganizations, iterations int) error {
 		if err != nil {
 			return err
 		}
-		dummyTXs := localchain.DummyHiddenTXWithCounterPartyID(organizations[1].ID, constants.MaxNumTXInEpoch)
+		dummyTXs, _, _ := localchain.DummyHiddenTXWithCounterPartyID(organizations[1].ID, constants.MaxNumTXInEpoch)
 		startTime := time.Now()
 		if _, err = auditors[0].AccumulateCommitments(organizations[0].ID, dummyTXs); err != nil {
 			return err
@@ -224,6 +228,60 @@ func CECheck(iterations int) error {
 		_ = auditors[0].CheckResultConsistency(
 			randPoints[0], randPoints[1], randPoints[2], randPoints[3],
 		)
+		elapsed := time.Since(startTime)
+		timecounter.Print(elapsed)
+	}
+	fmt.Println()
+	return nil
+}
+
+func CEBatchConsistencyExamination(iterations, numbRoutines int) error {
+	fmt.Println("[CLOLC-CE] Batch consistency examination")
+	if numbRoutines <= 0 {
+		numbRoutines = runtime.NumCPU()
+	}
+	for iter := 0; iter < iterations; iter++ {
+		fmt.Printf("Num iter: %d, Num routines: %d\n", iterations, numbRoutines)
+		// generate dummy data
+		com, auditors, organizations := generateEntities(256)
+		publicKeyMap, err := com.InitializeEpoch(auditors, organizations)
+		if err != nil {
+			return err
+		}
+		dummyOrgPlainTXs := orgchain.DummyPlainTransactions(255)
+		dummyLocalHiddenTXLists := make([][]*transaction.LocalHidden, 255)
+		dummyCommitmentRandScalars := make([][]kyber.Scalar, 255)
+		for i := 0; i < 255; i++ {
+			dummyLocalHiddenTXLists[i], _, dummyCommitmentRandScalars[i] = localchain.DummyHiddenTXWithCounterPartyID(
+				organizations[i+1].ID, constants.MaxNumTXInEpoch,
+			)
+		}
+		runtime.GC()
+		startTime := time.Now()
+		results := make([]*transaction.AudPlain, 255)
+		var wg sync.WaitGroup
+		for i := 0; i < numbRoutines; i++ {
+			wg.Add(1)
+			go func(idx, step int) {
+				defer wg.Done()
+				for j := idx; j < 255; j += step {
+					results[j], err = auditors[0].ConsistencyExamination(
+						organizations[0].ID,
+						organizations[j+1].ID,
+						organizations[0].EpochID,
+						dummyOrgPlainTXs[j], dummyLocalHiddenTXLists[j],
+						auditors[0].GetEpochTXRandomness(organizations[0].ID, organizations[j+1].ID),
+						dummyCommitmentRandScalars[j], publicKeyMap,
+					)
+				}
+			}(i, numbRoutines)
+		}
+		wg.Wait()
+		for i := 0; i < 255; i++ {
+			if results[i] == nil {
+				return fmt.Errorf("result %d is nil", i)
+			}
+		}
 		elapsed := time.Since(startTime)
 		timecounter.Print(elapsed)
 	}
