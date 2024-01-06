@@ -82,7 +82,14 @@ func main() {
 			err = bf.RVVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
 		case ProcessRVVerifyAuditPairResult:
 			err = bf.RVVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
+		case ProcessRVDecryptParallel:
+			err = bf.RVBatchDecrypt(*numIterPtr, *numRoutinesPtr)
+		case ProcessRVCheckOrgAndAudPairParallel:
+			err = bf.RVBatchCheckOrgAndAudPair(*numIterPtr, *numRoutinesPtr)
+		case ProcessRVCheckAudPairParallel:
+			err = bf.RVBatchCheckAudPair(*numIterPtr, *numRoutinesPtr)
 		}
+
 	default:
 		log.Fatalf("Error: %v", "Invalid phase")
 	}

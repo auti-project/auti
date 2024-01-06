@@ -338,3 +338,80 @@ func (c *Committee) VerifyAuditPairResult(
 	rightPoint.Add(rightPoint, auditor.EpochIDHashPoint(audEpochID2))
 	return leftPoint.Equal(rightPoint), nil
 }
+
+// For benchmark only
+
+func (c *Committee) DecryptAudTX(
+	privateKey crypto.TypePrivateKey, tx *transaction.AudOnChain,
+) (pointB, pointC, pointD kyber.Point, err error) {
+	var cipherBBytes, cipherCBytes, cipherDBytes []byte
+	cipherBBytes, err = hex.DecodeString(tx.CipherB)
+	if err != nil {
+		return
+	}
+	cipherCBytes, err = hex.DecodeString(tx.CipherC)
+	if err != nil {
+		return
+	}
+	cipherDBytes, err = hex.DecodeString(tx.CipherD)
+	if err != nil {
+		return
+	}
+	pointB, err = crypto.DecryptPoint(privateKey, cipherBBytes)
+	if err != nil {
+		return
+	}
+	pointC, err = crypto.DecryptPoint(privateKey, cipherCBytes)
+	if err != nil {
+		return
+	}
+	pointD, err = crypto.DecryptPoint(privateKey, cipherDBytes)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (c *Committee) CheckOrgAndAudPair(
+	orgID organization.TypeID,
+	audID auditor.TypeID,
+	orgChainTX *transaction.OrgOnChain,
+	pointB, pointD kyber.Point,
+) (bool, error) {
+	accBytes, err := hex.DecodeString(orgChainTX.Accumulator)
+	if err != nil {
+		return false, err
+	}
+	pointAcc := crypto.KyberSuite.Point()
+	if err = pointAcc.UnmarshalBinary(accBytes); err != nil {
+		return false, err
+	}
+	leftPoint := crypto.KyberSuite.Point().Add(pointAcc, pointB)
+	leftPoint.Add(leftPoint, pointD)
+	orgEpochID := c.epochOrgIDMap[orgID]
+	rightPoint := organization.EpochIDHashPoint(orgEpochID)
+	audEpochID := c.epochAuditorIDMap[audID]
+	rightPoint.Add(rightPoint, auditor.EpochIDHashPoint(audEpochID))
+	return leftPoint.Equal(rightPoint), nil
+}
+
+func (c *Committee) CheckAuditPair(
+	audID1 auditor.TypeID,
+	audID2 auditor.TypeID,
+	pointC1, pointC2, pointD1, pointD2 kyber.Point,
+) (bool, error) {
+	leftPoint := crypto.KyberSuite.Point().Add(pointD1, pointC1)
+	leftPoint.Add(leftPoint, pointD2)
+	leftPoint.Add(leftPoint, pointC2)
+	audEpochID1, ok := c.epochAuditorIDMap[audID1]
+	if !ok {
+		return false, errors.New(string("epoch ID not found, id: " + audID1))
+	}
+	audEpochID2, ok := c.epochAuditorIDMap[audID2]
+	if !ok {
+		return false, errors.New(string("epoch ID not found, id: " + audID2))
+	}
+	rightPoint := auditor.EpochIDHashPoint(audEpochID1)
+	rightPoint.Add(rightPoint, auditor.EpochIDHashPoint(audEpochID2))
+	return leftPoint.Equal(rightPoint), nil
+}

@@ -33,8 +33,11 @@ const (
 	ProcessCEConsistencyExaminationPartOneParallel = "part_one_parallel"
 	ProcessCEConsistencyExaminationPartTwoParallel = "part_two_parallel"
 
-	ProcessRVVerifyOrgAndAudResult = "org_aud"
-	ProcessRVVerifyAuditPairResult = "aud_pair"
+	ProcessRVVerifyOrgAndAudResult      = "org_aud"
+	ProcessRVVerifyAuditPairResult      = "aud_pair"
+	ProcessRVDecryptParallel            = "decrypt_parallel"
+	ProcessRVCheckOrgAndAudPairParallel = "check_org_aud_pair_parallel"
+	ProcessRVCheckAudPairParallel       = "check_aud_pair_parallel"
 )
 
 var PhaseProcessMap = map[string][]string{
@@ -71,6 +74,9 @@ var PhaseProcessMap = map[string][]string{
 	PhaseResultVerification: {
 		ProcessRVVerifyOrgAndAudResult,
 		ProcessRVVerifyAuditPairResult,
+		ProcessRVDecryptParallel,
+		ProcessRVCheckOrgAndAudPairParallel,
+		ProcessRVCheckAudPairParallel,
 	},
 }
 
