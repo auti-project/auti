@@ -180,7 +180,10 @@ func RVBatchCheckAudPair(iterations, numRoutines int) error {
 			dummyPointD1List[i] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 			dummyPointD2List[i] = crypto.KyberSuite.Point().Pick(crypto.KyberSuite.RandomStream())
 		}
-		com, auditors, _ := generateEntities(2)
+		com, auditors, organizations := generateEntities(2)
+		if _, err := com.InitializeEpoch(auditors, organizations); err != nil {
+			return err
+		}
 		runtime.GC()
 		startTime := time.Now()
 		var wg sync.WaitGroup
