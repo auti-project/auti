@@ -122,7 +122,7 @@ func RVBatchCheckOrgAndAudPair(iterations, numRoutines int) error {
 	if numRoutines <= 0 {
 		numRoutines = runtime.NumCPU()
 	}
-	const numTXs = 255 * 256
+	const numTXs = 256
 	fmt.Println("[CLOLC-RV] Batch check org and aud pair")
 	for iter := 0; iter < iterations; iter++ {
 		fmt.Printf("Num iter: %d, Num routines: %d\n", iter, numRoutines)
