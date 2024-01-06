@@ -16,8 +16,8 @@ import (
 
 func RVVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 	fmt.Println("[CLOLC-RV] Verify org and aud result")
-	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
+		fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 		com, auditors, organizations := generateEntities(numOrganizations)
 		_, err := com.InitializeEpoch(auditors, organizations)
 		if err != nil {
@@ -49,8 +49,8 @@ func RVVerifyOrgAndAudResult(numOrganizations, iterations int) error {
 
 func RVVerifyAuditPairResult(numOrganizations, iterations int) error {
 	fmt.Println("[CLOLC-RV] Verify audit pair result")
-	fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 	for i := 0; i < iterations; i++ {
+		fmt.Printf("Num org %d, Num iter: %d\n", numOrganizations, iterations)
 		com, auditors, organizations := generateEntities(numOrganizations)
 		_, err := com.InitializeEpoch(auditors, organizations)
 		if err != nil {
