@@ -13,8 +13,6 @@ import (
 	"github.com/auti-project/auti/internal/crypto"
 )
 
-var sha256Func = sha256.New()
-
 type TypeID string
 type TypeEpochID []byte
 
@@ -280,7 +278,7 @@ func (a *Auditor) CheckResultConsistency(res, B, txRes, txB kyber.Point) bool {
 }
 
 func IDHashBytes(id TypeID) []byte {
-	defer sha256Func.Reset()
+	sha256Func := sha256.New()
 	sha256Func.Write([]byte(id))
 	return sha256Func.Sum(nil)
 }
@@ -298,7 +296,7 @@ func IDHashPoint(id TypeID) kyber.Point {
 }
 
 func EpochIDHashBytes(epochID TypeEpochID) []byte {
-	defer sha256Func.Reset()
+	sha256Func := sha256.New()
 	sha256Func.Write(epochID)
 	return sha256Func.Sum(nil)
 }
