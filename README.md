@@ -52,7 +52,7 @@ For additional details, see the paper on the [Cryptology ePrint Archive](https:/
 ## Important Notes on Benchmarking
 
 - Benchmark Execution:
-  To run any benchmark, you must first change directory into the corresponding script folder.
+  To run any benchmark, you must first change the directory into the corresponding script folder.
   For example:
     - For the **CLOLC** benchmarks, navigate to `benchmark/clolc/script` and then run the desired benchmark script.
     - For the **CLOSC** benchmarks, navigate to `benchmark/closc/script` and then run the appropriate benchmark script.

@@ -99,9 +99,6 @@ func (s *SmartContract) ReadTX(ctx contractapi.TransactionContextInterface,
 	if tx == nil {
 		return nil, fmt.Errorf("the transaction %s does not exist", key)
 	}
-	if err != nil {
-		return nil, err
-	}
 	var txObj Transaction
 	err = json.Unmarshal(tx, &txObj)
 	if err != nil {

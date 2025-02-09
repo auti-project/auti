@@ -77,7 +77,7 @@ func (c *Committee) InitializeEpoch(
 
 	// IN.4: publish the public keys (we just return the list of public keys at the end)
 
-	// IN.5: forward the transaction randomnesses,auditor randomnesses and secret keys to the auditors
+	// IN.5: forward the transaction randomnesses, auditor randomnesses and secret keys to the auditors
 	// We need to forward: {r_{i, j, k}}, {r_z}, and {sk_i}
 	for _, aud := range auditors {
 		err := c.ForwardEpochAuditorParameters(aud)
