@@ -36,18 +36,18 @@ For additional details, see the paper on the [Cryptology ePrint Archive](https:/
 
 ## Project Structure
 
-- `benchmark/`
-  Contains benchmark scripts for performance evaluation.
-    - `clolc/`: Benchmarks for CLOLC protocol.
-    - `closc/`: Benchmarks for CLOSC protocol.
-- `internal/`
-  Contains the core implementation of the protocol functionalities.
-- `scripts/`
-  Contains the script for setting up the environment.
-- `LICENSE`
-  This project is licensed under the MIT License.
-- `README.md`
-  This file.
+```text
+.
+├── benchmark
+│   ├── clolc           # CLOLC: benchmark contracts, internal modules, and scripts (e.g., scripts for initialization, transaction recording, consistency examination, result verification)
+│   ├── closc           # CLOSC: similar structure as clolc for corresponding benchmarks
+│   └── timecounter     # Utility for time counting
+├── internal            # Core modules (auditor, committee, organization, transaction, crypto, constants) for both CLOLC and CLOSC
+├── script              # Setup scripts (e.g., setup.sh)
+├── LICENSE
+├── README.md
+└── go.mod, go.sum
+```
 
 ## Important Notes on Benchmarking
 
