@@ -108,9 +108,6 @@ func SubmitTX(numTXs int) ([]string, error) {
 			log.Printf("Retrying in %v seconds\n", constants.SubmitTXRetryDelaySeconds)
 			time.Sleep(constants.SubmitTXRetryDelaySeconds * time.Second)
 		}
-		if err != nil {
-			return nil, err
-		}
 	}
 	elapsedTime := time.Since(startTime)
 	timecounter.Print(elapsedTime)

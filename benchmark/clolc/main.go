@@ -5,7 +5,7 @@ import (
 	"log"
 
 	. "github.com/auti-project/auti/benchmark/clolc/internal/flag"
-	bf "github.com/auti-project/auti/benchmark/clolc/internal/task"
+	"github.com/auti-project/auti/benchmark/clolc/internal/task"
 )
 
 func main() {
@@ -22,72 +22,72 @@ func main() {
 	case PhaseInitialization:
 		switch *benchProcessPtr {
 		case ProcessINDefault:
-			err = bf.INDefault(*numOrgPtr, *numIterPtr)
+			err = task.INDefault(*numOrgPtr, *numIterPtr)
 		}
 	case PhaseTransactionRecord:
 		switch *benchProcessPtr {
 		case ProcessTRLocalChainSubmit:
-			err = bf.TRLocalSubmitTX(*numTXsPtr, *numIterPtr)
+			err = task.TRLocalSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainPrepare:
-			err = bf.TRLocalPrepareTX(*numTXsPtr)
+			err = task.TRLocalPrepareTX(*numTXsPtr)
 		case ProcessTRLocalChainRead:
-			err = bf.TRLocalReadTX(*numTXsPtr, *numIterPtr)
+			err = task.TRLocalReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTRLocalChainReadAll:
-			err = bf.TRLocalReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = task.TRLocalReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainSubmit:
-			err = bf.TROrgSubmitTX(*numTXsPtr, *numIterPtr)
+			err = task.TROrgSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainPrepare:
-			err = bf.TROrgPrepareTX(*numTXsPtr)
+			err = task.TROrgPrepareTX(*numTXsPtr)
 		case ProcessTROrgChainRead:
-			err = bf.TROrgReadTX(*numTXsPtr, *numIterPtr)
+			err = task.TROrgReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessTROrgChainReadAll:
-			err = bf.TROrgReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = task.TROrgReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessTRCommitment:
-			err = bf.TRCommitment(*numTXsPtr, *numIterPtr)
+			err = task.TRCommitment(*numTXsPtr, *numIterPtr)
 		case ProcessTRAccumulate:
-			err = bf.TRAccumulate(*numTXsPtr, *numIterPtr)
+			err = task.TRAccumulate(*numTXsPtr, *numIterPtr)
 		}
 	case PhaseConsistencyExamination:
 		switch *benchProcessPtr {
 		case ProcessCEAccumulateCommitment:
-			err = bf.CEAccumulateCommitment(*numOrgPtr, *numIterPtr)
+			err = task.CEAccumulateCommitment(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeB:
-			err = bf.CEComputeB(*numOrgPtr, *numIterPtr)
+			err = task.CEComputeB(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeC:
-			err = bf.CEComputeC(*numOrgPtr, *numIterPtr)
+			err = task.CEComputeC(*numOrgPtr, *numIterPtr)
 		case ProcessCEComputeD:
-			err = bf.CEComputeD(*numOrgPtr, *numIterPtr)
+			err = task.CEComputeD(*numOrgPtr, *numIterPtr)
 		case ProcessCEEncrypt:
-			err = bf.CEEncrypt(*numOrgPtr, *numIterPtr)
+			err = task.CEEncrypt(*numOrgPtr, *numIterPtr)
 		case ProcessCEDecrypt:
-			err = bf.CEDecrypt(*numIterPtr)
+			err = task.CEDecrypt(*numIterPtr)
 		case ProcessCEAudChainSubmit:
-			err = bf.CEAudSubmitTX(*numTXsPtr, *numIterPtr)
+			err = task.CEAudSubmitTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainPrepare:
-			err = bf.CEAudPrepareTX(*numTXsPtr)
+			err = task.CEAudPrepareTX(*numTXsPtr)
 		case ProcessCEAudChainRead:
-			err = bf.CEAudReadTX(*numTXsPtr, *numIterPtr)
+			err = task.CEAudReadTX(*numTXsPtr, *numIterPtr)
 		case ProcessCEAudChainReadAll:
-			err = bf.CEAudReadAllTXs(*numTXsPtr, *numIterPtr)
+			err = task.CEAudReadAllTXs(*numTXsPtr, *numIterPtr)
 		case ProcessCECheck:
-			err = bf.CECheck(*numIterPtr)
+			err = task.CECheck(*numIterPtr)
 		case ProcessCEConsistencyExaminationPartOneParallel:
-			err = bf.CEBatchConsistencyExaminationPartOne(*numIterPtr, *numRoutinesPtr)
+			err = task.CEBatchConsistencyExaminationPartOne(*numIterPtr, *numRoutinesPtr)
 		case ProcessCEConsistencyExaminationPartTwoParallel:
-			err = bf.CEBatchConsistencyExaminationPartTwo(*numIterPtr, *numRoutinesPtr)
+			err = task.CEBatchConsistencyExaminationPartTwo(*numIterPtr, *numRoutinesPtr)
 		}
 	case PhaseResultVerification:
 		switch *benchProcessPtr {
 		case ProcessRVVerifyOrgAndAudResult:
-			err = bf.RVVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
+			err = task.RVVerifyOrgAndAudResult(*numOrgPtr, *numIterPtr)
 		case ProcessRVVerifyAuditPairResult:
-			err = bf.RVVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
+			err = task.RVVerifyAuditPairResult(*numOrgPtr, *numIterPtr)
 		case ProcessRVDecryptParallel:
-			err = bf.RVBatchDecrypt(*numIterPtr, *numRoutinesPtr)
+			err = task.RVBatchDecrypt(*numIterPtr, *numRoutinesPtr)
 		case ProcessRVCheckOrgAndAudPairParallel:
-			err = bf.RVBatchCheckOrgAndAudPair(*numIterPtr, *numRoutinesPtr)
+			err = task.RVBatchCheckOrgAndAudPair(*numIterPtr, *numRoutinesPtr)
 		case ProcessRVCheckAudPairParallel:
-			err = bf.RVBatchCheckAudPair(*numIterPtr, *numRoutinesPtr)
+			err = task.RVBatchCheckAudPair(*numIterPtr, *numRoutinesPtr)
 		}
 
 	default:

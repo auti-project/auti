@@ -28,23 +28,23 @@ func dummyDataBlocks(numBlocks int) []mt.DataBlock {
 func TestGenerateMerkleProofs(t *testing.T) {
 	tests := []struct {
 		name          string
-		numdataBlocks int
+		numDataBlocks int
 		wantErr       bool
 	}{
 		{
 			name:          "1",
-			numdataBlocks: 1,
+			numDataBlocks: 1,
 			wantErr:       true,
 		},
 		{
 			name:          "4",
-			numdataBlocks: 4,
+			numDataBlocks: 4,
 			wantErr:       false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dummyBlocks := dummyDataBlocks(tt.numdataBlocks)
+			dummyBlocks := dummyDataBlocks(tt.numDataBlocks)
 			proofs, root, err := GenerateMerkleProofs(dummyBlocks)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateMerkleProofs() error = %v, wantErr %v", err, tt.wantErr)
