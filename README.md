@@ -63,7 +63,7 @@ For additional details, see the paper on the [Cryptology ePrint Archive](https:/
 - Environment Recommendation:
   For reproducible performance and to fully leverage our benchmarks, we recommend using Linux (Ubuntu) machine.
 
-# Setup
+## Setup
 
 Before running any benchmarks or tests, install the necessary dependencies by running the following script:
 
@@ -71,15 +71,15 @@ Before running any benchmarks or tests, install the necessary dependencies by ru
 ./script/setup.sh
 ```
 
-# Contributing
+## Contributing
 
 Contributions, suggestions, and bug reports are welcome! Please open an issue or submit a pull request.
 
-# License
+## License
 
 This project is licensed under the MIT License.
 
-# Contact
+## Contact
 
 For further inquiries, please reach out to:
 
